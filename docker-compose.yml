@@ -19,15 +19,23 @@ services:
       timeout: 5s
       retries: 5
   fastapi:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: asdfrewqha/donormate:latest
     container_name: fastapi-container
+    env_file:
+      - .env
     depends_on:
       postgres:
         condition: service_healthy
     ports:
       - "8000:8000"
-
+    restart: unless-stopped
+  aiobot:
+    image: asdfrewqha/donormate_bot:latest
+    container_name: aiobot-container
+    env_file:
+      - .env
+    depends_on:
+      - fastapi
+    
 volumes:
   postgres_data:

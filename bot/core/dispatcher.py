@@ -3,7 +3,7 @@ from aiogram.client.bot import DefaultBotProperties
 from aiogram.fsm.storage.memory import MemoryStorage
 
 from handlers import router
-from backend.app.core.config import BOT_TOKEN
+from core.config import BOT_TOKEN
 
 default_props = DefaultBotProperties(parse_mode="HTML")
 
