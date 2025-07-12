@@ -1,2 +1,3 @@
 aiogram
 aio_pika
+dotenv
