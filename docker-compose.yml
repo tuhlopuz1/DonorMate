@@ -18,16 +18,34 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - bot_net
   fastapi:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: asdfrewqha/donormate:latest
     container_name: fastapi-container
+    env_file:
+      - .env
     depends_on:
       postgres:
         condition: service_healthy
     ports:
       - "8000:8000"
-
+    restart: unless-stopped
+    networks:
+      - bot_net
+  aiobot:
+    image: asdfrewqha/donormate_bot:latest
+    container_name: aiobot-container
+    env_file:
+      - .env
+    depends_on:
+      - fastapi
+    networks:
+      - bot_net
+    
 volumes:
   postgres_data:
+
+networks:
+  bot_net:
+    driver: bridge
