@@ -4,12 +4,13 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import App from "./App";
 import About from "./pages/About"
 import "./index.css";
+import WelcomePage from "./pages/Welcome";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<App />} />
+        <Route path="/" element={<WelcomePage />} />
         <Route path="/about" element={<About />} />
       </Routes>
     </BrowserRouter>
