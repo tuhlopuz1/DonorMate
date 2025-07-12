@@ -1,5 +1,5 @@
 from aiogram.types import KeyboardButton, ReplyKeyboardMarkup, WebAppInfo
-from core.config import FRONTEND_URL
+from bot.core.config import FRONTEND_URL
 
 miniapp_keyboard = ReplyKeyboardMarkup(
     keyboard=[
