@@ -19,6 +19,16 @@ declare global {
 export default function App() {
   const [user, setUser] = useState<TelegramUser | null>(null)
 
+  const mockUser: TelegramUser = {
+    id: 123456789,
+    first_name: "Иван",
+    last_name: "Иванов",
+    username: "ivan_ivanov",
+    language_code: "ru",
+    photo_url: "https://t.me/i/userpic/320/Fi3tevnNM1S7O78KOWi9OhcruJjouym2VjWrc0jWXJoX2bceYivJAWMirAdpbkWr.svg",
+    is_premium: false,
+  };
+
   useEffect(() => {
     console.log(123123123)
     const tg = window.Telegram?.WebApp
@@ -29,6 +39,9 @@ export default function App() {
     if (initDataUnsafe?.user) {
       setUser(initDataUnsafe.user)
       console.log(user)
+    }
+    else {
+        setUser(mockUser)
     }
   }, [])
 
