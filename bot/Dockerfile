@@ -10,4 +10,5 @@ RUN apt-get update && apt-get upgrade -y && \
 
 COPY . .
 
+CMD ['ls']
 CMD ["python", "bot.py"]
