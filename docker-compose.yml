@@ -18,6 +18,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - bot_net
   fastapi:
     image: asdfrewqha/donormate:latest
     container_name: fastapi-container
@@ -29,6 +31,8 @@ services:
     ports:
       - "8000:8000"
     restart: unless-stopped
+    networks:
+      - bot_net
   aiobot:
     image: asdfrewqha/donormate_bot:latest
     container_name: aiobot-container
@@ -36,6 +40,12 @@ services:
       - .env
     depends_on:
       - fastapi
+    networks:
+      - bot_net
     
 volumes:
   postgres_data:
+
+networks:
+  bot_net:
+    driver: bridge
