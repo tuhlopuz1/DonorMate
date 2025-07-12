@@ -1,6 +1,6 @@
 from aiogram import types, Router
 from aiogram.filters import Command
-from bot.core.keyboards import miniapp_keyboard
+from core.keyboards import miniapp_keyboard
 
 router = Router()
 

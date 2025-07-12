@@ -2,8 +2,8 @@ from aiogram import Bot, Dispatcher
 from aiogram.client.bot import DefaultBotProperties
 from aiogram.fsm.storage.memory import MemoryStorage
 
-from bot.core.handlers import router
-from bot.core.config import BOT_TOKEN
+from core.handlers import router
+from core.config import BOT_TOKEN
 
 default_props = DefaultBotProperties(parse_mode="HTML")
 

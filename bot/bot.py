@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from bot.core.dispatcher import dp, bot
+from core.dispatcher import dp, bot
 from aiogram.types import BotCommand
 
 logger = logging.getLogger(__name__)
