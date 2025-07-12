@@ -1,0 +1,7 @@
+fastapi==0.115.10
+pydantic==2.10.6
+uvicorn==0.34.0
+SQLAlchemy[asyncio]==2.0.41
+asyncpg==0.29.0
+dotenv
+inflect
