@@ -16,7 +16,7 @@ jobs:
             BOT_TOKEN: "${{ secrets.TELEGRAM_BOT_TOKEN }}"
             USER_IDS: "${{ secrets.TELEGRAM_CHAT_ID }}"
           run: |
-            MESSAGE="Deploy starting:%0ARepo: $GITHUB_REPOSITORY%0ABranch: $GITHUB_REF_NAME%0AAuthor: $GITHUB_ACTOR"
+            MESSAGE="Deploy starting:%0ARepo: $GITHUB_REPOSITORY%0ABranch: $GITHUB_REF_NAME%0ACommit: $GITHUB_SHA%0AAuthor: $GITHUB_ACTOR%0AURL: https://github.com/$GITHUB_REPOSITORY/commit/$GITHUB_SHA"
             for USER_ID in $USER_IDS; do
                 curl -s -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
                 -d chat_id="$USER_ID" \
