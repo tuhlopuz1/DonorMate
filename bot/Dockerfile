@@ -10,6 +10,4 @@ RUN apt-get update && apt-get upgrade -y && \
 
 COPY . .
 
-EXPOSE 8000
-
-CMD ["python" "bot.py"]
+CMD ["python", "bot.py"]
