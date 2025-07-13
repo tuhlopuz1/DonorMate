@@ -40,7 +40,7 @@ class Information(Base):
     )
     fullname: Mapped[str] = mapped_column(String)
     surname: Mapped[str] = mapped_column(String)
-    patronymic: Mapped[str] = mapped_column(String)
+    patronymic: Mapped[str] = mapped_column(String, nullable=True)
     birth_date: Mapped[datetime] = mapped_column(DateTime)
     gender: Mapped[Gender] = mapped_column(Enum(Gender), default=Gender.UNDEFINED)
     university: Mapped[str] = mapped_column(String)

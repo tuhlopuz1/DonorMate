@@ -38,7 +38,8 @@ async def start_rabbitmq_listener():
 
 async def start_bot():
     await bot.set_my_commands([
-        BotCommand(command="start", description="Запустить мини-приложение")
+        BotCommand(command="start", description="Запустить мини-приложение"),
+        BotCommand(command="menu", description="Открыть меню")
     ])
     logger.info("Starting bot polling")
     await dp.start_polling(bot)

@@ -1,4 +1,4 @@
-from aiogram.types import WebAppInfo, InlineKeyboardButton, InlineKeyboardMarkup
+from aiogram.types import WebAppInfo, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup, KeyboardButton
 from core.config import FRONTEND_URL
 
 
@@ -27,5 +27,28 @@ menu_register_keyboard = InlineKeyboardMarkup(
                 callback_data="register",
             )
         ],
+    ]
+)
+
+gender_keyboard = ReplyKeyboardMarkup(
+    keyboard=[
+        [KeyboardButton(text="Мужской"), KeyboardButton(text="Женский")],
+        [KeyboardButton(text="Не указывать")],
+    ],
+    resize_keyboard=True,
+    one_time_keyboard=True
+)
+
+yes_no_keyboard = ReplyKeyboardMarkup(
+    keyboard=[
+        [KeyboardButton(text="Да"), KeyboardButton(text="Нет")]
+    ]
+)
+
+donor_earlier_kboard = ReplyKeyboardMarkup(
+    keyboard=[
+        [KeyboardButton("Да, был(а)")],
+        [KeyboardButton("Был(а) однажды")],
+        [KeyboardButton("Не был(а)")]
     ]
 )

@@ -39,7 +39,7 @@ class TokensResponse(BaseModel):
 class PostRegisterPayload(BaseModel):
     fullname: str
     surname: str
-    patronymic: str
+    patronymic: Optional[str] = None
     birth_date: datetime
     gender: Gender
     university: str
