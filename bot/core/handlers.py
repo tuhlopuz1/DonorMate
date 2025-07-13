@@ -176,9 +176,9 @@ async def confirm_registration(message: Message, state: FSMContext):
         data = await state.get_data()
         init_data = create_init_data(message.chat.id, message.chat.username)
         async with ClientSession() as session:
-            response = await session.post(f"{BACKEND_URL}/get-token", json={"InitData": init_data})
+            response = await session.post(f"{BACKEND_URL}/get-token", json={"InitData": str(init_data)})
             tokens = await response.json()
-            
+
             await session.post(
                 f"{BACKEND_URL}/post-register",
                 json=data,
