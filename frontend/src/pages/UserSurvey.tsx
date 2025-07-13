@@ -1,6 +1,12 @@
 import logo from '../assets/MEPHI_logo.png';
+import MedotvodModal from '../components/layouts/Medotvod';
+import { useState } from 'react';
 
 export default function UserSurvey() {
+
+  const [medotvod, setMedotvod] = useState<'yes' | 'no' | ''>('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   return (
     <div className="flex flex-col items-center min-h-screen bg-gradient-to-br from-rose-100 via-white to-sky-100 px-6 py-12">
       {/* Логотип */}
@@ -69,6 +75,47 @@ export default function UserSurvey() {
           <option>Да</option>
         </select>
 
+                <fieldset className="border border-blue-300 rounded-xl p-4 shadow-sm">
+          <legend className="text-blue-700 font-semibold mb-2">Есть ли у вас медицинский отвод?</legend>
+          <div className="flex space-x-6">
+            <label className="flex items-center space-x-2 cursor-pointer">
+              <input
+                type="radio"
+                name="medotvod"
+                value="yes"
+                checked={medotvod === 'yes'}
+                onChange={() => setMedotvod('yes')}
+                className="w-5 h-5 text-blue-600 focus:ring-blue-400"
+              />
+              <span>Да</span>
+            </label>
+
+            <label className="flex items-center space-x-2 cursor-pointer">
+              <input
+                type="radio"
+                name="medotvod"
+                value="no"
+                checked={medotvod === 'no'}
+                onChange={() => setMedotvod('no')}
+                className="w-5 h-5 text-blue-600 focus:ring-blue-400"
+              />
+              <span>Нет</span>
+            </label>
+          </div>
+
+          {/* Кнопка открытия модального, если выбран "Да" */}
+          {medotvod === 'yes' && (
+            <button
+              type="button"
+              onClick={() => setIsModalOpen(true)}
+              className="mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-md transition"
+            >
+              Прикрепить медотвод
+            </button>
+          )}
+        </fieldset>
+
+
         {/* Сдавал ли кровь ранее */}
         <select className="w-full px-4 py-3 rounded-xl border border-blue-300 text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-sm">
           <option disabled selected>Сдавали ли вы кровь раньше?</option>
@@ -85,6 +132,16 @@ export default function UserSurvey() {
           Отправить анкету
         </button>
       </form>
+      {isModalOpen && (
+        <MedotvodModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onSubmit={() => {
+            // здесь логика отправки медотвода, например
+            setIsModalOpen(false);
+          }}
+        />
+      )}
     </div>
   );
 }
