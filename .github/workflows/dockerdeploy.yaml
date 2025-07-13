@@ -140,6 +140,7 @@ jobs:
               cd /root/fastapi
 
               docker container rm -f fastapi-container || true
+              docker container rm -f aiobot-container || true
               docker container rm -f nginx-container || true
 
               docker pull asdfrewqha/donormate:latest
