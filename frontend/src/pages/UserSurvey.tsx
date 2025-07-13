@@ -1,4 +1,4 @@
-import logo from '../assets/MEPHI_logo.png';
+import logo from '../assets/donor_logo.png'
 import MedotvodModal from '../components/layouts/Medotvod';
 import { useState } from 'react';
 
