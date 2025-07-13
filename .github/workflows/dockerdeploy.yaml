@@ -98,7 +98,7 @@ jobs:
         
         - name: Archive docker-compose.yml and nginx.conf
           run: |
-            ls -la config  # можно удалить позже
+            ls
             tar -czf deploy.tar.gz -C config docker-compose.yml nginx.conf
 
         - name: Copy archive to server
