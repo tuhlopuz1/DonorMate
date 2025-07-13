@@ -83,7 +83,7 @@ async def input_birthdate(message: Message, state: FSMContext):
         await message.answer("Неверный формат. Введите дату в формате ДД.ММ.ГГГГ:")
         return
 
-    await state.update_data(birth_date=birth_date)
+    await state.update_data(birth_date=str(birth_date.isoformat()))
     await message.answer("Ваш пол?", reply_markup=gender_keyboard)
     await state.set_state(RegisterStates.GENDER)
 
