@@ -6,7 +6,7 @@ from enum import Enum
 
 class Role(Enum):
     DONOR = "DONOR"
-    ADMON = "ADMIN"
+    ADMIN = "ADMIN"
 
 
 class Gender(Enum):
@@ -69,3 +69,10 @@ class ProfileResponse(BaseModel):
     donor_earlier: Optional[DonorEarlier] = None
 
     model_config = {"from_attributes": True}
+
+
+class EventPayload(BaseModel):
+    name: Optional[str] = None
+    max_donors: int
+    start_date: datetime
+    end_date: datetime

@@ -32,6 +32,11 @@ class User(Base):
         cascade="all, delete-orphan"
     )
 
+    registrations_list: Mapped[list["Registration"]] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan"
+    )
+
 
 class Information(Base):
     id: Mapped[int] = mapped_column(
@@ -41,7 +46,7 @@ class Information(Base):
     )
     fullname: Mapped[str] = mapped_column(String)
     surname: Mapped[str] = mapped_column(String)
-    patronymic: Mapped[str] = mapped_column(String, nullable=True)
+    patronymic: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     birth_date: Mapped[datetime] = mapped_column(DateTime)
     gender: Mapped[Gender] = mapped_column(Enum(Gender), default=Gender.UNDEFINED)
     university: Mapped[str] = mapped_column(String)
@@ -56,8 +61,27 @@ class Information(Base):
 
 class Event(Base):
     id: Mapped[UUID] = mapped_column(Uuid, index=True, primary_key=True, default=uuid4)
-    name: Mapped[str] = mapped_column(String, nullable=True)
+    name: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     max_donors: Mapped[int] = mapped_column(Integer, nullable=False)
     registred: Mapped[int] = mapped_column(Integer, default=0)
     start_date: Mapped[datetime] = mapped_column(DateTime)
+    end_date: Mapped[datetime] = mapped_column(DateTime)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
+
+    registrations_list: Mapped[list["Registration"]] = relationship(
+        back_populates="event",
+        cascade="all, delete-orphan"
+    )
+
+
+class Registration(Base):
+    id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
+    user_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("users.id", ondelete="CASCADE"))
+    event_id: Mapped[UUID] = mapped_column(Uuid, ForeignKey("events.id", ondelete="CASCADE"))
+    opened_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
+    closed: Mapped[bool] = mapped_column(Boolean, default=False)
+    closed_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    notification: Mapped[bool] = mapped_column(Boolean, default=True)
+
+    user: Mapped["User"] = relationship(back_populates="registrations_list")
+    event: Mapped["Event"] = relationship(back_populates="registrations_list")
