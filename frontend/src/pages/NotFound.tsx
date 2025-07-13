@@ -1,6 +1,8 @@
 // src/pages/NotFound.tsx
 import React from 'react';
 import { Link } from 'react-router-dom';
+import BottomNavBar from '../components/layouts/NavBar';
+import { Bot } from 'lucide-react';
 
 const NotFound: React.FC = () => {
   return (
@@ -14,6 +16,7 @@ const NotFound: React.FC = () => {
       >
         На главную
       </Link>
+      <BottomNavBar />
     </div>
   );
 };
