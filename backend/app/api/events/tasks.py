@@ -1,10 +1,8 @@
 from app.core.celery_app import app
+from app.core.config import RABBITMQ_URL
 import asyncio
 import aio_pika
 import json
-import os
-
-RABBITMQ_URL = os.environ.get("RABBITMQ_URL", "amqp://guest:guest@localhost:5672/")
 
 
 async def publish_message(message: dict):
