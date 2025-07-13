@@ -3,12 +3,21 @@ import React, { useState } from 'react';
 type MedotvodModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (file: File | null, comment: string) => void;
+  onSubmit: (data: {
+    file: File | null;
+    comment: string;
+    startDate: string;
+    endDate: string;
+    doctorContact: string;
+  }) => void;
 };
 
 export default function MedotvodModal({ isOpen, onClose, onSubmit }: MedotvodModalProps) {
   const [file, setFile] = useState<File | null>(null);
   const [comment, setComment] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [doctorContact, setDoctorContact] = useState('');
 
   if (!isOpen) return null;
 
@@ -20,7 +29,16 @@ export default function MedotvodModal({ isOpen, onClose, onSubmit }: MedotvodMod
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    onSubmit(file, comment);
+    if (!file) {
+      alert('Пожалуйста, загрузите документ с медицинским отводом.');
+      return;
+    }
+    if (!startDate) {
+      alert('Пожалуйста, укажите дату начала медотвода.');
+      return;
+    }
+    // endDate может быть необязательной, если медотвод бессрочный
+    onSubmit({ file, comment, startDate, endDate, doctorContact });
   }
 
   return (
@@ -37,7 +55,7 @@ export default function MedotvodModal({ isOpen, onClose, onSubmit }: MedotvodMod
 
         <form onSubmit={handleSubmit} className="flex flex-col space-y-5">
           <label className="flex flex-col text-gray-700 font-medium">
-            Загрузите документ (PDF, JPG, PNG)
+            Загрузите документ (PDF, JPG, PNG) *
             <input
               type="file"
               accept=".pdf,image/jpeg,image/png"
@@ -45,6 +63,41 @@ export default function MedotvodModal({ isOpen, onClose, onSubmit }: MedotvodMod
               className="mt-2 p-2 border border-gray-300 rounded-lg cursor-pointer
                 focus:outline-none focus:ring-2 focus:ring-blue-400"
               required
+            />
+          </label>
+
+          <label className="flex flex-col text-gray-700 font-medium">
+            Дата начала медотвода *
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="mt-2 p-2 border border-gray-300 rounded-lg
+                focus:outline-none focus:ring-2 focus:ring-blue-400"
+              required
+            />
+          </label>
+
+          <label className="flex flex-col text-gray-700 font-medium">
+            Дата окончания медотвода (если известна)
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="mt-2 p-2 border border-gray-300 rounded-lg
+                focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+          </label>
+
+          <label className="flex flex-col text-gray-700 font-medium">
+            Контактные данные врача или медицинского учреждения
+            <input
+              type="text"
+              value={doctorContact}
+              onChange={(e) => setDoctorContact(e.target.value)}
+              placeholder="Телефон или email (необязательно)"
+              className="mt-2 p-2 border border-gray-300 rounded-lg
+                focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </label>
 

@@ -76,7 +76,7 @@ export default function UserSurvey() {
         </select>
 
                 <fieldset className="border border-blue-300 rounded-xl p-4 shadow-sm">
-          <legend className="text-blue-700 font-semibold mb-2">Есть ли у вас медицинский отвод?</legend>
+          <legend className="text-gray-700 mb-2">Есть ли у вас медицинский отвод?</legend>
           <div className="flex space-x-6">
             <label className="flex items-center space-x-2 cursor-pointer">
               <input
