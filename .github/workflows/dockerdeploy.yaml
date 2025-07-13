@@ -141,6 +141,18 @@ jobs:
 
               docker compose up -d --build --remove-orphans
 
+        - name: Show container logs on failure
+          if: failure()
+          uses: appleboy/ssh-action@v0.1.0
+          with:
+            host: ${{ secrets.SERVER_IP }}
+            username: ${{ secrets.SERVER_USER }}
+            key: ${{ secrets.SERVER_SSH_KEY }}
+            port: 2084
+            script: |
+              docker logs fastapi-container || echo "no fastapi logs"
+              docker logs nginx-container || echo "no nginx logs"
+
         - name: Telegram notification (success)
           if: success()
           env:
