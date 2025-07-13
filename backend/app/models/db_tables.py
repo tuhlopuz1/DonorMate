@@ -2,7 +2,7 @@ from uuid import UUID, uuid4
 from datetime import datetime
 import inflect
 from typing import Optional
-from sqlalchemy import String, DateTime, BigInteger, ForeignKey, Enum, Integer, Boolean
+from sqlalchemy import String, DateTime, BigInteger, ForeignKey, Enum, Integer, Boolean, Uuid
 from sqlalchemy.orm import declarative_base, declared_attr, Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 from app.models.schemas import Role, Gender, DonorEarlier
@@ -55,7 +55,7 @@ class Information(Base):
 
 
 class Event(Base):
-    id: Mapped[uuid4] = mapped_column(UUID, index=True, primary_key=True)
+    id: Mapped[UUID] = mapped_column(Uuid, index=True, primary_key=True, default=uuid4)
     name: Mapped[str] = mapped_column(String, nullable=True)
     max_donors: Mapped[int] = mapped_column(Integer, nullable=False)
     registred: Mapped[int] = mapped_column(Integer, default=0)
