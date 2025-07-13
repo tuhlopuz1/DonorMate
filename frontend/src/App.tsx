@@ -1,9 +1,11 @@
+import logo from './assets/MEPHI_logo.png'
+
 export default function App() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-rose-100 via-white to-sky-100 px-4 pb-24">
       {/* Логотип ВУЗа */}
       <img
-        src=".\src\assets\MEPHI_logo.png"
+        src={logo}
         alt="Университет"
         className="w-40 h-40 mb-24 drop-shadow-md animate-fade-in"
       />

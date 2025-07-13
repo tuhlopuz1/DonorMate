@@ -1,38 +1,37 @@
-
+import logo from '../assets/MEPHI_logo.png';
 
 export default function WelcomePage() {
-
-
-  const handleStart = () => {
-    // Пример: вызов mainButton или переход в другой раздел
-    alert("Добро пожаловать! 🚀")
-  }
-
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-white px-4 text-gray-800">
-      <div className="w-full max-w-md rounded-2xl bg-gradient-to-br from-red-500 to-pink-500 p-6 shadow-xl">
-        <h1 className="text-center text-3xl font-bold text-white drop-shadow-sm">
-          Привет, донор! 🩸
-        </h1>
-        <p className="mt-4 text-center text-white text-sm">
-          Университет проводит донорские дни. С этим ботом ты сможешь:
-        </p>
-        <ul className="mt-2 list-disc px-6 text-white text-sm space-y-1">
-          <li>Записаться на донацию</li>
-          <li>Следить за графиком</li>
-          <li>Получать напоминания</li>
-        </ul>
-        <button
-          onClick={handleStart}
-          className="mt-6 w-full rounded-xl bg-white px-4 py-3 text-center text-lg font-semibold text-red-600 transition hover:bg-red-50 active:scale-95"
-        >
-          Начать
-        </button>
-      </div>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-rose-100 via-white to-sky-100 px-6 text-center">
+      {/* Логотип */}
+      <img
+        src={logo}
+        alt="МИФИ"
+        className="w-36 h-36 mb-12 drop-shadow-md animate-fade-in"
+      />
 
-      <p className="mt-6 text-center text-xs text-gray-400">
-        Поддерживается <span className="font-medium">Telegram Mini Apps</span>
+      {/* Приветствие */}
+      <h1 className="text-3xl font-semibold text-blue-700 mb-4 animate-fade-in">
+        Добро пожаловать!
+      </h1>
+
+      <p className="max-w-md text-blue-600 text-base leading-relaxed mb-10 animate-fade-in-slow">
+        Мы — студенческий проект, который помогает делать добро. Присоединяйтесь к донорским акциям прямо в МИФИ.
       </p>
+
+      {/* Кнопки */}
+<div className="flex flex-col space-y-4 w-full max-w-xs">
+  {/* Кнопка "Начать" */}
+  <button className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white font-semibold py-3 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 animate-fade-in">
+    Начать
+  </button>
+
+  {/* Кнопка "Узнать больше" */}
+  <button className="w-full bg-white text-blue-600 font-semibold py-3 rounded-2xl border border-blue-400 hover:border-blue-500 hover:bg-blue-50 shadow-sm hover:shadow-md transition-all duration-300 animate-fade-in-slow">
+     Узнать больше
+  </button>
+</div>
+
     </div>
-  )
+  );
 }
