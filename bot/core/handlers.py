@@ -15,8 +15,7 @@ async def handle_start(message: types.Message):
             "username": message.from_user.username,
             "tg_name": message.from_user.first_name
         }
-        async with session.post(url=f"{BACKEND_URL}/telegram-register", json=payload) as resp:
-            _ = await resp.json()
+        await session.post(url=f"{BACKEND_URL}/telegram-register", json=payload)
 
     await message.answer("To open miniapp click on the button below", reply_markup=inline_miniapp_keyboard)
 
