@@ -5,3 +5,6 @@ SQLAlchemy[asyncio]==2.0.41
 asyncpg==0.29.0
 dotenv
 inflect
+aio_pika
+celery
+python-jose==3.4.0

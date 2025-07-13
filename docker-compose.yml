@@ -18,6 +18,15 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - bot_net
+    rabbitmq:
+      image: rabbitmq:3-management
+      ports:
+        - "5672:5672"
+        - "15672:15672"
+      networks:
+        - bot_net
   fastapi:
     image: asdfrewqha/donormate:latest
     container_name: fastapi-container
@@ -29,6 +38,8 @@ services:
     ports:
       - "8000:8000"
     restart: unless-stopped
+    networks:
+      - bot_net
   aiobot:
     image: asdfrewqha/donormate_bot:latest
     container_name: aiobot-container
@@ -36,6 +47,25 @@ services:
       - .env
     depends_on:
       - fastapi
-    
+      - rabbitmq
+    networks:
+      - bot_net
+  celery:
+    image: asdfrewqha/donormate:latest
+    container_name: celery-container
+    command: celery -A app.core.celery_app worker --loglevel=info
+    env_file:
+      - .env
+    depends_on:
+      - fastapi
+      - rabbitmq
+    restart: unless-stopped
+    networks:
+      - bot_net
+
 volumes:
   postgres_data:
+
+networks:
+  bot_net:
+    driver: bridge

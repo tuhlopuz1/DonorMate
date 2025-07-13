@@ -14,11 +14,14 @@ logger.info("Environment loaded")
 
 
 DB_URL = os.getenv("DB_URL")
+RANDOM_SHA = os.getenv("RANDOM_SHA")
 POSTGRES_USER = os.getenv("POSTGRES_USER")
 POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD")
 POSTGRES_HOST = os.getenv("POSTGRES_HOST")
 POSTGRES_PORT = os.getenv("POSTGRES_PORT")
 POSTGRES_DBNAME = os.getenv("POSTGRES_DBNAME")
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+RABBITMQ_URL = os.getenv("RABBITMQ_URL")
 
 if DB_URL:
     DATABASE_URL = DB_URL
