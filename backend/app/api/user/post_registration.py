@@ -4,7 +4,7 @@ from app.models.schemas import PostRegisterPayload
 from app.dependencies.checks import check_user_token
 from app.dependencies.responses import badresponse, okresponse
 from app.models.db_adapter import adapter
-from app.models.db_tables import User
+from app.models.db_tables import User, Information
 
 router = APIRouter()
 
@@ -16,11 +16,11 @@ async def post_registration(
 ):
     if not user:
         return badresponse("Unauthorized", 401)
-    updates = {
-        "fullname": user_info.fullname,
-        "surname": user_info.surname,
-        "patronymic": user_info.patronymic,
-        "birth_date": user_info.birth_date,
-    }
-    await adapter.update_by_id(User, user.id, updates=updates)
+    updates = user_info.model_dump()
+    existing_info = await adapter.get_by_id(Information, user.id)
+    if existing_info:
+        await adapter.update_by_id(Information, user.id, updates=updates)
+    else:
+        updates["id"] = user.id
+        await adapter.insert(Information, updates)
     return okresponse()
