@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from app.models.db_adapter import adapter
 from app.models.db_tables import Information
-from app.dependencies.responses import okresponse
+from app.dependencies.responses import emptyresponse
 
 router = APIRouter()
 
@@ -10,5 +10,5 @@ router = APIRouter()
 async def is_user_registred(id: int):
     info = await adapter.get_by_id(Information, id)
     if info:
-        return okresponse(code=200)
-    return okresponse(code=204)
+        return emptyresponse(code=200)
+    return emptyresponse(code=204)

@@ -43,7 +43,7 @@ async def open_menu(callback: CallbackQuery):
             await callback.message.answer("Выберите пункт меню:", reply_markup=menu_register_keyboard)
 
 
-@router.message(F.data == "register")
+@router.callback_query(F.data == "register")
 async def start_post_registration(callback: CallbackQuery, state: FSMContext):
     await callback.answer()
     await callback.message.answer(text="Введите свои имя фамилию и отчество")
