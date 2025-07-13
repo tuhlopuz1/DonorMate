@@ -7,7 +7,7 @@ on:
 
 
 jobs:
-    build:
+    build-and-push:
         runs-on: ubuntu-latest
         environment: production
 
@@ -60,6 +60,10 @@ jobs:
             USER_IDS: "${{ secrets.TELEGRAM_CHAT_ID }}"
           run: |
             MESSAGE="Builded successfully"
+            for USER_ID in $USER_IDS; do
+              curl -s -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
+                -d chat_id="$USER_ID" \
+                -d text="$MESSAGE"
             done
 
         - name: Telegram notification (fail)
@@ -76,8 +80,9 @@ jobs:
             done
     deploy:
         runs-on: ubuntu-latest
+        needs: build-and-push
         environment: production
-
+        
         steps:
         - name: Telegram notification (start)
           env:
