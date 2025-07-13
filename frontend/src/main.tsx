@@ -9,6 +9,10 @@ import NotFound from './pages/NotFound';
 import './index.css';
 import UserSurvey from './pages/UserSurvey';
 import MainPage from './pages/Main';
+import AppointmentsPage from './pages/Appointments';
+import SchedulePage from './pages/Schedule';
+import ProfilePage from './pages/Profile';
+
 
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
@@ -20,6 +24,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         <Route path="/welcome" element={<WelcomePage />} />
         <Route path="/survey" element={<UserSurvey />} />
         <Route path="/main" element={<MainPage />} />
+        <Route path="/appointments" element={<AppointmentsPage />} />
+        <Route path="/schedule" element={<SchedulePage />} />
+        <Route path="/profile" element={<ProfilePage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </HashRouter>
