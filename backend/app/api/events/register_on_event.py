@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends
 from app.dependencies.checks import check_user_token
 from app.dependencies.responses import badresponse, okresponse
 from app.models.db_adapter import adapter
-from app.models.db_tables import User, Event, Register
+from app.models.db_tables import User, Event, Registration
 from app.api.events.tasks import schedule_telegram_message
 
 router = APIRouter()
@@ -24,7 +24,7 @@ async def register_on_event(user: Annotated[User, Depends(check_user_token)], ev
     if event.end_date < now:
         return badresponse("Event ended", 403)
     registration = await adapter.insert(
-        Register,
+        Registration,
         {
             "user_id": user.id,
             "event_id": event_id,
