@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime
 from aiogram import Router, F
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiohttp import ClientSession
@@ -188,8 +188,8 @@ async def confirm_registration(message: Message, state: FSMContext):
                 headers={"Authorization": f"Bearer {tokens['access']}"}
             )
             logging.info(tokens)
-        await message.answer("Регистрация завершена. Спасибо!", reply_markup=None)
+        await message.answer("Регистрация завершена. Спасибо!", reply_markup=ReplyKeyboardRemove)
         await state.clear()
     else:
-        await message.answer("Регистрация отменена. Вы можете начать заново, нажав /menu и выбрав регистрацию", reply_markup=None)
+        await message.answer("Регистрация отменена. Вы можете начать заново, нажав /menu и выбрав регистрацию", reply_markup=ReplyKeyboardRemove)
         await state.clear()
