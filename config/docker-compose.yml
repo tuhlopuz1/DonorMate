@@ -29,6 +29,11 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     networks:
       - bot_net
 
@@ -51,8 +56,10 @@ services:
     env_file:
       - .env
     depends_on:
-      - fastapi
-      - rabbitmq
+      rabbitmq:
+        condition: service_healthy
+      fastapi:
+        condition: service_started
     networks:
       - bot_net
   celery:
@@ -62,8 +69,10 @@ services:
     env_file:
       - .env
     depends_on:
-      - fastapi
-      - rabbitmq
+      rabbitmq:
+        condition: service_healthy
+      fastapi:
+        condition: service_started
     restart: unless-stopped
     networks:
       - bot_net
