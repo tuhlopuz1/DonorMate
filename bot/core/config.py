@@ -14,3 +14,5 @@ logger.info("Environment loaded")
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 FRONTEND_URL = os.getenv("FRONTEND_URL")
+BACKEND_URL = os.getenv("BACKEND_URL")
+RABBITMQ_URL = os.getenv("RABBITMQ_URL")
