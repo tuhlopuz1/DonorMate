@@ -10,3 +10,5 @@ app = Celery(
 app.conf.task_serializer = 'json'
 app.conf.result_serializer = 'json'
 app.conf.accept_content = ['json']
+
+app.autodiscover_tasks(packages=["app.api.events"])

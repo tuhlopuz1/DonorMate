@@ -8,3 +8,4 @@ inflect
 aio_pika
 celery
 python-jose==3.4.0
+alembic

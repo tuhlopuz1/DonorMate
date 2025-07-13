@@ -10,13 +10,13 @@ router = APIRouter()
 
 @router.post("/telegram-register")
 async def register_telegram_user(user: TelegramUserInfoPayload):
-    existing_user = await adapter.get_by_id(User, user.id)
+    existing_user = await adapter.get_by_id(User, user.user_id)
     if existing_user:
         return emptyresponse()
     new_user = {
-        "id": user.id,
+        "id": user.user_id,
         "username": user.username,
         "telegram_name": user.tg_name
     }
-    adapter.insert(User, new_user)
-    return okresponse(code=201)
+    await adapter.insert(User, new_user)
+    return okresponse(201)

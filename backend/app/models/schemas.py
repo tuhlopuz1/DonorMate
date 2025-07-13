@@ -3,7 +3,7 @@ from pydantic import BaseModel
 
 
 class TelegramUserInfoPayload(BaseModel):
-    id: int
+    user_id: int
     username: str
     tg_name: str
 
