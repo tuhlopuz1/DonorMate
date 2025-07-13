@@ -1,13 +1,20 @@
 import logging
 from datetime import datetime
-from aiogram import Router, F
-from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove
+
+from aiogram import F, Router
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
+from aiogram.types import CallbackQuery, Message, ReplyKeyboardRemove
 from aiohttp import ClientSession
 from core.config import BACKEND_URL
-from core.keyboards import inline_miniapp_keyboard, menu_register_keyboard, yes_no_keyboard, donor_earlier_kboard, gender_keyboard
-from core.states import RegisterStates, FIELD_NAMES_RU, format_value
+from core.keyboards import (
+    donor_earlier_kboard,
+    gender_keyboard,
+    inline_miniapp_keyboard,
+    menu_register_keyboard,
+    yes_no_keyboard,
+)
+from core.states import FIELD_NAMES_RU, RegisterStates, format_value
 from dependencies.initdata import create_init_data
 
 router = Router()
@@ -19,7 +26,7 @@ async def handle_start(message: Message):
         payload = {
             "user_id": message.from_user.id,
             "username": message.from_user.username,
-            "tg_name": message.from_user.first_name
+            "tg_name": message.from_user.first_name,
         }
         await session.post(url=f"{BACKEND_URL}/telegram-register", json=payload)
 
@@ -162,13 +169,9 @@ async def input_donor_earlier(message: Message, state: FSMContext):
     await state.update_data(donor_earlier=donor)
 
     data = await state.get_data()
-    summary = "\n".join(
-        f"{FIELD_NAMES_RU.get(key, key)}: {format_value(value)}"
-        for key, value in data.items()
-    )
+    summary = "\n".join(f"{FIELD_NAMES_RU.get(key, key)}: {format_value(value)}" for key, value in data.items())
     await message.answer(
-        f"Проверьте введённые данные:\n\n{summary}\n\nПодтвердите отправку?",
-        reply_markup=yes_no_keyboard
+        f"Проверьте введённые данные:\n\n{summary}\n\nПодтвердите отправку?", reply_markup=yes_no_keyboard
     )
     await state.set_state(RegisterStates.CONFIRM)
 
@@ -183,13 +186,14 @@ async def confirm_registration(message: Message, state: FSMContext):
             tokens = await response.json()
 
             await session.post(
-                f"{BACKEND_URL}/post-register",
-                json=data,
-                headers={"Authorization": f"Bearer {tokens['access']}"}
+                f"{BACKEND_URL}/post-register", json=data, headers={"Authorization": f"Bearer {tokens['access']}"}
             )
             logging.info(tokens)
         await message.answer("Регистрация завершена. Спасибо!", reply_markup=ReplyKeyboardRemove())
         await state.clear()
     else:
-        await message.answer("Регистрация отменена. Вы можете начать заново, нажав /menu и выбрав регистрацию", reply_markup=ReplyKeyboardRemove())
+        await message.answer(
+            "Регистрация отменена. Вы можете начать заново, нажав /menu и выбрав регистрацию",
+            reply_markup=ReplyKeyboardRemove(),
+        )
         await state.clear()

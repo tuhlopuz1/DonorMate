@@ -1,10 +1,11 @@
 import asyncio
-import logging
-import aio_pika
 import json
-from core.dispatcher import dp, bot, send_message
-from core.config import RABBITMQ_URL
+import logging
+
+import aio_pika
 from aiogram.types import BotCommand
+from core.config import RABBITMQ_URL
+from core.dispatcher import bot, dp, send_message
 
 logger = logging.getLogger(__name__)
 
@@ -37,10 +38,12 @@ async def start_rabbitmq_listener():
 
 
 async def start_bot():
-    await bot.set_my_commands([
-        BotCommand(command="start", description="Запустить мини-приложение"),
-        BotCommand(command="menu", description="Открыть меню")
-    ])
+    await bot.set_my_commands(
+        [
+            BotCommand(command="start", description="Запустить мини-приложение"),
+            BotCommand(command="menu", description="Открыть меню"),
+        ]
+    )
     logger.info("Starting bot polling")
     await dp.start_polling(bot)
 
@@ -48,6 +51,7 @@ async def start_bot():
 async def main():
     asyncio.create_task(start_rabbitmq_listener())
     await start_bot()
+
 
 if __name__ == "__main__":
     asyncio.run(main())

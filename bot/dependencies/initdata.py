@@ -1,5 +1,5 @@
-import time
 import hmac
+import time
 from hashlib import sha256
 from urllib.parse import urlencode
 
@@ -9,10 +9,7 @@ from core.config import BOT_TOKEN
 def create_init_data(user_id: int, username: str = None) -> str:
     auth_date = int(time.time())
 
-    init_data = {
-        "user": f"{user_id}",
-        "auth_date": str(auth_date)
-    }
+    init_data = {"user": f"{user_id}", "auth_date": str(auth_date)}
 
     if username:
         init_data["username"] = username

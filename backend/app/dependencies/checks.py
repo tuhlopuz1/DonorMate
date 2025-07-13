@@ -1,10 +1,10 @@
 import logging
-from fastapi import Security
-from fastapi.security import HTTPBearer
+
 from app.dependencies.token_manager import TokenManager
 from app.models.db_adapter import adapter
 from app.models.db_tables import User
-
+from fastapi import Security
+from fastapi.security import HTTPBearer
 
 logger = logging.getLogger(__name__)
 

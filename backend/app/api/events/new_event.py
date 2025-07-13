@@ -1,10 +1,11 @@
 from typing import Annotated
-from fastapi import APIRouter, Depends
+
 from app.dependencies.checks import check_user_token
 from app.dependencies.responses import badresponse, okresponse
 from app.models.db_adapter import adapter
-from app.models.db_tables import User, Event
-from app.models.schemas import Role, EventPayload
+from app.models.db_tables import Event, User
+from app.models.schemas import EventPayload, Role
+from fastapi import APIRouter, Depends
 
 router = APIRouter()
 

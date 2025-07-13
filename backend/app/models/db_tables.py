@@ -1,11 +1,27 @@
-from uuid import UUID, uuid4
 from datetime import datetime
-import inflect
 from typing import Optional
-from sqlalchemy import String, DateTime, BigInteger, ForeignKey, Enum, Integer, Boolean, Uuid
-from sqlalchemy.orm import declarative_base, declared_attr, Mapped, mapped_column, relationship
+from uuid import UUID, uuid4
+
+import inflect
+from app.models.schemas import DonorEarlier, Gender, Role
+from sqlalchemy import (
+    BigInteger,
+    Boolean,
+    DateTime,
+    Enum,
+    ForeignKey,
+    Integer,
+    String,
+    Uuid,
+)
+from sqlalchemy.orm import (
+    Mapped,
+    declarative_base,
+    declared_attr,
+    mapped_column,
+    relationship,
+)
 from sqlalchemy.sql import func
-from app.models.schemas import Role, Gender, DonorEarlier
 
 p = inflect.engine()
 
@@ -27,23 +43,14 @@ class User(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
 
     info: Mapped[Optional["Information"]] = relationship(
-        back_populates="user",
-        uselist=False,
-        cascade="all, delete-orphan"
+        back_populates="user", uselist=False, cascade="all, delete-orphan"
     )
 
-    registrations_list: Mapped[list["Registration"]] = relationship(
-        back_populates="user",
-        cascade="all, delete-orphan"
-    )
+    registrations_list: Mapped[list["Registration"]] = relationship(back_populates="user", cascade="all, delete-orphan")
 
 
 class Information(Base):
-    id: Mapped[int] = mapped_column(
-        BigInteger,
-        ForeignKey("users.id", ondelete="CASCADE"),
-        primary_key=True
-    )
+    id: Mapped[int] = mapped_column(BigInteger, ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
     fullname: Mapped[str] = mapped_column(String)
     surname: Mapped[str] = mapped_column(String)
     patronymic: Mapped[Optional[str]] = mapped_column(String, nullable=True)
@@ -69,8 +76,7 @@ class Event(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
 
     registrations_list: Mapped[list["Registration"]] = relationship(
-        back_populates="event",
-        cascade="all, delete-orphan"
+        back_populates="event", cascade="all, delete-orphan"
     )
 
 

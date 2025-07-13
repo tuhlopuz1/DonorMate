@@ -1,6 +1,11 @@
-from aiogram.types import WebAppInfo, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup, KeyboardButton
+from aiogram.types import (
+    InlineKeyboardButton,
+    InlineKeyboardMarkup,
+    KeyboardButton,
+    ReplyKeyboardMarkup,
+    WebAppInfo,
+)
 from core.config import FRONTEND_URL
-
 
 inline_miniapp_keyboard = InlineKeyboardMarkup(
     inline_keyboard=[
@@ -36,19 +41,11 @@ gender_keyboard = ReplyKeyboardMarkup(
         [KeyboardButton(text="Не указывать")],
     ],
     resize_keyboard=True,
-    one_time_keyboard=True
+    one_time_keyboard=True,
 )
 
-yes_no_keyboard = ReplyKeyboardMarkup(
-    keyboard=[
-        [KeyboardButton(text="Да"), KeyboardButton(text="Нет")]
-    ]
-)
+yes_no_keyboard = ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text="Да"), KeyboardButton(text="Нет")]])
 
 donor_earlier_kboard = ReplyKeyboardMarkup(
-    keyboard=[
-        [KeyboardButton(text="Да")],
-        [KeyboardButton(text="Нет")],
-        [KeyboardButton(text="Однажды")]
-    ]
+    keyboard=[[KeyboardButton(text="Да")], [KeyboardButton(text="Нет")], [KeyboardButton(text="Однажды")]]
 )

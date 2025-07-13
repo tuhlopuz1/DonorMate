@@ -1,4 +1,5 @@
 from datetime import datetime
+
 from aiogram.fsm.state import State, StatesGroup
 
 
@@ -28,7 +29,7 @@ FIELD_NAMES_RU = {
     "weight": "Вес (кг)",
     "chronic_disease": "Хронические заболевания",
     "medical_exemption": "Медицинский отвод",
-    "donor_earlier": "Ранее сдавал(а) кровь"
+    "donor_earlier": "Ранее сдавал(а) кровь",
 }
 
 

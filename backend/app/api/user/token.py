@@ -1,13 +1,14 @@
-from fastapi import APIRouter
-from urllib.parse import parse_qsl
 import hmac
 from hashlib import sha256
-from app.models.schemas import InitDataPayload, TokensResponse
+from urllib.parse import parse_qsl
+
 from app.core.config import BOT_TOKEN
-from app.dependencies.token_manager import TokenManager
 from app.dependencies.responses import badresponse
+from app.dependencies.token_manager import TokenManager
 from app.models.db_adapter import adapter
 from app.models.db_tables import User
+from app.models.schemas import InitDataPayload, TokensResponse
+from fastapi import APIRouter
 
 router = APIRouter()
 
@@ -34,15 +35,9 @@ async def get_token(payload: InitDataPayload):
     existing_user = await adapter.get_by_id(User, user_id)
     if not existing_user:
         return badresponse("User not registred", 404)
-    access_token = TokenManager.create_token(
-        data={
-            "sub": str(user_id)
-        }
-    )
+    access_token = TokenManager.create_token(data={"sub": str(user_id)})
     refresh_token = TokenManager.create_token(
-        data={
-            "sub": str(user_id)
-        },
+        data={"sub": str(user_id)},
         access=False,
     )
     return TokensResponse(access=access_token, refresh=refresh_token)

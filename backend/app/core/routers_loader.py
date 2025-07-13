@@ -2,17 +2,14 @@ import importlib
 import logging
 import pkgutil
 
-from fastapi import FastAPI
-
 import app.api as routers
+from fastapi import FastAPI
 
 logger = logging.getLogger(__name__)
 
 
 def include_all_routers(app: FastAPI):
-    for _, module_name, _ in pkgutil.walk_packages(
-        routers.__path__, prefix="app.api."
-    ):
+    for _, module_name, _ in pkgutil.walk_packages(routers.__path__, prefix="app.api."):
         module = importlib.import_module(module_name)
 
         if hasattr(module, "router"):

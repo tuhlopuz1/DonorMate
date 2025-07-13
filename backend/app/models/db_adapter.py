@@ -1,13 +1,12 @@
 import logging
 from typing import Any, List
 
+from app.core.config import DATABASE_URL
+from app.models.db_tables import Base
 from sqlalchemy import update
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.future import select
 from sqlalchemy.sql import and_
-
-from app.core.config import DATABASE_URL
-from app.models.db_tables import Base
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -20,9 +19,7 @@ class AsyncDatabaseAdapter:
             echo=False,
             future=True,
         )
-        self.SessionLocal = async_sessionmaker(
-            bind=self.engine, class_=AsyncSession, expire_on_commit=False
-        )
+        self.SessionLocal = async_sessionmaker(bind=self.engine, class_=AsyncSession, expire_on_commit=False)
 
     async def initialize_tables(self) -> None:
         logger.info("Tables are created or exists")
@@ -41,9 +38,7 @@ class AsyncDatabaseAdapter:
 
     async def get_by_value(self, model, parameter: str, parameter_value: Any) -> List[Any]:
         async with self.SessionLocal() as session:
-            result = await session.execute(
-                select(model).where(getattr(model, parameter) == parameter_value)
-            )
+            result = await session.execute(select(model).where(getattr(model, parameter) == parameter_value))
             return result.scalars().all()
 
     async def get_by_values(self, model, conditions: dict) -> List[Any]:
@@ -86,9 +81,7 @@ class AsyncDatabaseAdapter:
 
     async def delete_by_value(self, model, parameter: str, parameter_value: Any) -> List[Any]:
         async with self.SessionLocal() as session:
-            result = await session.execute(
-                select(model).where(getattr(model, parameter) == parameter_value)
-            )
+            result = await session.execute(select(model).where(getattr(model, parameter) == parameter_value))
             records = result.scalars().all()
             for record in records:
                 await session.delete(record)

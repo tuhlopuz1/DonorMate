@@ -1,7 +1,7 @@
-from fastapi import APIRouter
+from app.dependencies.responses import emptyresponse
 from app.models.db_adapter import adapter
 from app.models.db_tables import Information
-from app.dependencies.responses import emptyresponse
+from fastapi import APIRouter
 
 router = APIRouter()
 

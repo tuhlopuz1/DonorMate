@@ -1,11 +1,10 @@
 from contextlib import asynccontextmanager
 
+from app.core.routers_loader import include_all_routers
+from app.models.db_adapter import adapter
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
-
-from app.models.db_adapter import adapter
-from app.core.routers_loader import include_all_routers
 
 
 @asynccontextmanager

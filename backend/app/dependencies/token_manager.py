@@ -2,9 +2,8 @@ import logging
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict
 
-from jose import JWTError, jwt
-
 from app.core.config import RANDOM_SHA
+from jose import JWTError, jwt
 
 
 class TokenManager:

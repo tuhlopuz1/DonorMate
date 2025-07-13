@@ -1,7 +1,8 @@
 from datetime import datetime
-from pydantic import BaseModel
-from typing import Optional
 from enum import Enum
+from typing import Optional
+
+from pydantic import BaseModel
 
 
 class Role(Enum):
