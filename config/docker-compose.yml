@@ -70,6 +70,7 @@ services:
       - "80:80"
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - /etc/letsencrypt/live:/etc/letsencrypt/live:ro
     depends_on:
       - fastapi
     networks:
