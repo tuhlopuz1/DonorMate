@@ -27,11 +27,6 @@ async def handle_start(message: Message):
     await message.answer("Выберите действие:", reply_markup=inline_miniapp_keyboard)
 
 
-@router.message()
-async def echo(message: Message):
-    await message.reply("Используйте /start чтобы открыть МиниПриложение или меню")
-
-
 @router.callback_query(F.data == "menu")
 async def open_menu(callback: CallbackQuery):
     await callback.answer()
