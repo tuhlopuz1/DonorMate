@@ -98,7 +98,8 @@ jobs:
         
         - name: Archive docker-compose.yml and nginx.conf
           run: |
-            tar -czf deploy.tar.gz -C ./config docker-compose.yml nginx.conf
+            ls -la config  # можно удалить позже
+            tar -czf deploy.tar.gz -C config docker-compose.yml nginx.conf
 
         - name: Copy archive to server
           uses: appleboy/scp-action@v0.1.0
