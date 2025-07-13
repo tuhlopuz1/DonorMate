@@ -112,7 +112,7 @@ jobs:
             host: ${{ secrets.SERVER_IP }}
             username: ${{ secrets.SERVER_USER }}
             key: ${{ secrets.SERVER_SSH_KEY }}
-            port: 2084
+            port: 2536
             source: deploy.tar.gz
             target: /root/fastapi/
 
@@ -122,7 +122,7 @@ jobs:
             host: ${{ secrets.SERVER_IP }}
             username: ${{ secrets.SERVER_USER }}
             key: ${{ secrets.SERVER_SSH_KEY }}
-            port: 2084
+            port: 2536
             script: |
               cd /root/fastapi
               tar -xzf deploy.tar.gz
@@ -134,7 +134,7 @@ jobs:
             host: ${{ secrets.SERVER_IP }}
             username: ${{ secrets.SERVER_USER }}
             key: ${{ secrets.SERVER_SSH_KEY }}
-            port: 2084
+            port: 2536
             script: |
               set -e
               cd /root/fastapi
@@ -154,7 +154,7 @@ jobs:
             host: ${{ secrets.SERVER_IP }}
             username: ${{ secrets.SERVER_USER }}
             key: ${{ secrets.SERVER_SSH_KEY }}
-            port: 2084
+            port: 2536
             script: |
               docker logs fastapi-container || echo "no fastapi logs"
               docker logs nginx-container || echo "no nginx logs"
