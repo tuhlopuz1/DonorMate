@@ -36,12 +36,12 @@ async def get_token(payload: InitDataPayload):
         return badresponse("User not registred", 404)
     access_token = TokenManager.create_token(
         data={
-            "sub": user_id
+            "sub": str(user_id)
         }
     )
     refresh_token = TokenManager.create_token(
         data={
-            "sub": user_id
+            "sub": str(user_id)
         },
         access=False,
     )

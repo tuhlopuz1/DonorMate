@@ -27,7 +27,7 @@ async def check_user_token(request: Request):
         logger.error("Invalid token type")
         return False
 
-    user = await adapter.get_by_id(User, data["sub"])
+    user = await adapter.get_by_id(User, int(data["sub"]))
     if user:
         return user
 
