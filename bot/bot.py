@@ -17,8 +17,19 @@ async def on_message(message: aio_pika.IncomingMessage):
         await send_message(chat_id, text)
 
 
+async def connect_with_retry(url, retries=10, delay=5):
+    for attempt in range(1, retries + 1):
+        try:
+            logger.info(f"Connecting to RabbitMQ (attempt {attempt})...")
+            return await aio_pika.connect_robust(url)
+        except Exception as e:
+            logger.warning(f"Attempt {attempt} failed: {e}")
+            await asyncio.sleep(delay)
+    raise RuntimeError("Could not connect to RabbitMQ after retries")
+
+
 async def start_rabbitmq_listener():
-    connection = await aio_pika.connect_robust(RABBITMQ_URL)
+    connection = await connect_with_retry(RABBITMQ_URL)
     channel = await connection.channel()
     queue = await channel.declare_queue("telegram_queue", durable=True)
     await queue.consume(on_message)
