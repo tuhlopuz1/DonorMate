@@ -26,8 +26,12 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
     networks:
       - bot_net
+
   fastapi:
     image: asdfrewqha/donormate:latest
     container_name: fastapi-container
