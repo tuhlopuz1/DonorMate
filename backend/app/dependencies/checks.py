@@ -1,21 +1,20 @@
 import logging
-from fastapi import Security
-from fastapi.security import HTTPBearer
+from fastapi import Request
 from app.dependencies.token_manager import TokenManager
 from app.models.db_adapter import adapter
 from app.models.db_tables import User
 
 
-Bear = HTTPBearer()
 logger = logging.getLogger(__name__)
 
 
-async def check_user_token(access_token: str = Security(Bear)):
-    if not access_token or not access_token.credentials:
-        logger.error("No token")
+async def check_user_token(request: Request):
+    auth = request.headers.get("Authorization")
+    if not auth or not auth.startswith("Bearer "):
         return False
+    token = auth.removeprefix("Bearer ").strip()
 
-    data = TokenManager.decode_token(access_token.credentials)
+    data = TokenManager.decode_token(token)
     if not data:
         logger.error("No token data")
         return False

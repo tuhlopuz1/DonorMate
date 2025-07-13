@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery
@@ -184,7 +185,7 @@ async def confirm_registration(message: Message, state: FSMContext):
                 json=data,
                 headers={"Authorization": f"Bearer {tokens['access']}"}
             )
-
+            logging.info(tokens)
         await message.answer("Регистрация завершена. Спасибо!")
         await state.clear()
     else:
