@@ -1,3 +1,4 @@
+from uuid import UUID, uuid4
 from datetime import datetime
 import inflect
 from typing import Optional
@@ -51,3 +52,12 @@ class Information(Base):
     donor_earlier: Mapped[DonorEarlier] = mapped_column(Enum(DonorEarlier), default=DonorEarlier.NO)
 
     user: Mapped["User"] = relationship(back_populates="info")
+
+
+class Event(Base):
+    id: Mapped[uuid4] = mapped_column(UUID, index=True, primary_key=True)
+    name: Mapped[str] = mapped_column(String, nullable=True)
+    max_donors: Mapped[int] = mapped_column(Integer, nullable=False)
+    registred: Mapped[int] = mapped_column(Integer, default=0)
+    start_date: Mapped[datetime] = mapped_column(DateTime)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())

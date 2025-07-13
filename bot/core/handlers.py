@@ -7,7 +7,7 @@ from aiogram.fsm.context import FSMContext
 from aiohttp import ClientSession
 from core.config import BACKEND_URL
 from core.keyboards import inline_miniapp_keyboard, menu_register_keyboard, yes_no_keyboard, donor_earlier_kboard, gender_keyboard
-from core.states import RegisterStates
+from core.states import RegisterStates, FIELD_NAMES_RU, format_value
 from dependencies.initdata import create_init_data
 
 router = Router()
@@ -152,9 +152,9 @@ async def input_medical_exemption(message: Message, state: FSMContext):
 @router.message(RegisterStates.DONOR_EARLIER)
 async def input_donor_earlier(message: Message, state: FSMContext):
     text = message.text.lower()
-    if text == "да, был(а)":
+    if text == "да":
         donor = "YES"
-    elif text == "нет, не был(а)":
+    elif text == "нет":
         donor = "NO"
     else:
         donor = "ONCE"
@@ -162,8 +162,10 @@ async def input_donor_earlier(message: Message, state: FSMContext):
     await state.update_data(donor_earlier=donor)
 
     data = await state.get_data()
-    summary = "\n".join(f"{key}: {value}" for key, value in data.items())
-
+    summary = "\n".join(
+        f"{FIELD_NAMES_RU.get(key, key)}: {format_value(value)}"
+        for key, value in data.items()
+    )
     await message.answer(
         f"Проверьте введённые данные:\n\n{summary}\n\nПодтвердите отправку?",
         reply_markup=yes_no_keyboard
@@ -186,8 +188,8 @@ async def confirm_registration(message: Message, state: FSMContext):
                 headers={"Authorization": f"Bearer {tokens['access']}"}
             )
             logging.info(tokens)
-        await message.answer("Регистрация завершена. Спасибо!")
+        await message.answer("Регистрация завершена. Спасибо!", reply_markup=None)
         await state.clear()
     else:
-        await message.answer("Регистрация отменена. Вы можете начать заново, нажав /menu и выбрав регистрацию")
+        await message.answer("Регистрация отменена. Вы можете начать заново, нажав /menu и выбрав регистрацию", reply_markup=None)
         await state.clear()

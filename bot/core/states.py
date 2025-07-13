@@ -1,3 +1,4 @@
+from datetime import datetime
 from aiogram.fsm.state import State, StatesGroup
 
 
@@ -14,3 +15,33 @@ class RegisterStates(StatesGroup):
     MEDICAL_EXEMPTION = State()
     DONOR_EARLIER = State()
     CONFIRM = State()
+
+
+FIELD_NAMES_RU = {
+    "fullname": "Имя",
+    "surname": "Фамилия",
+    "patronymic": "Отчество",
+    "birth_date": "Дата рождения",
+    "gender": "Пол",
+    "university": "Университет",
+    "group": "Группа",
+    "weight": "Вес (кг)",
+    "chronic_disease": "Хронические заболевания",
+    "medical_exemption": "Медицинский отвод",
+    "donor_earlier": "Ранее сдавал(а) кровь"
+}
+
+
+def format_value(value):
+    if isinstance(value, bool):
+        return "Да" if value else "Нет"
+    if value in ["MALE", "FEMALE", "UNDEFINED"]:
+        return {"MALE": "Мужской", "FEMALE": "Женский", "UNDEFINED": "Не указан"}.get(value, value)
+    if value in ["YES", "NO", "ONCE"]:
+        return {"YES": "Да", "NO": "Нет", "ONCE": "Один раз"}.get(value, value)
+    if isinstance(value, str) and "T" in value and ":" in value:
+        try:
+            return datetime.fromisoformat(value).strftime("%d.%m.%Y")
+        except ValueError:
+            return value
+    return value
