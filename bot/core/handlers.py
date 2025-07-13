@@ -26,14 +26,13 @@ async def handle_start(message: Message):
 
 
 @router.message(Command("menu"))
-async def open_menu_command(callback: CallbackQuery):
-    await callback.answer()
+async def open_menu_command(message: Message):
     async with ClientSession() as session:
-        response = await session.get(f"{BACKEND_URL}/is-registred/{callback.message.chat.id}")
+        response = await session.get(f"{BACKEND_URL}/is-registred/{message.chat.id}")
         if response.status == 200:
             pass
         elif response.status == 204:
-            await callback.message.answer("Выберите пункт меню:", reply_markup=menu_register_keyboard)
+            await message.answer("Выберите пункт меню:", reply_markup=menu_register_keyboard)
 
 
 @router.callback_query(F.data == "menu")
