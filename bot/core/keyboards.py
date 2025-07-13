@@ -1,4 +1,4 @@
-from aiogram.types import KeyboardButton, ReplyKeyboardMarkup, WebAppInfo
+from aiogram.types import KeyboardButton, ReplyKeyboardMarkup, WebAppInfo, InlineKeyboardButton, InlineKeyboardMarkup
 from core.config import FRONTEND_URL
 
 miniapp_keyboard = ReplyKeyboardMarkup(
@@ -11,4 +11,15 @@ miniapp_keyboard = ReplyKeyboardMarkup(
         ]
     ],
     resize_keyboard=True,
+)
+
+inline_miniapp_keyboard = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [
+            InlineKeyboardButton(
+                text="Открыть мини-приложение",
+                web_app=WebAppInfo(url=FRONTEND_URL)
+            )
+        ]
+    ]
 )
