@@ -188,8 +188,8 @@ async def confirm_registration(message: Message, state: FSMContext):
                 headers={"Authorization": f"Bearer {tokens['access']}"}
             )
             logging.info(tokens)
-        await message.answer("Регистрация завершена. Спасибо!", reply_markup=ReplyKeyboardRemove)
+        await message.answer("Регистрация завершена. Спасибо!", reply_markup=ReplyKeyboardRemove())
         await state.clear()
     else:
-        await message.answer("Регистрация отменена. Вы можете начать заново, нажав /menu и выбрав регистрацию", reply_markup=ReplyKeyboardRemove)
+        await message.answer("Регистрация отменена. Вы можете начать заново, нажав /menu и выбрав регистрацию", reply_markup=ReplyKeyboardRemove())
         await state.clear()
