@@ -7,6 +7,7 @@ from aiohttp import ClientSession
 from core.config import BACKEND_URL
 from core.keyboards import inline_miniapp_keyboard, menu_register_keyboard, yes_no_keyboard, donor_earlier_kboard, gender_keyboard
 from core.states import RegisterStates
+from dependencies.initdata import create_init_data
 
 router = Router()
 
@@ -174,8 +175,15 @@ async def input_donor_earlier(message: Message, state: FSMContext):
 async def confirm_registration(message: Message, state: FSMContext):
     if message.text.lower() == "да":
         data = await state.get_data()
+        init_data = create_init_data(message.chat.id, message.chat.username)
         async with ClientSession() as session:
-            await session.post(f"{BACKEND_URL}/post-register", json=data)
+            response = await session.get(f"{BACKEND_URL}/get-token", json={"InitData": init_data})
+            tokens = await response.json()
+            await session.post(
+                f"{BACKEND_URL}/post-register",
+                json=data,
+                headers={"Authorization": f"Bearer {tokens['access']}"}
+            )
 
         await message.answer("Регистрация завершена. Спасибо!")
         await state.clear()
