@@ -4,7 +4,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 from aiohttp.client import ClientSession
 from core.handlers import router
-from core.keyboards import gender_keyboard, yes_no_keyboard
+from core.keyboards import gender_keyboard, yes_no_keyboard, donor_earlier_kboard
 from core.config import BACKEND_URL
 
 
@@ -114,7 +114,7 @@ async def input_chronic_disease(message: Message, state: FSMContext):
 async def input_medical_exemption(message: Message, state: FSMContext):
     exempted = message.text.lower() == "да"
     await state.update_data(medical_exemption=exempted)
-    await message.answer("Вы сдавали кровь раньше? (да/нет)")
+    await message.answer("Вы сдавали кровь раньше?", reply_markup=donor_earlier_kboard)
     await state.set_state(RegisterStates.DONOR_EARLIER)
 
 
