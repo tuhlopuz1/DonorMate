@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict
 
@@ -38,11 +39,15 @@ class TokenManager:
             )
 
             if datetime.fromtimestamp(payload.get("exp"), tz=timezone.utc) < datetime.now(timezone.utc):
+                logging.info("Token has expired")
                 return False
             if access and "type" != "access":
+                logging.info("Invalid token type")
                 return False
             elif not access and "type" != "refresh":
+                logging.info("Invalid token type")
                 return False
             return payload
-        except JWTError:
+        except JWTError as e:
+            logging.info(f"error: {e}")
             return False
