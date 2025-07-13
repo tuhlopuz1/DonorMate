@@ -91,9 +91,9 @@ async def input_birthdate(message: Message, state: FSMContext):
 @router.message(RegisterStates.GENDER)
 async def input_gender(message: Message, state: FSMContext):
     text = message.text.lower()
-    if "Мужской" in text:
+    if "мужской" in text:
         gender = "MALE"
-    elif "Женский" in text:
+    elif "женский" in text:
         gender = "FEMALE"
     else:
         gender = "UNDEFINED"
@@ -151,9 +151,9 @@ async def input_medical_exemption(message: Message, state: FSMContext):
 @router.message(RegisterStates.DONOR_EARLIER)
 async def input_donor_earlier(message: Message, state: FSMContext):
     text = message.text.lower()
-    if text == "Да, был(а)":
+    if text == "да, был(а)":
         donor = "YES"
-    elif text == "Не был(а)":
+    elif text == "нет, не был(а)":
         donor = "NO"
     else:
         donor = "ONCE"
@@ -176,8 +176,9 @@ async def confirm_registration(message: Message, state: FSMContext):
         data = await state.get_data()
         init_data = create_init_data(message.chat.id, message.chat.username)
         async with ClientSession() as session:
-            response = await session.get(f"{BACKEND_URL}/get-token", json={"InitData": init_data})
+            response = await session.post(f"{BACKEND_URL}/get-token", json={"InitData": init_data})
             tokens = await response.json()
+            
             await session.post(
                 f"{BACKEND_URL}/post-register",
                 json=data,

@@ -49,6 +49,6 @@ donor_earlier_kboard = ReplyKeyboardMarkup(
     keyboard=[
         [KeyboardButton(text="Да, был(а)")],
         [KeyboardButton(text="Был(а) однажды")],
-        [KeyboardButton(text="Не был(а)")]
+        [KeyboardButton(text="Нет, не был(а)")]
     ]
 )
