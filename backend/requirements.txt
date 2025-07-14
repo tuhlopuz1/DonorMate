@@ -9,3 +9,7 @@ aio_pika
 celery
 python-jose==3.4.0
 alembic
+httpx
+httpx_aws_auth
+python-multipart
+ 

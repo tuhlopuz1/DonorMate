@@ -66,6 +66,16 @@ class Information(Base):
     user: Mapped["User"] = relationship(back_populates="info")
 
 
+class MedicalExemption(Base):
+    id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
+    user_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("users.id", ondelete="CASCADE"))
+    start_date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    end_date: Mapped[datetime] = mapped_column(DateTime, nullable=True)
+    medic_phone_num: Mapped[str] = mapped_column(String, nullable=True)
+    comment: Mapped[str] = mapped_column(String, nullable=True)
+    url: Mapped[str] = mapped_column(String, nullable=False)
+
+
 class Event(Base):
     id: Mapped[UUID] = mapped_column(Uuid, index=True, primary_key=True, default=uuid4)
     name: Mapped[Optional[str]] = mapped_column(String, nullable=True)

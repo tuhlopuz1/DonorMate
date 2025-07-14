@@ -7,7 +7,7 @@ from aiogram.types import (
 )
 from core.config import FRONTEND_URL
 
-inline_miniapp_keyboard = InlineKeyboardMarkup(
+inline_miniapp_kbd = InlineKeyboardMarkup(
     inline_keyboard=[
         [
             InlineKeyboardButton(
@@ -24,7 +24,7 @@ inline_miniapp_keyboard = InlineKeyboardMarkup(
     ]
 )
 
-menu_register_keyboard = InlineKeyboardMarkup(
+menu_register_kbd = InlineKeyboardMarkup(
     inline_keyboard=[
         [
             InlineKeyboardButton(
@@ -35,7 +35,19 @@ menu_register_keyboard = InlineKeyboardMarkup(
     ]
 )
 
-gender_keyboard = ReplyKeyboardMarkup(
+menu_kbd = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [
+            InlineKeyboardButton(
+                text="Список мероприятий",
+                callback_data="list",
+            )
+        ],
+    ]
+)
+
+
+gender_kbd = ReplyKeyboardMarkup(
     keyboard=[
         [KeyboardButton(text="Мужской"), KeyboardButton(text="Женский")],
         [KeyboardButton(text="Не указывать")],
@@ -44,8 +56,8 @@ gender_keyboard = ReplyKeyboardMarkup(
     one_time_keyboard=True,
 )
 
-yes_no_keyboard = ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text="Да"), KeyboardButton(text="Нет")]])
+yes_no_kbd = ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text="Да"), KeyboardButton(text="Нет")]])
 
-donor_earlier_kboard = ReplyKeyboardMarkup(
+donor_earlier_kbd = ReplyKeyboardMarkup(
     keyboard=[[KeyboardButton(text="Да")], [KeyboardButton(text="Нет")], [KeyboardButton(text="Однажды")]]
 )

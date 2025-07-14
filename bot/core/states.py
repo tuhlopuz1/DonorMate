@@ -14,6 +14,11 @@ class RegisterStates(StatesGroup):
     WEIGHT = State()
     CHRONIC_DISEASE = State()
     MEDICAL_EXEMPTION = State()
+    ME_FILE = State()
+    ME_START_DATE = State()
+    ME_END_DATE = State()
+    ME_PHONE_NUM = State()
+    ME_COMMENT = State()
     DONOR_EARLIER = State()
     CONFIRM = State()
 
