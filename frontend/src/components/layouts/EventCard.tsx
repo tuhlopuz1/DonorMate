@@ -1,4 +1,6 @@
 import React from "react";
+import { FiMapPin, FiCalendar } from "react-icons/fi";
+
 
 type EventCardProps = {
   title: string;
@@ -30,21 +32,24 @@ const EventCard: React.FC<EventCardProps> = ({
   return (
     <div className="bg-white shadow-md rounded-2xl p-6 w-full max-w-md border border-gray-100">
       <div className="mb-2">
-        <h2 className="text-xl font-semibold text-gray-900">{title}</h2>
-        <p className="text-sm text-gray-500">
-          {formattedDate}, {timeRange}
-        </p>
+        <h2 className="text-xl font-semibold text-gray-900 mb-3">{title}</h2>
+        <div className="flex items-center text-sm text-gray-700 mb-2 gap-1">
+            <FiCalendar size={15}/>
+            <span className="font-medium text-base"> 
+            {formattedDate}, {timeRange}
+            </span>
+        </div>
       </div>
 
-      <div className="text-sm text-gray-700 mb-2">
-        📍 <span className="font-medium">{location}</span>
+      <div className="flex items-start text-sm text-gray-700 mb-2 gap-1">
+        <FiMapPin size={15} className="mt-1"/> <span className="font-medium text-base">{location}</span>
       </div>
 
       <div className="text-sm text-gray-600 mb-4">{description}</div>
 
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 justify-between">
         <span
-          className={`text-sm font-medium px-3 py-1 rounded-full ${
+          className={`text-sm font-medium px-3 py-1 rounded-full w-auto ${
             isFull
               ? "bg-red-100 text-red-700"
               : "bg-green-100 text-green-700"
