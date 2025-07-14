@@ -12,7 +12,7 @@ import MainPage from './pages/Main';
 import AppointmentsPage from './pages/Appointments';
 import SchedulePage from './pages/Schedule';
 import ProfilePage from './pages/Profile';
-
+import NotAvailable from './pages/NotAvailable';
 
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
@@ -27,6 +27,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         <Route path="/appointments" element={<AppointmentsPage />} />
         <Route path="/schedule" element={<SchedulePage />} />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/not-available" element={<NotAvailable />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </HashRouter>
