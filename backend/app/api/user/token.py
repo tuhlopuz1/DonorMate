@@ -1,69 +1,64 @@
 import hmac
 import json
 from hashlib import sha256
-from urllib.parse import unquote_plus
+from urllib.parse import parse_qsl, unquote_plus
 
 from app.core.config import BOT_TOKEN
 from app.dependencies.responses import badresponse
 from app.dependencies.token_manager import TokenManager
 from app.models.db_adapter import adapter
 from app.models.db_tables import User
-from app.models.schemas import InitDataPayload, TokensResponse
-from fastapi import APIRouter
+from app.models.schemas import TokensResponse
+from fastapi import APIRouter, Request
 
 router = APIRouter()
 
 
 def verify_init_data(init_data: str) -> dict | None:
-    # Разбиваем initData на пары key=value
-    items = init_data.split("&")
-    data_check = []
-    hash_value = None
+    parsed_list = parse_qsl(init_data, keep_blank_values=True)
+    parsed = {}
+    check_items = []
+    hash_ = None
 
-    for item in items:
-        if item.startswith("hash="):
-            hash_value = item.split("=", 1)[1]
-        elif item.startswith("signature="):
-            continue  # пропускаем signature
+    for k, v in parsed_list:
+        if k == "hash":
+            hash_ = v
+        elif k == "signature":
+            continue
         else:
-            data_check.append(item)
+            parsed[k] = v
+            check_items.append((k, v))
 
-    if not hash_value:
+    if not hash_:
         return None
 
-    # Сортируем и объединяем
-    check_string = "\n".join(sorted(data_check))
-
+    check_string = "\n".join(f"{k}={v}" for k, v in sorted(check_items))
     secret_key = sha256(BOT_TOKEN.encode()).digest()
     calc_hash = hmac.new(secret_key, check_string.encode(), sha256).hexdigest()
 
-    if calc_hash != hash_value:
+    if calc_hash != hash_:
         return None
-
-    # Преобразуем в словарь (с URL-decoding только ключей)
-    parsed = dict(item.split("=", 1) for item in data_check)
-
-    # Декодируем JSON в поле "user"
-    if "user" in parsed:
-        parsed["user"] = json.loads(unquote_plus(parsed["user"]))
 
     return parsed
 
 
 @router.post("/get-token", response_model=TokensResponse, status_code=201)
-async def get_token(payload: InitDataPayload):
-    parsed = verify_init_data(payload.InitData)
+async def get_token(request: Request):
+    init_data_bytes = await request.body()
+    init_data = init_data_bytes.decode()
+
+    parsed = verify_init_data(init_data)
     if not parsed:
         return badresponse("Invalid init data", 403)
 
-    user_data = parsed.get("user")
-    if not user_data or "id" not in user_data:
-        return badresponse("User not found", 404)
+    try:
+        user = json.loads(unquote_plus(parsed["user"]))
+        user_id = int(user["id"])
+    except Exception:
+        return badresponse("Invalid user data", 400)
 
-    user_id = int(user_data["id"])
-
-    existing_user = await adapter.get_by_id(User, user_id)
-    if not existing_user:
+    user_obj = await adapter.get_by_id(User, user_id)
+    if not user_obj:
         return badresponse("User not registered", 404)
 
     access_token = TokenManager.create_token(data={"sub": str(user_id)})
