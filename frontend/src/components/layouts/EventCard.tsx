@@ -1,5 +1,9 @@
 import React from "react";
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
 import { FiMapPin, FiCalendar } from "react-icons/fi";
+
+const MySwal = withReactContent(Swal);
 
 type EventCardProps = {
   title: string;
@@ -29,6 +33,45 @@ const EventCard: React.FC<EventCardProps> = ({
   });
 
   const isFull = spotsLeft <= 0;
+
+  const handleRegisterClick = () => {
+    MySwal.fire({
+      title: title,
+      html: (
+        <div className="text-left text-gray-800">
+          <div className="mb-3">
+            <div className="flex items-start text-sm mb-2 gap-1">
+              <FiCalendar size={15} className="mt-1" />
+              <span className="font-medium text-base">
+                {formattedDate}, {timeRange}
+              </span>
+            </div>
+            <div className="flex items-start text-sm gap-1">
+              <FiMapPin size={15} className="mt-1" />
+              <span className="font-medium text-base">{location}</span>
+            </div>
+          </div>
+          <p className="text-sm text-gray-700">{description}</p>
+        </div>
+      ),
+      showCancelButton: true,
+      confirmButtonText: "Записаться",
+      cancelButtonText: "Отмена",
+      customClass: {
+        popup: "rounded-2xl p-6 border border-gray-100 shadow-md",
+        confirmButton:
+          "bg-blue-600 text-white px-4 py-2 rounded-xl text-sm hover:bg-blue-700",
+        cancelButton:
+          "bg-gray-200 text-gray-700 px-4 py-2 rounded-xl text-sm ml-2",
+      },
+      buttonsStyling: false,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Тут можешь вставить обработку записи
+        console.log("Пользователь записался на мероприятие:", title);
+      }
+    });
+  };
 
   return (
     <div className="bg-white shadow-md rounded-2xl p-6 w-full max-w-md border border-gray-100">
@@ -68,9 +111,10 @@ const EventCard: React.FC<EventCardProps> = ({
               ? "bg-gray-300 text-gray-600 cursor-not-allowed"
               : isFull
               ? "bg-blue-400 text-white opacity-50 cursor-not-allowed"
-              : "bg-blue-600 text-white hover:bg-blue-700"
+              : "bg-blue-500 text-white hover:bg-blue-700"
           }`}
           disabled={isRegistered || isFull}
+          onClick={handleRegisterClick}
         >
           {isRegistered ? "Вы уже записаны" : "Записаться"}
         </button>
