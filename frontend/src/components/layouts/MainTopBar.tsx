@@ -1,5 +1,6 @@
 // src/components/TopBar.tsx
 import { Bell } from "lucide-react";
+import logo from "../../assets/donor_logo.jpg"
 
 export default function MainTopBar() {
   return (
@@ -7,7 +8,7 @@ export default function MainTopBar() {
       <div className="flex items-center space-x-3">
         {/* Заглушка логотипа */}
         <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
-          <span className="text-blue-600 font-bold">L</span>
+          <img src={logo} className="rounded-full"></img>
         </div>
         <h1 className="text-xl font-semibold">DonorMate</h1>
       </div>
