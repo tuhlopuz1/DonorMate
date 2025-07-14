@@ -1,8 +1,8 @@
-import logo from '../assets/donor_logo.png'
+import logo from '../assets/donor_logo.jpg'
 
 export default function WelcomePage() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-rose-100 via-white to-sky-100 px-6 text-center">
+    <div className="flex flex-col items-center justify-center min-h-screen px-6 text-center">
       {/* Логотип */}
       <img
         src={logo}

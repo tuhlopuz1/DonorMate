@@ -1,4 +1,4 @@
-import logo from '../assets/donor_logo.png'
+import logo from '../assets/donor_logo.jpg'
 import MedotvodModal from '../components/layouts/Medotvod';
 import { useState } from 'react';
 
@@ -8,7 +8,7 @@ export default function UserSurvey() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
-    <div className="flex flex-col items-center min-h-screen bg-gradient-to-br from-rose-100 via-white to-sky-100 px-6 py-12">
+    <div className="flex flex-col items-center min-h-screen px-6 py-12">
       {/* Логотип */}
       <img
         src={logo}
