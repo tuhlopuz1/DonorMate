@@ -53,16 +53,17 @@ export default function App() {
       console.log(localStorage.getItem('donor_photo_url'))
 
 
-
+      const formData = new URLSearchParams();
+      formData.append("initData", window.Telegram.WebApp.initData);
 
 
     // Отправляем initData на бэкенд
-    fetch("https://api.donor.vickz.ru/api/get-token", {
+    fetch("https://api.donor.vickz.ru/api/auth/telegram", {
         method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({
-            InitData: window.Telegram.WebApp.initData
-        })
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: formData
     })
     .then(res => res.json())
     .then(data => {

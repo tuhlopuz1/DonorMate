@@ -1,30 +1,26 @@
 import React from "react";
+import { FiMapPin, FiCalendar } from "react-icons/fi";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
-import { FiMapPin, FiCalendar } from "react-icons/fi";
 
 const MySwal = withReactContent(Swal);
 
-type EventCardProps = {
+type MyEventCardProps = {
   title: string;
   date: string;
   timeRange: string;
   location: string;
-  spotsLeft: number;
-  totalSpots: number;
   description: string;
-  isRegistered: boolean;
+  onCancel?: () => void; // колбэк при подтверждении отмены
 };
 
-const EventCard: React.FC<EventCardProps> = ({
+const MyEventCard: React.FC<MyEventCardProps> = ({
   title,
   date,
   timeRange,
   location,
-  spotsLeft,
-  totalSpots,
   description,
-  isRegistered,
+  onCancel,
 }) => {
   const formattedDate = new Date(date).toLocaleDateString("ru-RU", {
     weekday: "long",
@@ -32,9 +28,7 @@ const EventCard: React.FC<EventCardProps> = ({
     month: "long",
   });
 
-  const isFull = spotsLeft <= 0;
-
-  const handleRegisterClick = () => {
+  const handleCancelClick = () => {
     MySwal.fire({
       title: title,
       html: (
@@ -55,26 +49,25 @@ const EventCard: React.FC<EventCardProps> = ({
         </div>
       ),
       showCancelButton: true,
-      confirmButtonText: "Записаться",
-      cancelButtonText: "Отмена",
+      confirmButtonText: "Отменить запись",
+      cancelButtonText: "Назад",
       customClass: {
         popup: "rounded-2xl p-6 border border-gray-100 shadow-md",
         confirmButton:
-          "bg-blue-600 text-white px-4 py-2 rounded-xl text-sm hover:bg-blue-700",
+          "bg-red-600 text-white px-4 py-2 rounded-xl text-sm hover:bg-red-700",
         cancelButton:
           "bg-gray-200 text-gray-700 px-4 py-2 rounded-xl text-sm ml-2",
       },
       buttonsStyling: false,
     }).then((result) => {
-      if (result.isConfirmed) {
-        // Тут можешь вставить обработку записи
-        console.log("Пользователь записался на мероприятие:", title);
+      if (result.isConfirmed && onCancel) {
+        onCancel();
       }
     });
   };
 
   return (
-    <div className="bg-white shadow-[0_0_10px_rgba(0,0,0,0.2)] rounded-2xl p-6 w-full max-w-md border border-gray-100">
+    <div className="bg-white shadow-[0_0_10px_rgba(0,0,0,0.15)] rounded-2xl p-6 w-full max-w-md border border-gray-100">
       <div className="mb-2">
         <h2 className="text-xl font-semibold text-gray-900 mb-3">{title}</h2>
         <div className="flex items-start text-sm text-gray-700 mb-2 gap-1">
@@ -92,35 +85,22 @@ const EventCard: React.FC<EventCardProps> = ({
 
       <div className="text-sm text-gray-600 mb-4">{description}</div>
 
-      <div className="flex flex-col gap-3 justify-between">
-        <span
-          className={`text-sm font-medium px-3 py-1 rounded-full w-auto ${
-            isFull
-              ? "bg-red-100 text-red-700"
-              : "bg-green-100 text-green-700"
-          }`}
-        >
-          {isFull
-            ? "Мест нет"
-            : `Осталось мест: ${spotsLeft} / ${totalSpots}`}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <span className="text-sm font-medium px-3 py-1 rounded-full bg-blue-100 text-blue-700 w-fit">
+          Вы записаны
         </span>
 
-        <button
-          className={`font-medium px-4 py-2 rounded-xl text-sm transition ${
-            isRegistered
-              ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-              : isFull
-              ? "bg-blue-400 text-white cursor-not-allowed"
-              : "bg-blue-500 text-white hover:bg-blue-700"
-          }`}
-          disabled={isRegistered || isFull}
-          onClick={handleRegisterClick}
-        >
-          {isRegistered ? "Вы уже записаны" : "Записаться"}
-        </button>
+        {onCancel && (
+          <button
+            className="text-sm font-medium text-red-600 bg-red-200 p-2 rounded-2xl"
+            onClick={handleCancelClick}
+          >
+            Отменить участие
+          </button>
+        )}
       </div>
     </div>
   );
 };
 
-export default EventCard;
+export default MyEventCard;
