@@ -1,4 +1,5 @@
 import hmac
+import json
 import time
 from datetime import datetime
 from hashlib import sha256
@@ -12,14 +13,14 @@ from core.config import BACKEND_URL, BOT_TOKEN
 def create_init_data(user_id: int, username: str = None) -> str:
     auth_date = int(time.time())
 
-    init_data = {"user": f"{user_id}", "auth_date": str(auth_date)}
-
+    user_data = {"id": user_id}
     if username:
-        init_data["username"] = username
+        user_data["username"] = username
+
+    init_data = {"user": json.dumps(user_data, separators=(",", ":")), "auth_date": str(auth_date)}
 
     check_string = "\n".join(f"{k}={v}" for k, v in sorted(init_data.items()))
-
-    secret_key = sha256(BOT_TOKEN.encode()).digest()
+    secret_key = hmac.new("WebAppData".encode(), BOT_TOKEN.encode(), sha256).digest()
     hash_ = hmac.new(secret_key, check_string.encode(), sha256).hexdigest()
 
     init_data["hash"] = hash_
@@ -60,13 +61,18 @@ async def forward_exemption_to_fastapi(
 
         headers = {"Authorization": f"Bearer {token}"}
 
-        async with session.post(f"{BACKEND_URL}/api/upload-medical-exemption", data=form, headers=headers) as resp:
+        async with session.post(f"{BACKEND_URL}/upload-medical-exemption", data=form, headers=headers) as resp:
             return await resp.json()
 
 
 async def get_access_token(chat_id: int, chat_username: str):
     init_data = create_init_data(chat_id, chat_username)
+    print(">>> initData:", init_data)
     async with aiohttp.ClientSession() as session:
-        response = await session.post(f"{BACKEND_URL}/get-token", json={"InitData": str(init_data)})
-        tokens = await response.json()
-        return tokens["access"]
+        headers = {"Content-Type": "application/x-www-form-urlencoded"}
+        data = {"initData": init_data}
+        async with session.post(f"{BACKEND_URL}/get-token", data=data, headers=headers) as response:
+            if response.status != 200:
+                raise Exception(f"Token request failed: {response.status}")
+            tokens = await response.json()
+            return str(tokens["access"])

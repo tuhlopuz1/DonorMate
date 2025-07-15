@@ -4,6 +4,7 @@ from aiogram import F, Router
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message, ReplyKeyboardRemove
+from aiogram.utils.markdown import hlink
 from aiohttp import ClientSession
 from core.config import BACKEND_URL
 from core.keyboards import (
@@ -250,7 +251,7 @@ async def input_donor_earlier(message: Message, state: FSMContext):
     summary_lines = []
     for key, value in data.items():
         if key == "medical_exemption_url" and value:
-            summary_lines.append(f"Медицинский отвод: [ссылка]({value})")
+            summary_lines.append(f"Медицинский отвод: {hlink('ссылка', url=value)}")
         else:
             summary_lines.append(f"{FIELD_NAMES_RU.get(key, key)}: {format_value(value)}")
 
@@ -259,7 +260,7 @@ async def input_donor_earlier(message: Message, state: FSMContext):
     await message.answer(
         f"Проверьте введённые данные:\n\n{summary}\n\nПодтвердите отправку?",
         reply_markup=yes_no_kbd,
-        parse_mode="Markdown",
+        parse_mode="HTML",
     )
     await state.set_state(RegisterStates.CONFIRM)
 

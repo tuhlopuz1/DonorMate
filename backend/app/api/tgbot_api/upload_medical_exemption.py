@@ -1,5 +1,7 @@
+import os
 from datetime import datetime
 from typing import Annotated, Optional
+from uuid import uuid4
 
 from app.core.config import DOCUMENTS_BUCKET
 from app.dependencies.checks import check_user_token
@@ -24,7 +26,9 @@ async def upload_medical_exemption(
 ):
     if not user:
         return badresponse("Unauthorized", 401)
+    uuid = uuid4()
     med_exemp_dict = {
+        "id": uuid,
         "start_date": start_date,
         "end_date": end_date,
         "medic_phone_num": medic_phone_num,
@@ -32,13 +36,13 @@ async def upload_medical_exemption(
         "user_id": user.id,
     }
     try:
-        document = await adapter.insert(MedicalExemption, med_exemp_dict)
-
-        filename = f"{user.id}/{document.id}"
         s3 = S3HttpxSigV4Adapter(DOCUMENTS_BUCKET)
-        await s3.upload_file(file, filename)
-        url = s3.get_url(filename)
-        await adapter.update_by_id(MedicalExemption, document.id, {"url": url})
+        file_bytes = await file.read()
+        ext = os.path.splitext(file.filename)[1]
+        filename = f"{user.id}/{uuid}{ext}"
+        url = await s3.upload_file(file_bytes, filename)
+        med_exemp_dict["url"] = url
+        document = await adapter.insert(MedicalExemption, med_exemp_dict)
         return MedicalExemptionResponse(id=document.id, url=url)
     except Exception as e:
         return badresponse(f"Uploading error: {e}", 500)
