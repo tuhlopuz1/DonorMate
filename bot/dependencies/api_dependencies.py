@@ -6,7 +6,6 @@ from hashlib import sha256
 from urllib.parse import urlencode
 
 import aiohttp
-from aiogram.types import Message
 from core.config import BACKEND_URL, BOT_TOKEN
 
 
@@ -29,18 +28,18 @@ def create_init_data(user_id: int, username: str = None) -> str:
 
 
 async def forward_exemption_to_fastapi(
-    message: Message,
+    token: str,
     start_date: datetime,
     end_date: datetime,
-    token: str,
+    file_id: str,
+    file_name: str,
+    mime_type: str,
     medic_phone_num: str = None,
     comment: str = None,
 ):
-    if not message.document:
-        return
     from core.dispatcher import bot
 
-    file_info = await bot.get_file(message.document.file_id)
+    file_info = await bot.get_file(file_id)
     file_url = f"https://api.telegram.org/file/bot{bot.token}/{file_info.file_path}"
 
     async with aiohttp.ClientSession() as session:
@@ -48,8 +47,8 @@ async def forward_exemption_to_fastapi(
             file_bytes = await tg_response.read()
 
         form = aiohttp.FormData()
-        form.add_field("start_date", start_date)
-        form.add_field("end_date", end_date)
+        form.add_field("start_date", start_date.isoformat() if isinstance(start_date, datetime) else start_date)
+        form.add_field("end_date", end_date.isoformat() if isinstance(end_date, datetime) else end_date)
 
         if medic_phone_num is not None:
             form.add_field("medic_phone_num", medic_phone_num)
@@ -59,8 +58,8 @@ async def forward_exemption_to_fastapi(
         form.add_field(
             "file",
             file_bytes,
-            filename=message.document.file_name,
-            content_type=message.document.mime_type or "application/octet-stream",
+            filename=file_name,
+            content_type=mime_type or "application/octet-stream",
         )
 
         headers = {"Authorization": f"Bearer {token}"}

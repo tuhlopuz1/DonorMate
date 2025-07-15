@@ -15,7 +15,12 @@ from core.keyboards import (
     menu_register_kbd,
     yes_no_kbd,
 )
-from core.states import FIELD_NAMES_RU, RegisterStates, format_value
+from core.states import (
+    FIELD_NAMES_RU,
+    MedicalExemptionUpdStates,
+    RegisterStates,
+    format_value,
+)
 from dependencies.api_dependencies import forward_exemption_to_fastapi, get_access_token
 from dependencies.dialogcalendar import DialogCalendarNoCancel
 
@@ -214,10 +219,12 @@ async def handle_medical_exemption_file(message: Message, state: FSMContext):
     data = await state.get_data()
     token = await get_access_token(message.chat.id, message.chat.username)
     result = await forward_exemption_to_fastapi(
-        message=message,
         token=token,
         start_date=data.get("me_start_date"),
         end_date=data.get("me_end_date"),
+        file_id=message.document.file_id,
+        file_name=message.document.file_name,
+        mime_type=message.document.mime_type,
         medic_phone_num=data.get("me_phone_num"),
         comment=data.get("me_comment"),
     )
@@ -277,7 +284,109 @@ async def confirm_registration(message: Message, state: FSMContext):
         await state.clear()
     else:
         await message.answer(
-            "Регистрация отменена. Вы можете начать заново, нажав /menu и выбрав регистрацию",
+            "Регистрация отменена. Вы можете начать заново в меню",
+            reply_markup=ReplyKeyboardRemove(),
+        )
+        await state.clear()
+
+
+@router.callback_query(F.data == "medical_exemption_upd")
+async def medical_exemption_upload(callback: CallbackQuery, state: FSMContext):
+    calendar = DialogCalendarNoCancel()
+    markup = await calendar.start_calendar()
+    await callback.message.answer("Выберите дату начала медицинского отвода:", reply_markup=markup)
+    await state.set_state(MedicalExemptionUpdStates.ME_START_DATE)
+
+
+@router.message(MedicalExemptionUpdStates.ME_START_DATE)
+async def me_start_date(message: Message):
+    await message.answer("Пожалуйста, выберите дату из календаря.")
+
+
+@router.message(MedicalExemptionUpdStates.ME_END_DATE)
+async def me_end_date(message: Message):
+    await message.answer("Пожалуйста, выберите дату из календаря.")
+
+
+@router.message(MedicalExemptionUpdStates.ME_PHONE_NUM)
+async def me_phone_num(message: Message, state: FSMContext):
+    phone = message.text.strip()
+    phone = None if phone == "-" else phone
+    await state.update_data(me_phone_num=phone)
+    await message.answer('Введите комментарий (нажмите "-" для пропуска):', reply_markup=empty_kbd)
+    await state.set_state(MedicalExemptionUpdStates.ME_COMMENT)
+
+
+@router.message(MedicalExemptionUpdStates.ME_COMMENT)
+async def me_comment(message: Message, state: FSMContext):
+    comment = message.text.strip()
+    comment = None if comment == "-" else comment
+    await state.update_data(me_comment=comment)
+    await message.answer(
+        "Пожалуйста, отправьте файл медицинского отвода (справку).", reply_markup=ReplyKeyboardRemove()
+    )
+    await state.set_state(MedicalExemptionUpdStates.ME_FILE)
+
+
+@router.message(MedicalExemptionUpdStates.ME_FILE, F.content_type == "document")
+async def medical_exemption_file(message: Message, state: FSMContext):
+    data = await state.get_data()
+    summary_lines = []
+    for key, value in data.items():
+        display_value = "Не указано" if value is None else format_value(value)
+        summary_lines.append(f"{FIELD_NAMES_RU.get(key, key)}: {display_value}")
+    summary = "\n".join(summary_lines)
+    await message.answer(
+        f"Проверьте введённые данные:\n\n{summary}\n\nПодтвердите отправку?",
+        reply_markup=yes_no_kbd,
+        parse_mode="HTML",
+    )
+    await state.update_data(
+        me_file_id=message.document.file_id,
+        me_file_name=message.document.file_name,
+        me_mime_type=message.document.mime_type,
+    )
+    await state.set_state(MedicalExemptionUpdStates.CONFIRM)
+
+
+@router.message(MedicalExemptionUpdStates.ME_FILE)
+async def correct_file(message: Message):
+    await message.answer("Пожалуйста, отправьте файл в виде документа.")
+
+
+@router.message(MedicalExemptionUpdStates.CONFIRM)
+async def confirm_me(message: Message, state: FSMContext):
+    if message.text.lower() == "да":
+        data = await state.get_data()
+        token = await get_access_token(message.chat.id, message.chat.username)
+
+        if not data.get("me_file_id"):
+            await message.answer("Файл не найден, загрузите медицинский отвод заново.")
+            await state.clear()
+            return
+
+        result = await forward_exemption_to_fastapi(
+            token=token,
+            start_date=data.get("me_start_date"),
+            end_date=data.get("me_end_date"),
+            file_id=data["me_file_id"],
+            file_name=data["me_file_name"],
+            mime_type=data.get("me_mime_type"),
+            medic_phone_num=data.get("me_phone_num"),
+            comment=data.get("me_comment"),
+        )
+        if result.get("id") and result.get("url"):
+            await message.answer(
+                f"Медицинский отвод успешно загружен. {hlink('ссылка', url=result['url'])}",
+                reply_markup=ReplyKeyboardRemove(),
+                parse_mode="HTML",
+            )
+        else:
+            await message.answer(f"Ошибка при загрузке: {result}")
+        await state.clear()
+    else:
+        await message.answer(
+            "Отправка отменена. Вы можете начать заново в меню",
             reply_markup=ReplyKeyboardRemove(),
         )
         await state.clear()
@@ -313,6 +422,21 @@ async def process_calendar_selection(
                 "Введите номер телефона врача (нажмите '-' для пропуска):", reply_markup=empty_kbd
             )
             await state.set_state(RegisterStates.ME_PHONE_NUM)
+
+        elif current_state == MedicalExemptionUpdStates.ME_START_DATE:
+            await state.update_data(me_start_date=iso_date)
+            calendar_markup = await calendar.start_calendar()
+            await callback_query.message.answer(
+                "Выберите дату окончания медицинского отвода:", reply_markup=calendar_markup
+            )
+            await state.set_state(MedicalExemptionUpdStates.ME_END_DATE)
+
+        elif current_state == MedicalExemptionUpdStates.ME_END_DATE:
+            await state.update_data(me_end_date=iso_date)
+            await callback_query.message.answer(
+                "Введите номер телефона врача (нажмите '-' для пропуска):", reply_markup=empty_kbd
+            )
+            await state.set_state(MedicalExemptionUpdStates.ME_PHONE_NUM)
 
     elif selected_date:
         await callback_query.message.edit_reply_markup(reply_markup=selected_date)

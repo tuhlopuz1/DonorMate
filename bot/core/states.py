@@ -23,6 +23,15 @@ class RegisterStates(StatesGroup):
     CONFIRM = State()
 
 
+class MedicalExemptionUpdStates(StatesGroup):
+    ME_FILE = State()
+    ME_START_DATE = State()
+    ME_END_DATE = State()
+    ME_PHONE_NUM = State()
+    ME_COMMENT = State()
+    CONFIRM = State()
+
+
 FIELD_NAMES_RU = {
     "fullname": "Имя",
     "surname": "Фамилия",
