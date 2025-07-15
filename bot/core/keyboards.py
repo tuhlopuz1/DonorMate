@@ -43,6 +43,12 @@ menu_kbd = InlineKeyboardMarkup(
                 callback_data="list",
             )
         ],
+        [
+            InlineKeyboardButton(
+                text="Загрузить медецинский отвод",
+                callback_data="medical_exemption_upd",
+            )
+        ],
     ]
 )
 
@@ -61,3 +67,5 @@ yes_no_kbd = ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text="Да"), Keyboar
 donor_earlier_kbd = ReplyKeyboardMarkup(
     keyboard=[[KeyboardButton(text="Да")], [KeyboardButton(text="Нет")], [KeyboardButton(text="Однажды")]]
 )
+
+empty_kbd = ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text="-")]])

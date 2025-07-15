@@ -1,14 +1,14 @@
-from datetime import datetime
-
 from aiogram import F, Router
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message, ReplyKeyboardRemove
 from aiogram.utils.markdown import hlink
+from aiogram_calendar import DialogCalendarCallback
 from aiohttp import ClientSession
 from core.config import BACKEND_URL
 from core.keyboards import (
     donor_earlier_kbd,
+    empty_kbd,
     gender_kbd,
     inline_miniapp_kbd,
     menu_kbd,
@@ -17,6 +17,7 @@ from core.keyboards import (
 )
 from core.states import FIELD_NAMES_RU, RegisterStates, format_value
 from dependencies.api_dependencies import forward_exemption_to_fastapi, get_access_token
+from dependencies.dialogcalendar import DialogCalendarNoCancel
 
 router = Router()
 
@@ -30,7 +31,6 @@ async def handle_start(message: Message):
             "tg_name": message.from_user.first_name,
         }
         await session.post(url=f"{BACKEND_URL}/telegram-register", json=payload)
-
     await message.answer("Выберите действие:", reply_markup=inline_miniapp_kbd)
 
 
@@ -41,6 +41,15 @@ async def open_menu_command(message: Message):
         if response.status == 200:
             await message.answer("Выберите пункт меню:", reply_markup=menu_kbd)
         elif response.status == 204:
+            await message.answer("Для того чтобы перейти в меню - пройдите регистрацию", reply_markup=menu_register_kbd)
+        elif response.status == 404:
+            async with ClientSession() as session:
+                payload = {
+                    "user_id": message.from_user.id,
+                    "username": message.from_user.username,
+                    "tg_name": message.from_user.first_name,
+                }
+                await session.post(url=f"{BACKEND_URL}/telegram-register", json=payload)
             await message.answer("Для того чтобы перейти в меню - пройдите регистрацию", reply_markup=menu_register_kbd)
 
 
@@ -55,26 +64,37 @@ async def open_menu(callback: CallbackQuery):
             await callback.message.answer(
                 "Для того чтобы перейти в меню - пройдите регистрацию", reply_markup=menu_register_kbd
             )
+        elif response.status == 404:
+            async with ClientSession() as session:
+                payload = {
+                    "user_id": callback.message.from_user.id,
+                    "username": callback.message.from_user.username,
+                    "tg_name": callback.message.from_user.first_name,
+                }
+                await session.post(url=f"{BACKEND_URL}/telegram-register", json=payload)
+            await callback.message.answer(
+                "Для того чтобы перейти в меню - пройдите регистрацию", reply_markup=menu_register_kbd
+            )
 
 
 @router.callback_query(F.data == "register")
 async def start_registration(callback: CallbackQuery, state: FSMContext):
     await callback.answer()
-    await callback.message.answer("Введите ваше имя:")
-    await state.set_state(RegisterStates.FULLNAME)
-
-
-@router.message(RegisterStates.FULLNAME)
-async def input_fullname(message: Message, state: FSMContext):
-    await state.update_data(fullname=message.text)
-    await message.answer("Введите вашу фамилию:")
+    await callback.message.answer("Введите вашу фамилию:")
     await state.set_state(RegisterStates.SURNAME)
 
 
 @router.message(RegisterStates.SURNAME)
 async def input_surname(message: Message, state: FSMContext):
     await state.update_data(surname=message.text)
-    await message.answer("Введите ваше отчество (если есть, иначе напишите -):")
+    await message.answer("Введите ваше имя:")
+    await state.set_state(RegisterStates.FULLNAME)
+
+
+@router.message(RegisterStates.FULLNAME)
+async def input_fullname(message: Message, state: FSMContext):
+    await state.update_data(fullname=message.text)
+    await message.answer('Введите ваше отчество (если есть, иначе выберите "-"):', reply_markup=empty_kbd)
     await state.set_state(RegisterStates.PATRONYMIC)
 
 
@@ -82,21 +102,10 @@ async def input_surname(message: Message, state: FSMContext):
 async def input_patronymic(message: Message, state: FSMContext):
     patronymic = message.text
     await state.update_data(patronymic=None if patronymic == "-" else patronymic)
-    await message.answer("Введите дату рождения (ДД.ММ.ГГГГ):")
+    calendar = DialogCalendarNoCancel()
+    markup = await calendar.start_calendar()
+    await message.answer("Выберите дату рождения:", reply_markup=markup)
     await state.set_state(RegisterStates.BIRTH_DATE)
-
-
-@router.message(RegisterStates.BIRTH_DATE)
-async def input_birthdate(message: Message, state: FSMContext):
-    try:
-        birth_date = datetime.strptime(message.text, "%d.%m.%Y")
-    except ValueError:
-        await message.answer("Неверный формат. Введите дату в формате ДД.ММ.ГГГГ:")
-        return
-
-    await state.update_data(birth_date=str(birth_date.isoformat()))
-    await message.answer("Ваш пол?", reply_markup=gender_kbd)
-    await state.set_state(RegisterStates.GENDER)
 
 
 @router.message(RegisterStates.GENDER)
@@ -108,23 +117,24 @@ async def input_gender(message: Message, state: FSMContext):
         gender = "FEMALE"
     else:
         gender = "UNDEFINED"
-
     await state.update_data(gender=gender)
-    await message.answer("Введите ваш университет:")
+    await message.answer('Введите ваш университет: (нажмите "-" для пропуска)', reply_markup=empty_kbd)
     await state.set_state(RegisterStates.UNIVERSITY)
 
 
 @router.message(RegisterStates.UNIVERSITY)
 async def input_university(message: Message, state: FSMContext):
-    await state.update_data(university=message.text)
-    await message.answer("Введите вашу учебную группу:")
+    university = message.text
+    await state.update_data(university=None if university == "-" else university)
+    await message.answer('Введите вашу учебную группу: (нажмите "-" для пропуска)', reply_markup=empty_kbd)
     await state.set_state(RegisterStates.GROUP)
 
 
 @router.message(RegisterStates.GROUP)
 async def input_group(message: Message, state: FSMContext):
-    await state.update_data(group=message.text)
-    await message.answer("Введите ваш вес (в кг):")
+    group = message.text
+    await state.update_data(group=None if group == "-" else group)
+    await message.answer("Введите ваш вес (в кг):", reply_markup=ReplyKeyboardRemove())
     await state.set_state(RegisterStates.WEIGHT)
 
 
@@ -137,7 +147,6 @@ async def input_weight(message: Message, state: FSMContext):
     except ValueError:
         await message.answer("Пожалуйста, введите корректный вес в кг (число от 30 до 300):")
         return
-
     await state.update_data(weight=weight)
     await message.answer("Есть ли у вас хронические заболевания?", reply_markup=yes_no_kbd)
     await state.set_state(RegisterStates.CHRONIC_DISEASE)
@@ -145,6 +154,9 @@ async def input_weight(message: Message, state: FSMContext):
 
 @router.message(RegisterStates.CHRONIC_DISEASE)
 async def input_chronic_disease(message: Message, state: FSMContext):
+    if message.text.lower() not in ("да", "нет"):
+        await message.answer("Пожалуйста нажмите да или нет")
+        return
     has_disease = message.text.lower() == "да"
     await state.update_data(chronic_disease=has_disease)
     await message.answer("Есть ли у вас медицинский отвод от донорства?", reply_markup=yes_no_kbd)
@@ -155,53 +167,45 @@ async def input_chronic_disease(message: Message, state: FSMContext):
 async def input_medical_exemption(message: Message, state: FSMContext):
     if message.text.lower() == "да":
         await state.update_data(medical_exemption=True)
-        await message.answer("Введите дату начала медицинского отвода (ДД.ММ.ГГГГ):")
+        calendar = DialogCalendarNoCancel()
+        markup = await calendar.start_calendar()
+        await message.answer("Выберите дату начала медицинского отвода:", reply_markup=markup)
         await state.set_state(RegisterStates.ME_START_DATE)
-    else:
+    elif message.text.lower() == "нет":
         await state.update_data(medical_exemption=False)
         await message.answer("Вы сдавали кровь раньше?", reply_markup=donor_earlier_kbd)
         await state.set_state(RegisterStates.DONOR_EARLIER)
+    else:
+        await message.answer("Пожалуйста нажмите да или нет")
 
 
 @router.message(RegisterStates.ME_START_DATE)
-async def input_me_start_date(message: Message, state: FSMContext):
-    try:
-        start_date = datetime.strptime(message.text, "%d.%m.%Y")
-    except ValueError:
-        await message.answer("Неверный формат даты. Введите дату в формате ДД.ММ.ГГГГ:")
-        return
-    await state.update_data(me_start_date=start_date.isoformat())
-    await message.answer("Введите дату окончания медицинского отвода (ДД.ММ.ГГГГ):")
-    await state.set_state(RegisterStates.ME_END_DATE)
+async def wait_me_start_date(message: Message):
+    await message.answer("Пожалуйста, выберите дату из календаря.")
 
 
 @router.message(RegisterStates.ME_END_DATE)
-async def input_me_end_date(message: Message, state: FSMContext):
-    try:
-        end_date = datetime.strptime(message.text, "%d.%m.%Y")
-    except ValueError:
-        await message.answer("Неверный формат даты. Введите дату в формате ДД.ММ.ГГГГ:")
-        return
-    await state.update_data(me_end_date=end_date.isoformat())
-    await message.answer("Введите номер телефона врача (или оставьте пустым):")
-    await state.set_state(RegisterStates.ME_PHONE_NUM)
+async def wait_me_end_date(message: Message):
+    await message.answer("Пожалуйста, выберите дату из календаря.")
 
 
 @router.message(RegisterStates.ME_PHONE_NUM)
 async def input_me_phone_num(message: Message, state: FSMContext):
     phone = message.text.strip()
-    phone = phone if phone else None
+    phone = None if phone == "-" else phone
     await state.update_data(me_phone_num=phone)
-    await message.answer("Введите комментарий (или оставьте пустым):")
+    await message.answer('Введите комментарий (нажмите "-" для пропуска):', reply_markup=empty_kbd)
     await state.set_state(RegisterStates.ME_COMMENT)
 
 
 @router.message(RegisterStates.ME_COMMENT)
 async def input_me_comment(message: Message, state: FSMContext):
     comment = message.text.strip()
-    comment = comment if comment else None
+    comment = None if comment == "-" else comment
     await state.update_data(me_comment=comment)
-    await message.answer("Пожалуйста, отправьте файл медицинского отвода (справку).")
+    await message.answer(
+        "Пожалуйста, отправьте файл медицинского отвода (справку).", reply_markup=ReplyKeyboardRemove()
+    )
     await state.set_state(RegisterStates.ME_FILE)
 
 
@@ -209,7 +213,6 @@ async def input_me_comment(message: Message, state: FSMContext):
 async def handle_medical_exemption_file(message: Message, state: FSMContext):
     data = await state.get_data()
     token = await get_access_token(message.chat.id, message.chat.username)
-
     result = await forward_exemption_to_fastapi(
         message=message,
         token=token,
@@ -218,13 +221,11 @@ async def handle_medical_exemption_file(message: Message, state: FSMContext):
         medic_phone_num=data.get("me_phone_num"),
         comment=data.get("me_comment"),
     )
-
     if result.get("id") and result.get("url"):
         await state.update_data(medical_exemption_url=result["url"])
         await message.answer("Медицинский отвод успешно загружен.")
     else:
         await message.answer(f"Ошибка при загрузке: {result}")
-
     await message.answer("Вы сдавали кровь раньше?", reply_markup=donor_earlier_kbd)
     await state.set_state(RegisterStates.DONOR_EARLIER)
 
@@ -241,22 +242,21 @@ async def input_donor_earlier(message: Message, state: FSMContext):
         donor = "YES"
     elif text == "нет":
         donor = "NO"
-    else:
+    elif text == "однажды":
         donor = "ONCE"
-
+    else:
+        await message.answer("Пожалуйста выберите корректный вариант")
+        return
     await state.update_data(donor_earlier=donor)
-
     data = await state.get_data()
-
     summary_lines = []
     for key, value in data.items():
+        display_value = "Не указано" if value is None else format_value(value)
         if key == "medical_exemption_url" and value:
             summary_lines.append(f"Медицинский отвод: {hlink('ссылка', url=value)}")
-        else:
-            summary_lines.append(f"{FIELD_NAMES_RU.get(key, key)}: {format_value(value)}")
-
+        elif key != "medical_exemption_url":
+            summary_lines.append(f"{FIELD_NAMES_RU.get(key, key)}: {display_value}")
     summary = "\n".join(summary_lines)
-
     await message.answer(
         f"Проверьте введённые данные:\n\n{summary}\n\nПодтвердите отправку?",
         reply_markup=yes_no_kbd,
@@ -281,3 +281,40 @@ async def confirm_registration(message: Message, state: FSMContext):
             reply_markup=ReplyKeyboardRemove(),
         )
         await state.clear()
+
+
+@router.callback_query(DialogCalendarCallback.filter())
+async def process_calendar_selection(
+    callback_query: CallbackQuery, callback_data: DialogCalendarCallback, state: FSMContext
+):
+    calendar = DialogCalendarNoCancel()
+    selected, selected_date = await calendar.process_selection(callback_query, callback_data)
+
+    if selected:
+        iso_date = selected_date.isoformat()
+        current_state = await state.get_state()
+
+        if current_state == RegisterStates.BIRTH_DATE:
+            await state.update_data(birth_date=iso_date)
+            await callback_query.message.answer("Ваш пол?", reply_markup=gender_kbd)
+            await state.set_state(RegisterStates.GENDER)
+
+        elif current_state == RegisterStates.ME_START_DATE:
+            await state.update_data(me_start_date=iso_date)
+            calendar_markup = await calendar.start_calendar()
+            await callback_query.message.answer(
+                "Выберите дату окончания медицинского отвода:", reply_markup=calendar_markup
+            )
+            await state.set_state(RegisterStates.ME_END_DATE)
+
+        elif current_state == RegisterStates.ME_END_DATE:
+            await state.update_data(me_end_date=iso_date)
+            await callback_query.message.answer(
+                "Введите номер телефона врача (нажмите '-' для пропуска):", reply_markup=empty_kbd
+            )
+            await state.set_state(RegisterStates.ME_PHONE_NUM)
+
+    elif selected_date:
+        await callback_query.message.edit_reply_markup(reply_markup=selected_date)
+    else:
+        await callback_query.answer()

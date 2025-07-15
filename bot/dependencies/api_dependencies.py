@@ -32,9 +32,9 @@ async def forward_exemption_to_fastapi(
     message: Message,
     start_date: datetime,
     end_date: datetime,
-    medic_phone_num: str,
-    comment: str,
     token: str,
+    medic_phone_num: str = None,
+    comment: str = None,
 ):
     if not message.document:
         return
@@ -50,8 +50,12 @@ async def forward_exemption_to_fastapi(
         form = aiohttp.FormData()
         form.add_field("start_date", start_date)
         form.add_field("end_date", end_date)
-        form.add_field("medic_phone_num", medic_phone_num)
-        form.add_field("comment", comment)
+
+        if medic_phone_num is not None:
+            form.add_field("medic_phone_num", medic_phone_num)
+        if comment is not None:
+            form.add_field("comment", comment)
+
         form.add_field(
             "file",
             file_bytes,
