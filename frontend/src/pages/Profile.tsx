@@ -1,6 +1,6 @@
 import BottomNavBar from "../components/layouts/NavBar";
 import PageTopBar from "../components/layouts/PageTopBar";
-import { FiUser, FiEdit, FiBell } from "react-icons/fi";
+import { FiUser, FiSettings } from "react-icons/fi";
 
 const ProfilePage = () => {
   const user = {
@@ -40,16 +40,9 @@ const ProfilePage = () => {
           </p>
         </div>
 
-        <div className="bg-white rounded-xl p-5 shadow-md">
-          <h3 className="text-xl font-bold mb-3">Настройки</h3>
-          <div className="flex items-center justify-between py-2">
-            <span className="text-gray-700">Уведомления</span>
-            <FiBell size={20} className="text-gray-600" />
-          </div>
-          <div className="flex items-center justify-between py-2">
-            <span className="text-gray-700">Редактировать профиль</span>
-            <FiEdit size={20} className="text-gray-600" />
-          </div>
+        <div onClick={() => {window.location.href = '/#/settings'}} className="flex items-center gap-3 bg-white rounded-xl p-5 shadow-md">
+            <FiSettings size={20}/>
+            <p>Настройки</p>
         </div>
       </div>
 
