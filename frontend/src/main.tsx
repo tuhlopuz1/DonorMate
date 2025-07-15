@@ -17,6 +17,8 @@ import NotificationsPage from './pages/Notifications';
 import SettingsPage from './pages/Settings';
 import ProfileSettings from './pages/ProfileSettings';
 import EventPage from './pages/Event';
+import AdminMainPage from './pages/AdminMain';
+
 
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
@@ -35,6 +37,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         <Route path="/event/:id" element={<EventPage />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/settings/profile" element={<ProfileSettings />} />
+        <Route path="/admin/main" element={<AdminMainPage />} />
         <Route path="/not-available" element={<NotAvailable />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
