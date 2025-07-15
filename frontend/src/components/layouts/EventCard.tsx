@@ -26,15 +26,21 @@ const EventCard: React.FC<EventCardProps> = ({
   description,
   isRegistered,
 }) => {
-  const formattedDate = new Date(date).toLocaleDateString("ru-RU", {
+  const eventDate = new Date(date);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // убрать время из сравнения
+  const formattedDate = eventDate.toLocaleDateString("ru-RU", {
     weekday: "long",
     day: "numeric",
     month: "long",
   });
 
   const isFull = spotsLeft <= 0;
+  const isPastEvent = eventDate < today;
 
   const handleRegisterClick = () => {
+    if (isPastEvent) return;
+
     MySwal.fire({
       title: title,
       html: (
@@ -67,14 +73,17 @@ const EventCard: React.FC<EventCardProps> = ({
       buttonsStyling: false,
     }).then((result) => {
       if (result.isConfirmed) {
-        // Тут можешь вставить обработку записи
         console.log("Пользователь записался на мероприятие:", title);
       }
     });
   };
 
   return (
-    <div className="bg-white shadow-[0_0_10px_rgba(0,0,0,0.2)] rounded-2xl p-6 w-full max-w-md border border-gray-100">
+    <div
+      className={`bg-white rounded-2xl p-6 w-full max-w-md border shadow ${
+        isPastEvent ? "border-gray-200 bg-gray-50 opacity-70" : "border-gray-100"
+      }`}
+    >
       <div className="mb-2">
         <h2 className="text-xl font-semibold text-gray-900 mb-3">{title}</h2>
         <div className="flex items-start text-sm text-gray-700 mb-2 gap-1">
@@ -93,30 +102,42 @@ const EventCard: React.FC<EventCardProps> = ({
       <div className="text-sm text-gray-600 mb-4">{description}</div>
 
       <div className="flex flex-col gap-3 justify-between">
-        <span
-          className={`text-sm font-medium px-3 py-1 rounded-full w-auto ${
-            isFull
-              ? "bg-red-100 text-red-700"
-              : "bg-green-100 text-green-700"
-          }`}
-        >
-          {isFull
-            ? "Мест нет"
-            : `Осталось мест: ${spotsLeft} / ${totalSpots}`}
-        </span>
+        {isPastEvent ? (
+          <span className="text-sm font-medium px-3 py-1 rounded-full bg-gray-200 text-gray-700 w-auto">
+            Мероприятие завершено
+          </span>
+        ) : (
+          <span
+            className={`text-sm font-medium px-3 py-1 rounded-full w-auto ${
+              isFull
+                ? "bg-red-100 text-red-700"
+                : "bg-green-100 text-green-700"
+            }`}
+          >
+            {isFull
+              ? "Мест нет"
+              : `Осталось мест: ${spotsLeft} / ${totalSpots}`}
+          </span>
+        )}
 
         <button
           className={`font-medium px-4 py-2 rounded-xl text-sm transition ${
-            isRegistered
+            isPastEvent
+              ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+              : isRegistered
               ? "bg-gray-300 text-gray-600 cursor-not-allowed"
               : isFull
               ? "bg-blue-400 text-white cursor-not-allowed"
               : "bg-blue-600 text-white hover:bg-blue-700"
           }`}
-          disabled={isRegistered || isFull}
+          disabled={isPastEvent || isRegistered || isFull}
           onClick={handleRegisterClick}
         >
-          {isRegistered ? "Вы уже записаны" : "Записаться"}
+          {isPastEvent
+            ? "Мероприятие завершено"
+            : isRegistered
+            ? "Вы уже записаны"
+            : "Записаться"}
         </button>
       </div>
     </div>
