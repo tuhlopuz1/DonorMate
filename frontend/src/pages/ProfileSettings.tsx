@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { FiUser, FiSave } from "react-icons/fi";
 import PageTopBar from "../components/layouts/PageTopBar";
-
+import BottomNavBar from "../components/layouts/NavBar";
 
 export default function ProfileSettings() {
   const [fullName, setFullName] = useState("Иванов Иван Иванович");
@@ -68,6 +68,7 @@ export default function ProfileSettings() {
           <FiSave /> Сохранить изменения
         </button>
       </div>
+      <BottomNavBar />
     </div>
   );
 }
