@@ -44,12 +44,13 @@ class PostRegisterPayload(BaseModel):
     patronymic: Optional[str] = None
     birth_date: datetime
     gender: Gender
-    university: str
-    group: str
+    university: Optional[str] = None
+    group: Optional[str] = None
     weight: int
     chronic_disease: bool
     medical_exemption: bool
     donor_earlier: DonorEarlier
+    feedback: Optional[str] = None
 
 
 class ProfileResponse(BaseModel):

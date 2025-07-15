@@ -20,6 +20,7 @@ class RegisterStates(StatesGroup):
     ME_PHONE_NUM = State()
     ME_COMMENT = State()
     DONOR_EARLIER = State()
+    FEEDBACK = State()
     CONFIRM = State()
 
 
@@ -48,6 +49,7 @@ FIELD_NAMES_RU = {
     "me_end_date": "Дата окончания действия медицинского отвода",
     "me_phone_num": "Номер телефона врача",
     "me_comment": "Комментарий к медицинскому отводу",
+    "feedback": "Контакт",
 }
 
 

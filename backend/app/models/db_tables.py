@@ -56,12 +56,13 @@ class Information(Base):
     patronymic: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     birth_date: Mapped[datetime] = mapped_column(DateTime)
     gender: Mapped[Gender] = mapped_column(Enum(Gender), default=Gender.UNDEFINED)
-    university: Mapped[str] = mapped_column(String)
-    group: Mapped[str] = mapped_column(String)
+    university: Mapped[str] = mapped_column(String, nullable=True)
+    group: Mapped[str] = mapped_column(String, nullable=True)
     weight: Mapped[int] = mapped_column(Integer)
     chronic_disease: Mapped[bool] = mapped_column(Boolean)
     medical_exemption: Mapped[bool] = mapped_column(Boolean)
     donor_earlier: Mapped[DonorEarlier] = mapped_column(Enum(DonorEarlier), default=DonorEarlier.NO)
+    feedback: Mapped[str] = mapped_column(String, nullable=True)
 
     user: Mapped["User"] = relationship(back_populates="info")
 

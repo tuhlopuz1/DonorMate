@@ -1,3 +1,5 @@
+import logging
+
 from aiogram import F, Router
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
@@ -15,6 +17,7 @@ from core.keyboards import (
     menu_register_kbd,
     yes_no_kbd,
 )
+from core.schemas import PostRegisterPayload
 from core.states import (
     FIELD_NAMES_RU,
     MedicalExemptionUpdStates,
@@ -25,6 +28,8 @@ from dependencies.api_dependencies import forward_exemption_to_fastapi, get_acce
 from dependencies.dialogcalendar import DialogCalendarNoCancel
 
 router = Router()
+
+logger = logging.getLogger(__name__)
 
 
 @router.message(Command("start"))
@@ -255,6 +260,18 @@ async def input_donor_earlier(message: Message, state: FSMContext):
         await message.answer("Пожалуйста выберите корректный вариант")
         return
     await state.update_data(donor_earlier=donor)
+    await message.answer(
+        text='Введите телефонный номер или email по которому с вами можно связаться (нажмите "-" для пропуска)',
+        reply_markup=empty_kbd,
+    )
+    await state.set_state(RegisterStates.FEEDBACK)
+
+
+@router.message(RegisterStates.FEEDBACK)
+async def feedback_addr(message: Message, state: FSMContext):
+    text = message.text.lower()
+    feedback = None if text == "-" else text
+    await state.update_data(feedback=feedback)
     data = await state.get_data()
     summary_lines = []
     for key, value in data.items():
@@ -276,9 +293,13 @@ async def input_donor_earlier(message: Message, state: FSMContext):
 async def confirm_registration(message: Message, state: FSMContext):
     if message.text.lower() == "да":
         data = await state.get_data()
+        valid_data = PostRegisterPayload.model_validate(data)
+        valid_data_dict = PostRegisterPayload.model_dump(valid_data)
         token = await get_access_token(message.chat.id, message.chat.username)
         async with ClientSession() as session:
-            await session.post(f"{BACKEND_URL}/post-register", json=data, headers={"Authorization": f"Bearer {token}"})
+            await session.post(
+                f"{BACKEND_URL}/post-register", json=valid_data_dict, headers={"Authorization": f"Bearer {token}"}
+            )
         await message.answer("Регистрация завершена. Спасибо!", reply_markup=ReplyKeyboardRemove())
         await message.answer("Выберите пункт меню: ", reply_markup=menu_kbd)
         await state.clear()
