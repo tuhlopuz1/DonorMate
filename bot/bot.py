@@ -5,7 +5,7 @@ import logging
 import aio_pika
 from aiogram.types import BotCommand
 from core.config import RABBITMQ_URL
-from core.dispatcher import bot, dp, send_message
+from core.dispatcher import bot, dp, send_message, send_qr
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +15,10 @@ async def on_message(message: aio_pika.IncomingMessage):
         data = json.loads(message.body)
         chat_id = data["chat_id"]
         text = data["text"]
-        await send_message(chat_id, text)
+        if data["data"]:
+            await send_qr(chat_id=chat_id, text=text, data=data["data"])
+        else:
+            await send_message(chat_id, text)
 
 
 async def connect_with_retry(url, retries=10, delay=5):

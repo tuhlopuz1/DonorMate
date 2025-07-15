@@ -79,6 +79,9 @@ class EventPayload(BaseModel):
     max_donors: int
     start_date: datetime
     end_date: datetime
+    organizer: int
+    description: str
+    place: str
 
 
 class MedicalExemptionResponse(BaseModel):

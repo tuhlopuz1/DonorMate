@@ -12,6 +12,7 @@ from sqlalchemy import (
     ForeignKey,
     Integer,
     String,
+    Text,
     Uuid,
 )
 from sqlalchemy.orm import (
@@ -47,6 +48,7 @@ class User(Base):
     )
 
     registrations_list: Mapped[list["Registration"]] = relationship(back_populates="user", cascade="all, delete-orphan")
+    events = relationship()
 
 
 class Information(Base):
@@ -80,6 +82,9 @@ class MedicalExemption(Base):
 class Event(Base):
     id: Mapped[UUID] = mapped_column(Uuid, index=True, primary_key=True, default=uuid4)
     name: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    place: Mapped[str] = mapped_column(String)
+    organizer: Mapped[int] = mapped_column(BigInteger, ForeignKey("users.id", ondelete="CASCADE"))
+    description: Mapped[str] = mapped_column(Text, nullable=False)
     max_donors: Mapped[int] = mapped_column(Integer, nullable=False)
     registred: Mapped[int] = mapped_column(Integer, default=0)
     start_date: Mapped[datetime] = mapped_column(DateTime)

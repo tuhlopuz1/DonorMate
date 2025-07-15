@@ -5,6 +5,7 @@ from uuid import UUID
 from app.api.events.tasks import schedule_telegram_message
 from app.dependencies.checks import check_user_token
 from app.dependencies.responses import badresponse, okresponse
+from app.dependencies.token_manager import TokenManager
 from app.models.db_adapter import adapter
 from app.models.db_tables import Event, Registration, User
 from fastapi import APIRouter, Depends
@@ -24,23 +25,34 @@ async def register_on_event(user: Annotated[User, Depends(check_user_token)], ev
     now = datetime.now(timezone.utc)
     if event.end_date < now:
         return badresponse("Event ended", 403)
+    org = await adapter.get_by_id(User, event.organizer)
     registration = await adapter.insert(Registration, {"user_id": user.id, "event_id": event_id, "notification": notif})
-    text = ""
     if event.start_data > now:
-        eta1 = event.start_data
-        eta2 = eta1 - timedelta(hours=1)
+        eta1 = event.start_data - timedelta(minutes=10)
+        eta2 = event.start_data - timedelta(hours=1)
+        access_qr_token = TokenManager.encode_qr_token({"iss": user.id, "sub": event.id})
         if notif:
             schedule_telegram_message.apply_async(
                 kwargs={
-                    "text": text,
+                    "text": (
+                        f"Ваша запись на мероприятие {event.name if event.name is not None else ''} состоится через 10 минут!",  # noqa
+                        f"\nПодойдите в: {event.place}, ",
+                        f"\nДля связи с организатором пишите в телеграмм: @{org.username}",
+                        "\nНа входе покажите QR-код (действителен два часа)",
+                    ),
                     "chat_id": user.id,
+                    "data": access_qr_token,
                 },
-                eta=eta2,
+                eta=eta1,
             )
             if eta2 > now:
                 schedule_telegram_message.apply_async(
                     kwargs={
-                        "text": text,
+                        "text": (
+                            f"Ваша запись на мероприятие {event.name if event.name is not None else ''} состоится через час!",  # noqa
+                            f"\nПриходить в: {event.place}, ",
+                            f"\nДля связи с организатором пишите в телеграмм: @{org.username}",
+                        ),
                         "chat_id": user.id,
                     },
                     eta=eta2,
