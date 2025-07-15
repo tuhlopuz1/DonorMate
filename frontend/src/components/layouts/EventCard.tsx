@@ -111,7 +111,7 @@ const EventCard: React.FC<EventCardProps> = ({
               ? "bg-gray-300 text-gray-600 cursor-not-allowed"
               : isFull
               ? "bg-blue-400 text-white cursor-not-allowed"
-              : "bg-blue-500 text-white hover:bg-blue-700"
+              : "bg-blue-600 text-white hover:bg-blue-700"
           }`}
           disabled={isRegistered || isFull}
           onClick={handleRegisterClick}
