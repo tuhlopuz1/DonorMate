@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 from enum import Enum
 from typing import Optional
 from uuid import UUID
@@ -42,7 +42,7 @@ class PostRegisterPayload(BaseModel):
     fullname: str
     surname: str
     patronymic: Optional[str] = None
-    birth_date: datetime
+    birth_date: date
     gender: Gender
     university: Optional[str] = None
     group: Optional[str] = None
@@ -62,7 +62,7 @@ class ProfileResponse(BaseModel):
     fullname: Optional[str] = None
     surname: Optional[str] = None
     patronymic: Optional[str] = None
-    birth_date: Optional[datetime] = None
+    birth_date: Optional[date] = None
     gender: Optional[Gender] = Gender.UNDEFINED
     university: Optional[str] = None
     group: Optional[str] = None

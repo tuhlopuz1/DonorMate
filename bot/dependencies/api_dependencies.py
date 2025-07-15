@@ -4,6 +4,7 @@ import time
 from datetime import datetime
 from hashlib import sha256
 from urllib.parse import urlencode
+from uuid import UUID
 
 import aiohttp
 from core.config import BACKEND_URL, BOT_TOKEN
@@ -68,7 +69,7 @@ async def forward_exemption_to_fastapi(
             return await resp.json()
 
 
-async def get_access_token(chat_id: int, chat_username: str):
+async def get_access_token(chat_id: int, chat_username: str = None):
     init_data = create_init_data(chat_id, chat_username)
     print(">>> initData:", init_data)
     async with aiohttp.ClientSession() as session:
@@ -79,3 +80,15 @@ async def get_access_token(chat_id: int, chat_username: str):
                 raise Exception(f"Token request failed: {response.status}")
             tokens = await response.json()
             return str(tokens["access"])
+
+
+async def check_notifications(chat_id: int, reg_id: UUID):
+    token = await get_access_token(chat_id=chat_id)
+    async with aiohttp.ClientSession() as session:
+        async with session.get(
+            f"{BACKEND_URL}/check-notific/{reg_id}", headers={"Authorization": f"Bearer {token}"}
+        ) as resp:
+            if resp.status == 200:
+                return True
+            else:
+                return False

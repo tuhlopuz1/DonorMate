@@ -30,7 +30,8 @@ async def register_on_event(user: Annotated[User, Depends(check_user_token)], ev
     if event.start_data > now:
         eta1 = event.start_data - timedelta(minutes=10)
         eta2 = event.start_data - timedelta(hours=1)
-        access_qr_token = TokenManager.encode_qr_token({"iss": user.id, "sub": event.id})
+        expiration = (event.end_data - now).total_seconds()
+        access_qr_token = TokenManager.encode_qr_token({"iss": str(user.id), "sub": str(registration.id)}, expiration)
         if notif:
             schedule_telegram_message.apply_async(
                 kwargs={
@@ -41,6 +42,7 @@ async def register_on_event(user: Annotated[User, Depends(check_user_token)], ev
                         "\nНа входе покажите QR-код (действителен два часа)",
                     ),
                     "chat_id": user.id,
+                    "reg_id": registration.id,
                     "data": access_qr_token,
                 },
                 eta=eta1,
@@ -54,6 +56,7 @@ async def register_on_event(user: Annotated[User, Depends(check_user_token)], ev
                             f"\nДля связи с организатором пишите в телеграмм: @{org.username}",
                         ),
                         "chat_id": user.id,
+                        "reg_id": registration.id,
                     },
                     eta=eta2,
                 )

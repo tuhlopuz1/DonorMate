@@ -53,11 +53,10 @@ class TokenManager:
             return False
 
     @staticmethod
-    def encode_qr_token(data: Dict[str, Any]) -> str:
-        to_encode = data.copy
-        to_encode["type"] = "qr"
-        expire = datetime.now(timezone.utc) + timedelta(minutes=TokenManager.QR_EXPIRE_MINUTES)
-        to_encode["exp"] = expire
+    def encode_qr_token(data: Dict[str, Any], expire_sec: int) -> str:
+        to_encode = data.copy()
+        expire = datetime.now(timezone.utc) + timedelta(seconds=expire_sec)
+        to_encode.update({"type": "qr", "exp": expire})
         token = jwt.encode(to_encode, RANDOM_SHA, algorithm=TokenManager.ALGORITHM)
         return token
 

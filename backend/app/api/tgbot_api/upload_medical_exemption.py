@@ -1,5 +1,5 @@
 import os
-from datetime import datetime
+from datetime import date
 from typing import Annotated, Optional
 from uuid import uuid4
 
@@ -18,8 +18,8 @@ router = APIRouter()
 @router.post("/upload-medical-exemption")
 async def upload_medical_exemption(
     user: Annotated[User, Depends(check_user_token)],
-    start_date: datetime = Form(...),
-    end_date: datetime = Form(...),
+    start_date: date = Form(...),
+    end_date: date = Form(...),
     medic_phone_num: Optional[str] = Form(default=None),
     comment: Optional[str] = Form(default=None),
     file: UploadFile = File(...),
