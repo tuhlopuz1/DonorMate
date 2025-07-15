@@ -45,7 +45,7 @@ const SettingsPage = () => {
             <h3 className="text-xl font-bold">Профиль</h3>
           </div>
           <button
-            onClick={() => alert("Редактирование профиля пока не реализовано")}
+            onClick={() => {window.location.href = '/#/settings/profile'}}
             className="text-black"
           >
             Изменить личные данные
