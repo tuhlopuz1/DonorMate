@@ -20,7 +20,7 @@ import EventPage from './pages/Event';
 import AdminMainPage from './pages/AdminMain';
 import AdminUsersPage from './pages/AdminUsers';
 import AdminEventsPage from './pages/AdminEvents';
-
+import AdminReportsPage from './pages/AdminReports';
 
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
@@ -42,6 +42,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         <Route path="/admin/main" element={<AdminMainPage />} />
         <Route path="/admin/users" element={<AdminUsersPage />} />
         <Route path="/admin/events" element={<AdminEventsPage />} />
+        <Route path="/admin/reports" element={<AdminReportsPage />} />
         <Route path="/not-available" element={<NotAvailable />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
