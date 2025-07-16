@@ -69,7 +69,7 @@ const AdminMainPage = () => {
             </span>
           </div>
           <div className="flex items-center justify-between">
-            <span>Постоянные доноры</span>
+            <span>Доноры</span>
             <span className="bg-gray-200 px-3 text-gray-800 rounded-full text-center text-sm font-medium">
               105
             </span>

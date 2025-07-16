@@ -7,7 +7,7 @@ type PageTopBarProps = {
   icon: React.ReactNode;
 };
 
-export default function PageTopBar({ title, icon }: PageTopBarProps) {
+export default function AdminPageTopBar({ title, icon }: PageTopBarProps) {
   const navigate = useNavigate();
 
   return (

@@ -1,4 +1,4 @@
-import { FiHome, FiCalendar, FiClipboard, FiUser, FiUsers, FiFileText } from 'react-icons/fi';
+import { FiHome, FiCalendar, FiUsers, FiFileText } from 'react-icons/fi';
 import React from 'react';
 
 type NavButtonProps = {
