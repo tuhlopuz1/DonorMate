@@ -1,4 +1,7 @@
 aiogram
+aiogram_calendar
 aio_pika
 dotenv
 aiohttp
+qrcode[pil]
+redis

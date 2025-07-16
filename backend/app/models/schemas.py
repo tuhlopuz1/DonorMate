@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 from enum import Enum
 from typing import Optional
 from uuid import UUID
@@ -42,14 +42,15 @@ class PostRegisterPayload(BaseModel):
     fullname: str
     surname: str
     patronymic: Optional[str] = None
-    birth_date: datetime
+    birth_date: date
     gender: Gender
-    university: str
-    group: str
+    university: Optional[str] = None
+    group: Optional[str] = None
     weight: int
     chronic_disease: bool
     medical_exemption: bool
     donor_earlier: DonorEarlier
+    feedback: Optional[str] = None
 
 
 class ProfileResponse(BaseModel):
@@ -61,7 +62,7 @@ class ProfileResponse(BaseModel):
     fullname: Optional[str] = None
     surname: Optional[str] = None
     patronymic: Optional[str] = None
-    birth_date: Optional[datetime] = None
+    birth_date: Optional[date] = None
     gender: Optional[Gender] = Gender.UNDEFINED
     university: Optional[str] = None
     group: Optional[str] = None
@@ -78,8 +79,26 @@ class EventPayload(BaseModel):
     max_donors: int
     start_date: datetime
     end_date: datetime
+    organizer: int
+    description: str
+    place: str
 
 
 class MedicalExemptionResponse(BaseModel):
     id: UUID
     url: str
+
+
+class UpdateInfoPayload(BaseModel):
+    fullname: Optional[str] = None
+    surname: Optional[str] = None
+    patronymic: Optional[str] = None
+    birth_date: Optional[date] = None
+    gender: Optional[Gender] = None
+    university: Optional[str] = None
+    group: Optional[str] = None
+    weight: Optional[int] = None
+    chronic_disease: Optional[bool] = None
+    medical_exemption: Optional[bool] = None
+    donor_earlier: Optional[DonorEarlier] = None
+    feedback: Optional[str] = None

@@ -20,7 +20,21 @@ class RegisterStates(StatesGroup):
     ME_PHONE_NUM = State()
     ME_COMMENT = State()
     DONOR_EARLIER = State()
+    FEEDBACK = State()
     CONFIRM = State()
+
+
+class MedicalExemptionUpdStates(StatesGroup):
+    ME_FILE = State()
+    ME_START_DATE = State()
+    ME_END_DATE = State()
+    ME_PHONE_NUM = State()
+    ME_COMMENT = State()
+    CONFIRM = State()
+
+
+class AdminState(StatesGroup):
+    ADMIN_CODE = State()
 
 
 FIELD_NAMES_RU = {
@@ -35,6 +49,11 @@ FIELD_NAMES_RU = {
     "chronic_disease": "Хронические заболевания",
     "medical_exemption": "Медицинский отвод",
     "donor_earlier": "Ранее сдавал(а) кровь",
+    "me_start_date": "Дата начала действия медицинского отвода",
+    "me_end_date": "Дата окончания действия медицинского отвода",
+    "me_phone_num": "Номер телефона врача",
+    "me_comment": "Комментарий к медицинскому отводу",
+    "feedback": "Контакт",
 }
 
 

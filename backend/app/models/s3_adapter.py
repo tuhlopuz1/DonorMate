@@ -33,6 +33,7 @@ class S3HttpxSigV4Adapter:
         elif isinstance(file_data, bytes):
             data = file_data
         else:
+            print(type(file_data))
             raise TypeError("Unsupported file_data type")
 
         headers = {}
@@ -42,6 +43,7 @@ class S3HttpxSigV4Adapter:
         url = f"{self.endpoint_url}/{self.bucket}/{object_name}"
         resp = await self.client.put(url, content=data, headers=headers)
         resp.raise_for_status()
+        return url
 
     async def delete_file(self, object_name: str):
         url = f"{self.endpoint_url}/{self.bucket}/{object_name}"
