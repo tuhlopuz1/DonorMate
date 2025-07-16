@@ -1,10 +1,11 @@
+// useMedotvodModal.ts
 import { useState } from "react";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 
 const MySwal = withReactContent(Swal);
 
-type MedotvodData = {
+export type MedotvodData = {
   file: File | null;
   comment: string;
   startDate: string;
@@ -12,22 +13,17 @@ type MedotvodData = {
   doctorContact: string;
 };
 
-type OpenMedotvodModalProps = {
-  onSubmit: (data: MedotvodData) => void;
-};
-
-export default function OpenMedotvodModal({ onSubmit }: OpenMedotvodModalProps) {
+export function useMedotvodModal(onSubmit: (data: MedotvodData) => void) {
   const [file, setFile] = useState<File | null>(null);
   const [comment, setComment] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [doctorContact, setDoctorContact] = useState("");
-
-  const handleOpenModal = () => {
+  const openModal = () => {
     MySwal.fire({
       title: "Прикрепить медицинский отвод",
       html: (
-        <div className="flex flex-col text-left text-gray-800 space-y-4">
+        <div className="w-[90vw] max-w-full sm:max-w-[36rem] flex flex-col text-left text-gray-800 space-y-4">
           <label className="flex flex-col font-medium">
             Загрузите документ (PDF, JPG, PNG) *
             <input
@@ -90,7 +86,7 @@ export default function OpenMedotvodModal({ onSubmit }: OpenMedotvodModalProps) 
       confirmButtonText: "Отправить",
       cancelButtonText: "Отмена",
       customClass: {
-        popup: "rounded-2xl p-6 border border-gray-100 shadow-md max-w-xl",
+        popup: "p-0 pb-3 bg-white rounded-xl shadow-md w-auto max-w-none",
         confirmButton:
           "bg-blue-600 text-white px-5 py-2 rounded-lg text-sm hover:bg-blue-700",
         cancelButton:
@@ -111,7 +107,7 @@ export default function OpenMedotvodModal({ onSubmit }: OpenMedotvodModalProps) 
       if (result.isConfirmed) {
         onSubmit({ file, comment, startDate, endDate, doctorContact });
 
-        // Очистка полей после отправки
+        // Очистка
         setFile(null);
         setComment("");
         setStartDate("");
@@ -121,12 +117,5 @@ export default function OpenMedotvodModal({ onSubmit }: OpenMedotvodModalProps) 
     });
   };
 
-  return (
-    <button
-      onClick={handleOpenModal}
-      className="mt-3  px-5 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition"
-    >
-      Загрузить медотвод
-    </button>
-  );
+  return openModal;
 }

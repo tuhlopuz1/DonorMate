@@ -14,7 +14,7 @@ export default function MainTopBar() {
       </div>
 
       {/* Кнопка уведомлений */}
-      <button className="relative p-2 hover:bg-blue-500 rounded-full transition">
+      <button onClick={() => {window.location.href = '/#/notifications'}} className="relative p-2 hover:bg-blue-500 rounded-full transition">
         <Bell className="w-6 h-6 text-white" />
         {/* <span className="absolute top-0 right-0 block w-2 h-2 bg-red-500 rounded-full ring-2 "></span> */}
       </button>

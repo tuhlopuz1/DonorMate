@@ -1,20 +1,18 @@
 import logo from '../assets/donor_logo.jpg';
-import OpenMedotvodModal from '../components/layouts/Medotvod'; // <-- SweetAlert2 версия
+import { useMedotvodModal } from '../components/layouts/Medotvod';
+import type { MedotvodData } from '../components/layouts/Medotvod';
+
 import { useState } from 'react';
 
 export default function UserSurvey() {
   const [medotvod, setMedotvod] = useState<'yes' | 'no' | ''>('');
 
-  const handleMedotvodSubmit = (data: {
-    file: File | null;
-    comment: string;
-    startDate: string;
-    endDate: string;
-    doctorContact: string;
-  }) => {
+  const handleMedotvodSubmit = (data: MedotvodData) => {
     console.log("Медотвод получен:", data);
-    // Тут можно отправить данные на сервер или сохранить локально
+    // Сюда отправку на сервер
   };
+
+  const openMedotvodModal = useMedotvodModal(handleMedotvodSubmit);
 
   return (
     <div className="flex flex-col items-center min-h-screen px-6 py-12">
@@ -77,42 +75,44 @@ export default function UserSurvey() {
           <option>Да</option>
         </select>
 
-<fieldset className="border border-blue-300 rounded-xl p-4 shadow-sm">
-  <legend className="text-gray-700 mb-2">Есть ли у вас медицинский отвод?</legend>
-  <div className="flex space-x-6">
-    <label className="flex items-center space-x-2 cursor-pointer">
-      <input
-        type="radio"
-        name="medotvod"
-        value="yes"
-        checked={medotvod === 'yes'}
-        onChange={() => setMedotvod('yes')}
-        className="w-5 h-5 text-blue-600 focus:ring-blue-400"
-      />
-      <span>Да</span>
-    </label>
+        <fieldset className="border border-blue-300 rounded-xl p-4 shadow-sm">
+          <legend className="text-gray-700 mb-2">Есть ли у вас медицинский отвод?</legend>
+          <div className="flex space-x-6">
+            <label className="flex items-center space-x-2 cursor-pointer">
+              <input
+                type="radio"
+                name="medotvod"
+                value="yes"
+                checked={medotvod === 'yes'}
+                onChange={() => setMedotvod('yes')}
+                className="w-5 h-5 text-blue-600 focus:ring-blue-400"
+              />
+              <span>Да</span>
+            </label>
 
-    <label className="flex items-center space-x-2 cursor-pointer">
-      <input
-        type="radio"
-        name="medotvod"
-        value="no"
-        checked={medotvod === 'no'}
-        onChange={() => setMedotvod('no')}
-        className="w-5 h-5 text-blue-600 focus:ring-blue-400"
-      />
-      <span>Нет</span>
-    </label>
-  </div>
+            <label className="flex items-center space-x-2 cursor-pointer">
+              <input
+                type="radio"
+                name="medotvod"
+                value="no"
+                checked={medotvod === 'no'}
+                onChange={() => setMedotvod('no')}
+                className="w-5 h-5 text-blue-600 focus:ring-blue-400"
+              />
+              <span>Нет</span>
+            </label>
+          </div>
 
-  {/* Кнопка и модалка появляются только при выборе "да" */}
-  {medotvod === 'yes' && (
-    <>
-      <OpenMedotvodModal onSubmit={handleMedotvodSubmit} />
-
-    </>
-  )}
-</fieldset>
+          {medotvod === 'yes' && (
+            <button
+              type="button"
+              onClick={openMedotvodModal}
+              className="mt-4 px-5 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition"
+            >
+              Прикрепить медотвод
+            </button>
+          )}
+        </fieldset>
 
 
         <select className="w-full px-4 py-3 rounded-xl border border-blue-300 text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-sm">
