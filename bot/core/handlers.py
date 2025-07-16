@@ -7,7 +7,7 @@ from aiogram.types import CallbackQuery, Message, ReplyKeyboardRemove
 from aiogram.utils.markdown import hlink
 from aiogram_calendar import DialogCalendarCallback
 from aiohttp import ClientSession
-from core.config import BACKEND_URL
+from core.config import ADMIN_IDS, BACKEND_URL
 from core.keyboards import (
     donor_earlier_kbd,
     empty_kbd,
@@ -17,15 +17,21 @@ from core.keyboards import (
     menu_register_kbd,
     yes_no_kbd,
 )
-from core.schemas import PostRegisterPayload
 from core.states import (
     FIELD_NAMES_RU,
+    AdminState,
     MedicalExemptionUpdStates,
     RegisterStates,
     format_value,
 )
-from dependencies.api_dependencies import forward_exemption_to_fastapi, get_access_token
+from dependencies.api_dependencies import (
+    forward_exemption_to_fastapi,
+    generate_secure_code,
+    get_access_token,
+)
 from dependencies.dialogcalendar import DialogCalendarNoCancel
+from models.redis_adapter import redis_adapter
+from models.schemas import PostRegisterPayload
 
 router = Router()
 
@@ -61,6 +67,52 @@ async def open_menu_command(message: Message):
                 }
                 await session.post(url=f"{BACKEND_URL}/telegram-register", json=payload)
             await message.answer("Для того чтобы перейти в меню - пройдите регистрацию", reply_markup=menu_register_kbd)
+
+
+@router.message(Command("code"))
+async def get_or_check_admin_code(message: Message, state: FSMContext):
+    if message.chat.id in ADMIN_IDS:
+        code = generate_secure_code()
+        await redis_adapter.set(f"admin_code:{code}", message.chat.id, expire=600)
+        await message.answer(
+            text="Чтобы назначить кого-то админом, попрочите ввести комманду ```/code```,"
+            f"\nа затем ввести этот код: ```{code}``` (действителен в течение 10 минут)"
+        )
+    else:
+        async with ClientSession() as session:
+            response = await session.get(f"{BACKEND_URL}/is-registred/{message.chat.id}")
+            if response.status == 404:
+                async with ClientSession() as session:
+                    payload = {
+                        "user_id": message.from_user.id,
+                        "username": message.from_user.username,
+                        "tg_name": message.from_user.first_name,
+                    }
+                    await session.post(url=f"{BACKEND_URL}/telegram-register", json=payload)
+                await state.set_state(AdminState.ADMIN_CODE)
+                await message.answer("Введите код отправленный вам админом")
+            else:
+                await state.set_state(AdminState.ADMIN_CODE)
+                await message.answer("Введите код отправленный вам админом")
+
+
+@router.message(AdminState.ADMIN_CODE)
+async def validate_code(message: Message, state: FSMContext):
+    code = message.text
+    token = await get_access_token(message.chat.id, message.chat.username)
+    async with ClientSession() as session:
+        async with session.post(
+            f"{BACKEND_URL}/set-organizer/{code}", headers={"Authorization": f"Bearer {token}"}
+        ) as resp:
+            if resp.status == 200:
+                await message.answer("Теперь вы организатор мероприятий.")
+                await state.clear()
+            elif resp.status == 401:
+                await message.answer("Ошибка авторизации. Попробуйте снова")
+                return
+            else:
+                await message.answer("Код не верен. Попробуйте ещё раз или используйте другую команду")
+                return
 
 
 @router.callback_query(F.data == "menu")

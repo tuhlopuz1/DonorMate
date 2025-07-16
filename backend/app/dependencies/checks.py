@@ -63,7 +63,7 @@ async def check_qr_data(qr_token: str = Security(Bear)):
     if not user:
         return False
     if registration:
-        return user
+        return {"user": user, "registration": registration}
 
     logger.info("No registration found fro this token")
     return False

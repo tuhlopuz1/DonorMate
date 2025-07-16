@@ -32,14 +32,15 @@ async def register_on_event(user: Annotated[User, Depends(check_user_token)], ev
         eta2 = event.start_data - timedelta(hours=1)
         expiration = (event.end_data - now).total_seconds()
         access_qr_token = TokenManager.encode_qr_token({"iss": str(user.id), "sub": str(registration.id)}, expiration)
-        if notif:
+        event_name = event.name if event.name is not None else ""
+        if notif and user.notifications_bool:
             schedule_telegram_message.apply_async(
                 kwargs={
                     "text": (
-                        f"Ваша запись на мероприятие {event.name if event.name is not None else ''} состоится через 10 минут!",  # noqa
+                        f"Ваша запись на мероприятие {event_name} состоится через 10 минут!",  # noqa
                         f"\nПодойдите в: {event.place}, ",
                         f"\nДля связи с организатором пишите в телеграмм: @{org.username}",
-                        "\nНа входе покажите QR-код (действителен два часа)",
+                        "\nНа входе покажите QR-код (действителен до конца мероприятия)",
                     ),
                     "chat_id": user.id,
                     "reg_id": registration.id,
@@ -51,9 +52,10 @@ async def register_on_event(user: Annotated[User, Depends(check_user_token)], ev
                 schedule_telegram_message.apply_async(
                     kwargs={
                         "text": (
-                            f"Ваша запись на мероприятие {event.name if event.name is not None else ''} состоится через час!",  # noqa
+                            f"Ваша запись на мероприятие {event_name} состоится через час!",  # noqa
                             f"\nПриходить в: {event.place}, ",
                             f"\nДля связи с организатором пишите в телеграмм: @{org.username}",
+                            "За 10 минут до записи вам придёт QR-код (нужен для входа на площадку)",
                         ),
                         "chat_id": user.id,
                         "reg_id": registration.id,

@@ -15,6 +15,8 @@ async def check_notifications(user: Annotated[User, Depends(check_user_token)], 
     if not user:
         return badresponse("Unauthorized", 401)
     reg = await adapter.get_by_id(Registration, reg_id)
-    if reg.notification:
+    if not reg:
+        return emptyresponse(204)
+    if reg.notification and user.notifications_bool:
         return emptyresponse(200)
     return emptyresponse(204)

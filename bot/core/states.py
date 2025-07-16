@@ -33,6 +33,10 @@ class MedicalExemptionUpdStates(StatesGroup):
     CONFIRM = State()
 
 
+class AdminState(StatesGroup):
+    ADMIN_CODE = State()
+
+
 FIELD_NAMES_RU = {
     "fullname": "Имя",
     "surname": "Фамилия",

@@ -1,5 +1,7 @@
 import hmac
 import json
+import secrets
+import string
 import time
 from datetime import datetime
 from hashlib import sha256
@@ -92,3 +94,8 @@ async def check_notifications(chat_id: int, reg_id: UUID):
                 return True
             else:
                 return False
+
+
+def generate_secure_code(length: int = 6) -> str:
+    chars = string.ascii_letters + string.digits
+    return "".join(secrets.choice(chars) for _ in range(length))

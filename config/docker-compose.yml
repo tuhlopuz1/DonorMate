@@ -36,6 +36,25 @@ services:
       retries: 5
     networks:
       - bot_net
+  redis:
+    image: redis:7-alpine
+    container_name: redis-container
+    volumes:
+      - redis_data:/var/lib/redis/data
+    command: >
+      redis-server
+      --requirepass ${REDIS_PASSWORD}
+      --bind 0.0.0.0
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - bot_net
 
   fastapi:
     image: asdfrewqha/donormate:latest
@@ -92,6 +111,7 @@ services:
 
 volumes:
   postgres_data:
+  redis_data:
 
 networks:
   bot_net:
