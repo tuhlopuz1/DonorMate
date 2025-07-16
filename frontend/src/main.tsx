@@ -21,6 +21,9 @@ import AdminMainPage from './pages/AdminMain';
 import AdminUsersPage from './pages/AdminUsers';
 import AdminEventsPage from './pages/AdminEvents';
 import AdminReportsPage from './pages/AdminReports';
+import AdminEventPage from './pages/AdminEvent';
+import QrScanner from './pages/QrScanner';
+
 
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
@@ -43,6 +46,8 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         <Route path="/admin/users" element={<AdminUsersPage />} />
         <Route path="/admin/events" element={<AdminEventsPage />} />
         <Route path="/admin/reports" element={<AdminReportsPage />} />
+        <Route path="/admin/event/:id" element={<AdminEventPage />} />
+        <Route path="/admin/scanner" element={<QrScanner />} />
         <Route path="/not-available" element={<NotAvailable />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
