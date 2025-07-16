@@ -15,7 +15,7 @@ export default function AdminPageTopBar({ title, icon }: PageTopBarProps) {
       {/* Кнопка назад */}
       <button
         onClick={() => navigate(-1)}
-        className="p-2 rounded-full hover:bg-blue-600 transition"
+        className="p-2 rounded-full hover:bg-red-600 transition"
       >
         <ArrowLeft className="w-6 h-6" />
       </button>

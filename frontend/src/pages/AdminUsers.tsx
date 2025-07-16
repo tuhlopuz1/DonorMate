@@ -6,8 +6,8 @@ const AdminUsersPage = () => {
   return (
     <div className="p-4 pb-20 pt-12 space-y-6">
      <AdminMainTopBar />
-        <div className="flex gap-3 items-center justify-between bg-blue-500 shadow rounded-2xl p-5">
-            <p className="text-lg font-bold text-white"> Экспорт данных в CSV</p>
+        <div className="flex gap-3 items-center justify-between bg-red-500 shadow rounded-2xl p-5">
+            <p className="text-lg font-bold text-white">Экспорт данных в CSV</p>
             <FiDownload color="white" size={23}/>
         </div>
       {/* Карточки статистики */}

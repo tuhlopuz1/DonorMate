@@ -78,6 +78,29 @@ const EventCard: React.FC<EventCardProps> = ({
     });
   };
 
+  const handleUnregisterClick = () => {
+    MySwal.fire({
+      title: "Вы уверены, что хотите отменить запись?",
+      text: "Вы больше не сможете участвовать в этом мероприятии.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Отменить запись",
+      cancelButtonText: "Отмена",
+      customClass: {
+        popup: "rounded-2xl p-6 border border-gray-100 shadow-md",
+        confirmButton:
+          "bg-red-600 text-white px-4 py-2 rounded-xl text-sm hover:bg-red-700",
+        cancelButton:
+          "bg-gray-200 text-gray-700 px-4 py-2 rounded-xl text-sm ml-2",
+      },
+      buttonsStyling: false,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        console.log("Пользователь отменил запись на мероприятие:", title);
+      }
+    });
+  };
+
   return (
     <div
       className={`bg-white rounded-2xl p-6 w-full max-w-md border shadow ${
@@ -120,25 +143,38 @@ const EventCard: React.FC<EventCardProps> = ({
           </span>
         )}
 
-        <button
-          className={`font-medium px-4 py-2 rounded-xl text-sm transition ${
-            isPastEvent
-              ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+        {/* Убираем текст "Вы уже записаны" и показываем только кнопку для отмены записи */}
+        {!isRegistered && !isPastEvent && (
+          <button
+            className={`font-medium px-4 py-2 rounded-xl text-sm transition ${
+              isPastEvent
+                ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+                : isRegistered
+                ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+                : isFull
+                ? "bg-blue-400 text-white cursor-not-allowed"
+                : "bg-blue-600 text-white hover:bg-blue-700"
+            }`}
+            disabled={isPastEvent || isFull}
+            onClick={handleRegisterClick}
+          >
+            {isPastEvent
+              ? "Мероприятие завершено"
               : isRegistered
-              ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-              : isFull
-              ? "bg-blue-400 text-white cursor-not-allowed"
-              : "bg-blue-600 text-white hover:bg-blue-700"
-          }`}
-          disabled={isPastEvent || isRegistered || isFull}
-          onClick={handleRegisterClick}
-        >
-          {isPastEvent
-            ? "Мероприятие завершено"
-            : isRegistered
-            ? "Вы уже записаны"
-            : "Записаться"}
-        </button>
+              ? "Вы уже записаны"
+              : "Записаться"}
+          </button>
+        )}
+
+        {/* Добавляем кнопку отмены записи, если пользователь уже зарегистрирован */}
+        {isRegistered && !isPastEvent && (
+          <button
+            className="font-medium px-4 py-2 rounded-xl text-sm mt-2 bg-red-600 text-white hover:bg-red-700"
+            onClick={handleUnregisterClick}
+          >
+            Отменить запись
+          </button>
+        )}
       </div>
     </div>
   );

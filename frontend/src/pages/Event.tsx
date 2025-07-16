@@ -1,11 +1,10 @@
 // pages/EventPage.tsx
-
+import PageTopBar from "../components/layouts/PageTopBar";
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import EventCard from "../components/layouts/EventCard";
-import MyEventCard from "../components/layouts/MyEventCard";
 import { QrCode } from "lucide-react";
-
+import { MdEvent } from "react-icons/md";
 
 type EventData = {
   id: string;
@@ -25,7 +24,7 @@ const mockFetchEventById = async (id: string): Promise<EventData> => {
   return {
     id,
     title: "Мастер-класс по фотографии",
-    date: '2025-07-15',
+    date: '2025-07-17',
     timeRange: "15:00 – 17:00",
     location: "ул. Пушкина, д. 10, Москва",
     description:
@@ -52,10 +51,7 @@ const EventPage: React.FC = () => {
 
 
 
-  const handleCancel = () => {
-    if (!event) return;
-    setEvent({ ...event, isRegistered: false });
-  };
+
 
   const isToday = (eventDate: string) => {
     const today = new Date();
@@ -73,18 +69,10 @@ const EventPage: React.FC = () => {
 
   return (
     <div className="p-6 max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Страница мероприятия</h1>
+      <PageTopBar title="Страница мероприятия" icon={<MdEvent size={20}/>} />
 
-      {event.isRegistered ? (
-        <MyEventCard
-          title={event.title}
-          date={event.date}
-          timeRange={event.timeRange}
-          location={event.location}
-          description={event.description}
-          onCancel={handleCancel}
-        />
-      ) : (
+
+
         <EventCard
           title={event.title}
           date={event.date}
@@ -93,9 +81,9 @@ const EventPage: React.FC = () => {
           spotsLeft={event.spotsLeft}
           totalSpots={event.totalSpots}
           description={event.description}
-          isRegistered={false}
+          isRegistered={event.isRegistered}
         />
-      )}
+
 
       {(isToday(event.date) && event.isRegistered) ? (
         <div className="flex justify-between items-center mt-6 bg-blue-600 text-white px-4 py-2 rounded-xl text-sm">
