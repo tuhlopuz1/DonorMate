@@ -88,5 +88,54 @@ class AsyncDatabaseAdapter:
             await session.commit()
             return records
 
+    async def get_all_with_join(
+        self, parent_model, child_model, parent_column_name: str, isouter: bool = True
+    ) -> List[Any]:
+        async with self.SessionLocal() as session:
+            result = await session.execute(
+                select(parent_model, child_model).join(
+                    child_model,
+                    getattr(parent_model, parent_column_name) == getattr(child_model, parent_column_name),
+                    isouter=isouter,
+                )
+            )
+            return result.all()
+
+    async def get_by_id_with_join(
+        self, parent_model, child_model, parent_id: int, parent_column_name: str, isouter: bool = True
+    ) -> Any:
+        async with self.SessionLocal() as session:
+            result = await session.execute(
+                select(parent_model, child_model)
+                .join(
+                    child_model,
+                    getattr(parent_model, parent_column_name) == getattr(child_model, parent_column_name),
+                    isouter=isouter,
+                )
+                .where(getattr(parent_model, "id") == parent_id)
+            )
+            return result.scalar_one_or_none()
+
+    async def get_by_value_with_join(
+        self,
+        parent_model,
+        child_model,
+        parameter: str,
+        parameter_value: Any,
+        parent_column_name: str,
+        isouter: bool = True,
+    ) -> List[Any]:
+        async with self.SessionLocal() as session:
+            result = await session.execute(
+                select(parent_model, child_model)
+                .join(
+                    child_model,
+                    getattr(parent_model, parent_column_name) == getattr(child_model, parent_column_name),
+                    isouter=isouter,
+                )
+                .where(getattr(parent_model, parameter) == parameter_value)
+            )
+            return result.all()
+
 
 adapter = AsyncDatabaseAdapter()

@@ -8,6 +8,7 @@ from fastapi import APIRouter, Depends
 
 router = APIRouter()
 
+
 @router.get("/get-nearest-event")
 async def get_all_events(user: Annotated[User, Depends(check_user_token)]):
     if not user:
@@ -15,5 +16,5 @@ async def get_all_events(user: Annotated[User, Depends(check_user_token)]):
     events = await adapter.get_all(Event)
     if not events:
         return badresponse("No events found", 404)
-    events.sort(key=lambda x: x.start_date)
-    return events
+    events.sort(key=lambda x: x.start_date, reverse=True)
+    return events[0]

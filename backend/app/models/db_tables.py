@@ -67,6 +67,7 @@ class Information(Base):
     medical_exemption: Mapped[bool] = mapped_column(Boolean)
     donor_earlier: Mapped[DonorEarlier] = mapped_column(Enum(DonorEarlier), default=DonorEarlier.NO)
     feedback: Mapped[str] = mapped_column(String, nullable=True)
+    donations: Mapped[int] = mapped_column(Integer, default=0)
 
     user: Mapped["User"] = relationship(back_populates="info")
 

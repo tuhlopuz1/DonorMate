@@ -88,6 +88,18 @@ class EventPayload(BaseModel):
     place: str
 
 
+class EventResponse(BaseModel):
+    id: UUID
+    name: str
+    description: str
+    organizer: int
+    max_donors: int
+    registred: int
+    start_date: datetime
+    end_date: datetime
+    created_at: datetime
+
+
 class MedicalExemptionResponse(BaseModel):
     id: UUID
     url: str
@@ -106,3 +118,12 @@ class UpdateInfoPayload(BaseModel):
     medical_exemption: Optional[bool] = None
     donor_earlier: Optional[DonorEarlier] = None
     feedback: Optional[str] = None
+
+
+class DonorResponse(BaseModel):
+    id: int
+    fullname: str
+    surname: str
+    patronymic: str
+    username: str
+    donations: int

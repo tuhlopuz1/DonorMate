@@ -8,6 +8,7 @@ from fastapi import APIRouter, Depends
 
 router = APIRouter()
 
+
 @router.get("/get-all-events")
 async def get_all_events(user: Annotated[User, Depends(check_user_token)]):
     if not user:
