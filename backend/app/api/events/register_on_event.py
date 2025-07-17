@@ -22,15 +22,16 @@ async def register_on_event(user: Annotated[User, Depends(check_user_token)], ev
         return badresponse("Event not found", 404)
     if event.registred > event.max_donors:
         return badresponse("No more vacant places", 403)
-    now = datetime.now(timezone.utc)
+    # now = datetime.now(timezone.utc)
+    now = datetime.now()
     if event.end_date < now:
         return badresponse("Event ended", 403)
     org = await adapter.get_by_id(User, event.organizer)
     registration = await adapter.insert(Registration, {"user_id": user.id, "event_id": event_id, "notification": notif})
-    if event.start_data > now:
-        eta1 = event.start_data - timedelta(minutes=10)
-        eta2 = event.start_data - timedelta(hours=1)
-        expiration = (event.end_data - now).total_seconds()
+    if event.start_date > now:
+        eta1 = event.start_date - timedelta(minutes=10)
+        eta2 = event.start_date - timedelta(hours=1)
+        expiration = (event.end_date - now).total_seconds()
         access_qr_token = TokenManager.encode_qr_token({"iss": str(user.id), "sub": str(registration.id)}, expiration)
         event_name = event.name if event.name is not None else ""
         if notif and user.notifications_bool:
