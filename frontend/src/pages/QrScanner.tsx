@@ -70,8 +70,7 @@ const QrScanner: React.FC = () => {
   }, []);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
-      <h1 className="text-2xl font-bold mb-4">Сканер QR-кодов (улучшено)</h1>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-black">
 
       {result ? (
         <div className="bg-green-100 text-green-800 p-4 rounded-xl shadow-md max-w-sm text-center">
@@ -79,15 +78,25 @@ const QrScanner: React.FC = () => {
           <p className="break-words">{result}</p>
         </div>
       ) : (
-        <video
-          ref={videoRef}
-          className={`w-full max-w-md rounded-md shadow-lg`}
-          style={{
-            transform: isFrontCamera ? "scaleX(-1)" : "none",
-          }}
-          autoPlay
-          muted
-        />
+        <div className="relative w-full max-w-md">
+          <video
+            ref={videoRef}
+            className="w-full h-auto rounded-md shadow-lg"
+            style={{
+              transform: isFrontCamera ? "scaleX(-1)" : "none",
+            }}
+            autoPlay
+            muted
+          />
+
+          {/* Квадратная рамка по центру */}
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="border-4 border-dashed border-white rounded-lg" 
+              style={{ width: "90%", aspectRatio: "1 / 1" }}
+            />
+          </div>  
+        </div>
+
       )}
     </div>
   );
