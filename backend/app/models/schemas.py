@@ -38,6 +38,10 @@ class TokensResponse(BaseModel):
     refresh: str
 
 
+class RefreshResponse(BaseModel):
+    new_access_token: str
+
+
 class PostRegisterPayload(BaseModel):
     fullname: str
     surname: str
