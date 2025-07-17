@@ -87,7 +87,7 @@ const AdminEventsPage = () => {
     <div className="pt-10 pb-14">
       <AdminPageTopBar title="Расписание мероприятий" icon={<FiCalendar size={20} />} />
 
-            <div className="flex mt-6 mx-4 gap-3 items-center justify-between bg-red-500 shadow rounded-2xl p-5">
+            <div className="flex mt-6 mx-4 gap-3 items-center justify-between bg-blue-500 shadow rounded-2xl p-5">
                 <p className="text-lg font-bold text-white">Экспорт данных в CSV</p>
                 <FiDownload color="white" size={23}/>
             </div>

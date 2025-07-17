@@ -1,7 +1,9 @@
 import React from "react";
-
+import withReactContent from "sweetalert2-react-content";
 import { FiMapPin, FiCalendar } from "react-icons/fi";
+import Swal from "sweetalert2";
 
+const MySwal = withReactContent(Swal);
 
 type EventCardProps = {
   title: string;
@@ -14,7 +16,33 @@ type EventCardProps = {
   isRegistered: boolean;
 };
 
-const EventCard: React.FC<EventCardProps> = ({
+  const handleCancelClick = () => {
+    MySwal.fire({
+      title: "Вы уверены, что хотите отменить запись?",
+      text: "Вы больше не сможете участвовать в этом мероприятии.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Отменить запись",
+      cancelButtonText: "Отмена",
+      customClass: {
+        popup: "rounded-2xl p-6 border border-gray-100 shadow-md",
+        confirmButton:
+          "bg-red-600 text-white px-4 py-2 rounded-xl text-sm hover:bg-red-700",
+        cancelButton:
+          "bg-gray-200 text-gray-700 px-4 py-2 rounded-xl text-sm ml-2",
+      },
+      buttonsStyling: false,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        console.log("Пользователь отменил запись на мероприятие");
+      }
+    });
+  };
+
+
+
+
+const AdminEventCard: React.FC<EventCardProps> = ({
   title,
   date,
   timeRange,
@@ -67,6 +95,7 @@ const EventCard: React.FC<EventCardProps> = ({
             Мероприятие завершено
           </span>
         ) : (
+          <>
           <span
             className={`text-sm font-medium px-3 py-1 rounded-full w-auto ${
               isFull
@@ -78,11 +107,22 @@ const EventCard: React.FC<EventCardProps> = ({
               ? "Мест нет"
               : `Осталось мест: ${spotsLeft} / ${totalSpots}`}
           </span>
+        <button
+            className="font-medium px-4 py-2 rounded-xl text-sm mt-2 bg-red-600 text-white hover:bg-red-700"
+            onClick={handleCancelClick}
+          >
+            Отменить Мероприятие
+          </button>
+          </>
         )}
 
       </div>
+
+
+
+
     </div>
   );
 };
 
-export default EventCard;
+export default AdminEventCard;

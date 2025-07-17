@@ -1,14 +1,22 @@
 import AdminBottomNavBar from "../components/layouts/AdminNavBar";
 import AdminPageTopBar from "../components/layouts/AdminPageTopBar";
 import { CalendarDays, Users, } from "lucide-react";
-import { FiFileText } from "react-icons/fi";
+import { FiFileText, FiDownload } from "react-icons/fi";
 import TopDonorCard from "../components/layouts/TopDonor";
 
 
 const AdminReportsPage = () => {
   return (
     <div className="p-4 pb-20 pt-12 space-y-6">
+
      <AdminPageTopBar title="Отчёты" icon={<FiFileText size={20}/>} />
+
+      <div className="flex mt-6 mx-4 gap-3 items-center justify-between bg-red-500 shadow rounded-2xl p-5">
+          <p className="text-lg font-bold text-white">Подробный отчёт</p>
+          <FiDownload color="white" size={23}/>
+      </div>
+
+
       {/* Карточки статистики */}
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-2 gap-4">
         <div className="bg-white shadow rounded-2xl p-4">
