@@ -75,8 +75,13 @@ async def get_or_check_admin_code(message: Message, state: FSMContext):
         code = generate_secure_code()
         await redis_adapter.set(f"admin_code:{code}", message.chat.id, expire=600)
         await message.answer(
-            text="Чтобы назначить кого-то админом, попрочите ввести комманду ```/code```,"
-            f"\nа затем ввести этот код: ```{code}``` (действителен в течение 10 минут)"
+            text=(
+                "Чтобы назначить кого-то админом, попросите ввести команду:\n"
+                "```/code```\n"
+                f"Затем введите этот код:\n```{code}```\n"
+                "_Код действителен в течение 10 минут_"
+            ),
+            parse_mode="Markdown",
         )
     else:
         async with ClientSession() as session:
