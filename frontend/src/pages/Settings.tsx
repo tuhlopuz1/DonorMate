@@ -39,7 +39,7 @@ const SettingsPage = () => {
 
 
         {/* Редактирование профиля (заглушка) */}
-        <div className="bg-white rounded-xl p-5 shadow-md">
+        <div className="bg-white rounded-xl p-5 shadow-md" onClick={() => {window.location.href = '/#/settings/profile'}}>
           <div className="flex items-center gap-3 mb-3">
             <FiUser size={20} />
             <h3 className="text-xl font-bold">Профиль</h3>
