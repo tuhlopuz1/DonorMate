@@ -22,7 +22,7 @@ export default function WelcomePage() {
       {/* Кнопки */}
 <div className="flex flex-col space-y-4 w-full max-w-xs">
   {/* Кнопка "Начать" */}
-  <button className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white font-semibold py-3 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 animate-fade-in">
+  <button onClick={() => {window.location.href = '/#/survey'}} className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white font-semibold py-3 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 animate-fade-in">
     Начать
   </button>
 
