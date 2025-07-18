@@ -100,23 +100,3 @@ class Registration(Base):
 
     user: Mapped["User"] = relationship(back_populates="registrations_list")
     event: Mapped["Event"] = relationship(back_populates="registrations_list")
-
-
-class InfoForExcel(Base):
-    id: Mapped[int] = mapped_column(BigInteger, ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
-
-    # Основные поля (добавляем surname и name)
-    surname: Mapped[str] = mapped_column(String, nullable=False)
-    name: Mapped[str] = mapped_column(String, nullable=False)
-    patronymic: Mapped[Optional[str]] = mapped_column(String, nullable=True)
-    fullname: Mapped[str] = mapped_column(String, nullable=True)
-
-    # Поля для данных из Excel
-    group: Mapped[Optional[str]] = mapped_column(String, nullable=True)
-    donations_gavrilov: Mapped[int] = mapped_column(Integer, default=0)
-    donations_fmba: Mapped[int] = mapped_column(Integer, default=0)
-    last_donation_gavrilov: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
-    last_donation_fmba: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
-    social_media: Mapped[Optional[str]] = mapped_column(String, nullable=True)
-    phone: Mapped[Optional[str]] = mapped_column(String, nullable=True)
-    donations: Mapped[int] = mapped_column(Integer, default=0)
