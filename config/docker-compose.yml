@@ -29,11 +29,11 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
-    # healthcheck:
-    #   test: ["CMD", "rabbitmq-diagnostics", "ping"]
-    #   interval: 5s
-    #   timeout: 5s
-    #   retries: 5
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     networks:
       - bot_net
     mem_limit: 1g
@@ -76,8 +76,12 @@ services:
     env_file:
       - .env
     depends_on:
-      - rabbitmq
-      - fastapi
+      rabbitmq:
+        condition:
+          - service_healthy
+      fastapi:
+        condition:
+          - service_started
     networks:
       - bot_net
   celery:
