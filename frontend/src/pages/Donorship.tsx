@@ -5,13 +5,22 @@ import '../index.css';
 
 const Donorship: React.FC = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-red-50 to-white py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
+        <div className="text-center animate-fade-in-up delay-100">
+          <button 
+            onClick={() => {window.location.href = '/#/main'}} 
+            className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+          >
+            Назад
+
+          </button>
+        </div>
         <div className="text-center mb-12 animate-fade-in">
-          <h1 className="text-5xl font-extrabold text-red-800 mb-6 tracking-tight">
+          <h1 className="text-5xl font-extrabold text-blue-800 mb-6 tracking-tight">
             О донорстве
           </h1>
-          <div className="w-24 h-2 bg-red-600 mx-auto mb-8 rounded-full"></div>
+          <div className="w-24 h-2 bg-blue-600 mx-auto mb-8 rounded-full"></div>
         </div>
 
         <div className="bg-white rounded-xl shadow-lg p-8 mb-12 animate-fade-in-up-10">
@@ -26,7 +35,7 @@ const Donorship: React.FC = () => {
             </p>
           </div>
 
-          <h2 className="text-2xl font-semibold text-red-700 mb-4">Кто может стать донором?</h2>
+          <h2 className="text-2xl font-semibold text-blue-700 mb-4">Кто может стать донором?</h2>
           <ul className="list-disc list-inside text-gray-700 mb-6 space-y-2">
             <li>Граждане РФ в возрасте от 18 лет</li>
             <li>Масса тела не менее 50 кг</li>
@@ -34,7 +43,7 @@ const Donorship: React.FC = () => {
             <li>Прохождение предварительного медицинского осмотра</li>
           </ul>
 
-          <h2 className="text-2xl font-semibold text-red-700 mb-4">Противопоказания</h2>
+          <h2 className="text-2xl font-semibold text-blue-700 mb-4">Противопоказания</h2>
           <p className="text-gray-700 mb-2">Противопоказания бывают временные и постоянные:</p>
           <h3 className="font-semibold text-gray-800 mt-2">⏳ Временные противопоказания:</h3>
           <ul className="list-disc list-inside text-gray-700 mb-4 space-y-1">
@@ -58,7 +67,7 @@ const Donorship: React.FC = () => {
             <li>Наркомания, алкоголизм</li>
           </ul>
 
-          <h2 className="text-2xl font-semibold text-red-700 mb-4">Что нужно знать перед сдачей крови?</h2>
+          <h2 className="text-2xl font-semibold text-blue-700 mb-4">Что нужно знать перед сдачей крови?</h2>
           <ul className="list-disc list-inside text-gray-700 mb-6 space-y-1">
             <li>Накануне не употребляйте жирную, жареную, молочную пищу и алкоголь</li>
             <li>Выспитесь, будьте отдохнувшими</li>
@@ -66,7 +75,7 @@ const Donorship: React.FC = () => {
             <li>Не сдавайте кровь натощак</li>
           </ul>
 
-          <h2 className="text-2xl font-semibold text-red-700 mb-4">После сдачи крови:</h2>
+          <h2 className="text-2xl font-semibold text-blue-700 mb-4">После сдачи крови:</h2>
           <ul className="list-disc list-inside text-gray-700 mb-6 space-y-1">
             <li>Отдохните 10–15 минут</li>
             <li>Не курите минимум 1 час</li>
@@ -81,17 +90,6 @@ const Donorship: React.FC = () => {
           </p>
         </div>
 
-        <div className="text-center animate-fade-in-up delay-100">
-          <button 
-            onClick={() => {window.location.href = '/#/survey'}} 
-            className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 text-white text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"
-          >
-            Пройти анкету донора
-            <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-            </svg>
-          </button>
-        </div>
       </div>
     </div>
   );
