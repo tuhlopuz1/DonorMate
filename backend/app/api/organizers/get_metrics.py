@@ -8,7 +8,7 @@ from app.models.db_tables import Event, Information, User
 from app.models.schemas import MetricsResponse, Role
 from fastapi import APIRouter, Depends
 
-router = APIRouter
+router = APIRouter()
 
 
 @router.get("/metrics", response_model=MetricsResponse)
