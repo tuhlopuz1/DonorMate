@@ -8,11 +8,9 @@ RUN apt-get update && apt-get upgrade -y && \
     pip install --upgrade pip && \
     pip install -r requirements.txt
 
-COPY ./wait-for-it.sh /wait-for-it.sh
+COPY . .
 
 RUN chmod +x /wait-for-it.sh
-
-COPY . .
 
 EXPOSE 8000
 
