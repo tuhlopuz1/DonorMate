@@ -1,6 +1,6 @@
-import { FiHome, FiCalendar, FiUsers, FiFileText} from 'react-icons/fi';
+import { FiHome, FiCalendar, FiUsers} from 'react-icons/fi';
 import React from 'react';
-
+import { MessageCircleQuestion } from 'lucide-react';
 type NavButtonProps = {
   label: string;
   Icon: React.ComponentType<{ size?: number; className?: string }>;
@@ -51,7 +51,7 @@ export default function AdminBottomNavBar() {
         />
         <NavButton
           label="Вопросы"
-          Icon={FiFileText}
+          Icon={MessageCircleQuestion}
           active={current.includes('#/admin/reports')}
           onClick={() => (window.location.href = '#/admin/reports')}
         />
