@@ -39,7 +39,7 @@ Base = declarative_base(cls=Base)
 
 class User(Base):
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
-    phone: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    phone: Mapped[int] = mapped_column(BigInteger, nullable=True)
     role: Mapped[Role] = mapped_column(Enum(Role), default=Role.DONOR)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
     notifications_bool: Mapped[bool] = mapped_column(Boolean, default=True)
@@ -53,12 +53,13 @@ class User(Base):
 
 
 class Information(Base):
-    phone: Mapped[int] = mapped_column(BigInteger, ForeignKey("users.phone", ondelete="CASCADE"), primary_key=True)
+    id: Mapped[Optional[int]] = mapped_column(BigInteger, ForeignKey("users.id", ondelete="SET NULL"))
+    phone: Mapped[int] = mapped_column(BigInteger, nullable=True)
     fsp: Mapped[str] = mapped_column(String)
     group: Mapped[str] = mapped_column(String, nullable=True)
     donations: Mapped[int] = mapped_column(Integer, default=0)
 
-    user: Mapped["User"] = relationship(back_populates="info")
+    user: Mapped[Optional["User"]] = relationship(back_populates="info", uselist=False)
 
 
 class MedicalExemption(Base):
