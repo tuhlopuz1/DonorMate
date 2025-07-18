@@ -24,6 +24,9 @@ inline_miniapp_kbd = InlineKeyboardMarkup(
     ]
 )
 
+menu_kbd = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="foo")]])
+
+
 register_miniapp_kbd = InlineKeyboardMarkup(
     inline_keyboard=[
         [InlineKeyboardButton(text="Открыть МиниПриложение", web_app=WebAppInfo(url=f"{FRONTEND_URL}survey"))]
