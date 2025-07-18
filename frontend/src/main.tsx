@@ -27,7 +27,7 @@ import CreateEventPage from './pages/CreateEvent';
 import AddMedotvod from './pages/AddMedotvod';
 import AskOrganizers from './pages/Question';
 import AddUserPage from './pages/AddUser';
-
+import Donorship from './pages/Donorship';
 
 
 
@@ -47,6 +47,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         <Route path="/ask-organizers" element={<AskOrganizers />} />
         <Route path="/event/:id" element={<EventPage />} />
         <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/donorship" element={<Donorship />} />
         <Route path="/settings/profile" element={<ProfileSettings />} />
         <Route path="/admin/main" element={<AdminMainPage />} />
         <Route path="/admin/users" element={<AdminUsersPage />} />

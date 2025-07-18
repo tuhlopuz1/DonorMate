@@ -89,7 +89,7 @@ const MainPage = () => {
                     <FiCalendar color="white"/>
                 </div> */}
 
-                    <div onClick={() => {window.location.href = '/#/about'}} className="flex items-center justify-between px-6 bg-green-600 h-20 m-4 text-white rounded-lg">
+                    <div onClick={() => {window.location.href = '/#/donorship'}} className="flex items-center justify-between px-6 bg-green-600 h-20 m-4 text-white rounded-lg">
                         <p>Больше о донорстве</p>
                         <Info size={17}/>
                     </div>
