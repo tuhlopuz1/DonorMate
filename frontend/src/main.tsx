@@ -28,7 +28,7 @@ import AddMedotvod from './pages/AddMedotvod';
 import AskOrganizers from './pages/Question';
 import AddUserPage from './pages/AddUser';
 import Donorship from './pages/Donorship';
-
+import UserProfilePage from './pages/AdminUser';
 
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
@@ -54,6 +54,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         <Route path="/admin/events" element={<AdminEventsPage />} />
         <Route path="/admin/reports" element={<AdminReportsPage />} />
         <Route path="/admin/event/:id" element={<AdminEventPage />} />
+        <Route path="/admin/user/:id" element={<UserProfilePage />} />
         <Route path="/admin/scanner" element={<QrScanner />} />
         <Route path="/admin/add-user" element={<AddUserPage />} />
         <Route path="/admin/create-event" element={<CreateEventPage />} />
