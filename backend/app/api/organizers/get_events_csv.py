@@ -19,7 +19,8 @@ async def get_events_csv(user: Annotated[User, Depends(check_user_token)]):
     if user.role != Role.ADMIN:
         return badresponse("Forbidden", 403)
     all_events = await adapter.get_all(Event)
-    events_data = [EventResponse.model_dump(event) for event in all_events]
+    events_models = [EventResponse.model_validate(event) for event in all_events]
+    events_data = [event.model_dump() for event in events_models]
     csv_converter = CSVConverter()
     csv_file_path = await csv_converter.convert(events_data)
     return FileResponse(csv_file_path, media_type="text/csv", filename="events.csv", status_code=200)

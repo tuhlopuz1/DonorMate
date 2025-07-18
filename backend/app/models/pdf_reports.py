@@ -3,7 +3,7 @@ import os
 import tempfile
 from io import BytesIO
 from typing import Dict, List
-
+from app.models.db_tables import *
 import matplotlib
 import matplotlib.pyplot as plt
 from app.models.schemas import Role
@@ -133,7 +133,7 @@ class OrganizerAnalyticsReportGenerator:
 
     async def _get_organizer_events(self) -> List:
         """Получение мероприятий организатора"""
-        return await self.adapter.get_by_value("Event", "organizer", self.organizer_id)
+        return await self.adapter.get_by_value(Event, "organizer", self.organizer_id)
 
     async def _get_organizer_registrations(self) -> List:
         """Получение регистраций на мероприятия организатора"""
@@ -142,7 +142,7 @@ class OrganizerAnalyticsReportGenerator:
         
         registrations = []
         for event_id in event_ids:
-            event_regs = await self.adapter.get_by_value("Registration", "event_id", event_id)
+            event_regs = await self.adapter.get_by_value(Registration, "event_id", event_id)
             registrations.extend(event_regs)
             
         return registrations
@@ -154,7 +154,7 @@ class OrganizerAnalyticsReportGenerator:
         self.report_data["total_events"] = total_events
 
         # Статистика по завершенным/текущим мероприятиям
-        now = datetime.datetime.now()
+        now = datetime.now()
         past_events = 0
         upcoming_events = 0
         total_occupancy = 0
@@ -186,14 +186,14 @@ class OrganizerAnalyticsReportGenerator:
         
         donors = []
         for donor_id in donor_ids:
-            donor = await self.adapter.get_by_id("User", donor_id)
+            donor = await self.adapter.get_by_id(User, donor_id)
             if donor:
                 donors.append(donor)
 
         # Собираем информацию о донациях
         donations = []
         for donor in donors:
-            info = await self.adapter.get_by_id("Information", donor.phone)
+            info = await self.adapter.get_by_value(Information, "phone",donor.phone)
             if info:
                 donations.append(info.donations)
             else:
@@ -238,7 +238,7 @@ class OrganizerAnalyticsReportGenerator:
         
         exemptions = []
         for donor_id in donor_ids:
-            donor_exemptions = await self.adapter.get_by_value("MedicalExemption", "user_id", donor_id)
+            donor_exemptions = await self.adapter.get_by_value(MedicalExemption, "user_id", donor_id)
             exemptions.extend(donor_exemptions)
 
         total_exemptions = len(exemptions)
@@ -282,7 +282,7 @@ class OrganizerAnalyticsReportGenerator:
 
     def generate_pdf_report(self) -> str:
         """Генерация PDF отчета организатора"""
-        report_id = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+        report_id = datetime.now().strftime("%Y%m%d%H%M%S")
         pdf_path = os.path.join(self.temp_dir, f"organizer_report_{self.organizer_id}_{report_id}.pdf")
 
         doc = SimpleDocTemplate(
@@ -348,7 +348,7 @@ class OrganizerAnalyticsReportGenerator:
 
         elements.append(metrics_table)
         elements.append(Spacer(1, 3 * cm))
-        elements.append(Paragraph(f"Сгенерировано {datetime.datetime.now().strftime('%d.%m.%Y %H:%M')}", styles["Caption"]))
+        elements.append(Paragraph(f"Сгенерировано {datetime.now().strftime('%d.%m.%Y %H:%M')}", styles["Caption"]))
 
     def _create_event_stats_page(self, elements):
         """Страница статистики мероприятий"""
