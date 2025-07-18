@@ -25,6 +25,10 @@ import AdminEventPage from './pages/AdminEvent';
 import QrScanner from './pages/QrScanner';
 import CreateEventPage from './pages/CreateEvent';
 import AddMedotvod from './pages/AddMedotvod';
+import AskOrganizers from './pages/Question';
+
+
+
 
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
@@ -40,6 +44,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         <Route path="/schedule" element={<SchedulePage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/notifications" element={<NotificationsPage />} />
+        <Route path="/ask-organizers" element={<AskOrganizers />} />
         <Route path="/event/:id" element={<EventPage />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/settings/profile" element={<ProfileSettings />} />
