@@ -28,6 +28,8 @@ import AddMedotvod from './pages/AddMedotvod';
 import AskOrganizers from './pages/Question';
 import AddUserPage from './pages/AddUser';
 import Donorship from './pages/Donorship';
+import UserProfilePage from './pages/AdminUser';
+import Broadcasts from './pages/Sending';
 
 
 
@@ -52,8 +54,10 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         <Route path="/admin/main" element={<AdminMainPage />} />
         <Route path="/admin/users" element={<AdminUsersPage />} />
         <Route path="/admin/events" element={<AdminEventsPage />} />
-        <Route path="/admin/reports" element={<AdminReportPage />} />
+        <Route path="/admin/reports" element={<AdminReportsPage />} />
+        <Route path="/admin/sending" element={<Broadcasts />} />
         <Route path="/admin/event/:id" element={<AdminEventPage />} />
+        <Route path="/admin/user/:id" element={<UserProfilePage />} />
         <Route path="/admin/scanner" element={<QrScanner />} />
         <Route path="/admin/add-user" element={<AddUserPage />} />
         <Route path="/admin/create-event" element={<CreateEventPage />} />
