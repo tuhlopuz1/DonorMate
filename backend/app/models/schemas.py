@@ -135,3 +135,10 @@ class MetricsResponse(BaseModel):
     donations_count: int
     new_events_count: int
     ended_events_count: int
+
+
+class RoleMetricsResponse(BaseModel):
+    users_count: int
+    admins_count: int
+    donors_count: int
+    const_donors_count: int
