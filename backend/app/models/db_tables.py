@@ -55,7 +55,7 @@ class User(Base):
 class Information(Base):
     id: Mapped[Optional[int]] = mapped_column(BigInteger, ForeignKey("users.id", ondelete="SET NULL"))
     phone: Mapped[int] = mapped_column(BigInteger, nullable=True)
-    fsp: Mapped[str] = mapped_column(String)
+    fsp: Mapped[str] = mapped_column(String, primary_key=True)
     group: Mapped[str] = mapped_column(String, nullable=True)
     donations: Mapped[int] = mapped_column(Integer, default=0)
 
