@@ -11,7 +11,7 @@ const AdminUsersPage = () => {
       {/* Верхняя панель с экспортом и кнопкой добавления */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-red-500 shadow rounded-2xl p-5">
         <div className="flex items-center gap-3">
-          <p className="text-lg font-bold text-white">Экспорт данных в CSV</p>
+          <p className="text-lg font-bold text-white">Экспорт данных в XLSX</p>
           <FiDownload color="white" size={23} />
         </div>
         <button onClick={() => {window.location.href = '/#/admin/add-user'}} className="flex items-center gap-2 bg-white text-red-600 font-medium px-4 py-2 rounded-xl hover:bg-red-100 transition">
