@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta, timezone  # noqa
 from typing import Annotated
 from uuid import UUID
 
@@ -35,20 +35,21 @@ async def register_on_event(user: Annotated[User, Depends(check_user_token)], ev
         access_qr_token = TokenManager.encode_qr_token({"iss": str(user.id), "sub": str(registration.id)}, expiration)
         event_name = event.name if event.name is not None else ""
         if notif and user.notifications_bool:
-            schedule_telegram_message.apply_async(
-                kwargs={
-                    "text": (
-                        f"Ваша запись на мероприятие {event_name} состоится через 10 минут!",  # noqa
-                        f"\nПодойдите в: {event.place}, ",
-                        f"\nДля связи с организатором пишите в телеграмм: @{org.username}",
-                        "\nНа входе покажите QR-код (действителен до конца мероприятия)",
-                    ),
-                    "chat_id": user.id,
-                    "reg_id": registration.id,
-                    "data": access_qr_token,
-                },
-                eta=eta1,
-            )
+            if eta1 > now:
+                schedule_telegram_message.apply_async(
+                    kwargs={
+                        "text": (
+                            f"Ваша запись на мероприятие {event_name} состоится через 10 минут!",  # noqa
+                            f"\nПодойдите в: {event.place}, ",
+                            f"\nДля связи с организатором пишите в телеграмм: @{org.username}",
+                            "\nНа входе покажите QR-код (действителен до конца мероприятия)",
+                        ),
+                        "chat_id": user.id,
+                        "reg_id": registration.id,
+                        "data": access_qr_token,
+                    },
+                    eta=eta1,
+                )
             if eta2 > now:
                 schedule_telegram_message.apply_async(
                     kwargs={

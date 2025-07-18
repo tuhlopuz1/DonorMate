@@ -39,6 +39,7 @@ async def get_profile(user: Annotated[User, Depends(check_user_token)]):
                 "chronic_disease": user_info.chronic_disease,
                 "medical_exemption": user_info.medical_exemption,
                 "donor_earlier": user_info.donor_earlier,
+                "donations": user_info.donations,
             }
         )
 

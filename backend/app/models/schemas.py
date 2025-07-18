@@ -74,6 +74,7 @@ class ProfileResponse(BaseModel):
     chronic_disease: Optional[bool] = None
     medical_exemption: Optional[bool] = None
     donor_earlier: Optional[DonorEarlier] = None
+    donations: Optional[int] = None
 
     model_config = {"from_attributes": True}
 
@@ -86,6 +87,18 @@ class EventPayload(BaseModel):
     organizer: int
     description: str
     place: str
+
+
+class EventResponse(BaseModel):
+    id: UUID
+    name: str
+    description: str
+    organizer: int
+    max_donors: int
+    registred: int
+    start_date: datetime
+    end_date: datetime
+    created_at: datetime
 
 
 class MedicalExemptionResponse(BaseModel):
@@ -106,3 +119,19 @@ class UpdateInfoPayload(BaseModel):
     medical_exemption: Optional[bool] = None
     donor_earlier: Optional[DonorEarlier] = None
     feedback: Optional[str] = None
+
+
+class DonorResponse(BaseModel):
+    id: int
+    fullname: str
+    surname: str
+    patronymic: str
+    username: str
+    donations: int
+
+
+class MetricsResponse(BaseModel):
+    users_count: int
+    donations_count: int
+    new_events_count: int
+    ended_events_count: int
