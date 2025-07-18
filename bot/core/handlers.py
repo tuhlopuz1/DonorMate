@@ -103,12 +103,12 @@ async def get_or_check_admin_code(message: Message, state: FSMContext):
 
 @router.message(TGRegister.PHONE_NUMBER)
 async def validate_phone_num(message: Message, state: FSMContext):
-    phone_number = message.text.strip()
-    phone_contact = message.contact.phone_number.strip()
+    phone_number = message.text
+    phone_contact = message.contact.phone_number
     if phone_number:
-        cleaned_number = re.sub(r"[^0-9]", "", phone_number)
+        cleaned_number = re.sub(r"[^0-9]", "", phone_number.strip())
     elif phone_contact:
-        cleaned_number = re.sub(r"[^0-9]", "", phone_contact)
+        cleaned_number = re.sub(r"[^0-9]", "", phone_contact.strip())
     else:
         await message.answer("Это не номер телефона.", reply_markup=phone_share_num)
         return
