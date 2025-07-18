@@ -1,3 +1,5 @@
+version: '3.9'
+
 services:
   postgres:
     image: postgres:15-alpine
@@ -20,6 +22,7 @@ services:
       retries: 5
     networks:
       - bot_net
+
   rabbitmq:
     image: rabbitmq:latest
     container_name: rabbitmq-container
@@ -30,14 +33,15 @@ services:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
     healthcheck:
-      test: ["CMD", "rabbitmqctl", "status"]
-      interval: 30s
-      timeout: 10s
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
       retries: 5
-      start_period: 60s
+      start_period: 30s
     networks:
       - bot_net
-    mem_limit: 3g
+    restart: unless-stopped
+
   redis:
     image: redis:7-alpine
     container_name: redis-container
@@ -64,25 +68,27 @@ services:
     env_file:
       - .env
     depends_on:
-      postgres:
-        condition: service_healthy
+      - postgres
     expose:
       - "8000"
     restart: unless-stopped
     networks:
       - bot_net
+    entrypoint: ["sh", "-c", "/wait-for-it.sh postgres:5432 -- uvicorn app.main:app --host 0.0.0.0 --port 8000"]
+
   aiobot:
     image: asdfrewqha/donormate_bot:latest
     container_name: aiobot-container
     env_file:
       - .env
     depends_on:
-      rabbitmq:
-        condition: service_healthy
-      fastapi:
-        condition: service_started
+      - rabbitmq
+      - fastapi
     networks:
       - bot_net
+    restart: always
+    entrypoint: ["sh", "-c", "/wait-for-it.sh rabbitmq:5672 -- /usr/local/bin/python bot.py"]
+
   celery:
     image: asdfrewqha/donormate:latest
     container_name: celery-container
@@ -90,13 +96,14 @@ services:
     env_file:
       - .env
     depends_on:
-      rabbitmq:
-        condition: service_healthy
-      fastapi:
-        condition: service_started
+      - rabbitmq
+      - fastapi
     restart: unless-stopped
     networks:
       - bot_net
+    entrypoint: ["sh", "-c", "/wait-for-it.sh rabbitmq:5672 -- celery -A app.core.celery_app worker --loglevel=info"]
+
+
   nginx:
     image: nginx:latest
     container_name: nginx-container
@@ -110,6 +117,7 @@ services:
       - fastapi
     networks:
       - bot_net
+    restart: always
 
 volumes:
   postgres_data:

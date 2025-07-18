@@ -118,7 +118,7 @@ jobs:
             port: 2536
             script: |
               set -e
-              
+               
               cd /root/fastapi
               docker stop $(docker ps -q) && docker rm $(docker ps -aq)
               
