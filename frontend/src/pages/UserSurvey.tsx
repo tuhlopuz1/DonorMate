@@ -42,7 +42,7 @@ export default function UserSurvey() {
       });
 
       if (response.ok) {
-        window.location.href = '/#/registered-successfully';
+        window.location.href = '/#/main';
       } else {
         const errorData = await response.json();
         console.error('Ошибка при отправке:', errorData);

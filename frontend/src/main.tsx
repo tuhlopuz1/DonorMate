@@ -24,6 +24,7 @@ import AdminReportsPage from './pages/AdminReports';
 import AdminEventPage from './pages/AdminEvent';
 import QrScanner from './pages/QrScanner';
 import CreateEventPage from './pages/CreateEvent';
+import AddMedotvod from './pages/AddMedotvod';
 import AskOrganizers from './pages/Question';
 
 
@@ -55,6 +56,8 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         <Route path="/admin/scanner" element={<QrScanner />} />
         <Route path="/admin/create-event" element={<CreateEventPage />} />
         <Route path="/not-available" element={<NotAvailable />} />
+        <Route path="/not-available" element={<NotAvailable />} />
+        <Route path="/add-medotvod" element={<AddMedotvod />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </HashRouter>
