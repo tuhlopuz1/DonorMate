@@ -31,7 +31,7 @@ register_miniapp_kbd = InlineKeyboardMarkup(
 )
 
 phone_share_num = ReplyKeyboardMarkup(
-    [[KeyboardButton(text="Поделиться номером", request_contact=True)]],
+    keyboard=[[KeyboardButton(text="Поделиться номером", request_contact=True)]],
     one_time_keyboard=True,
 )
 
