@@ -27,7 +27,7 @@ export default function WelcomePage() {
   </button>
 
   {/* Кнопка "Узнать больше" */}
-  <button className="w-full bg-white text-blue-600 font-semibold py-3 rounded-2xl border border-blue-400 hover:border-blue-500 hover:bg-blue-50 shadow-sm hover:shadow-md transition-all duration-300 animate-fade-in-slow">
+  <button onClick={() => {window.location.href = '/#/about'}} className="w-full bg-white text-blue-600 font-semibold py-3 rounded-2xl border border-blue-400 hover:border-blue-500 hover:bg-blue-50 shadow-sm hover:shadow-md transition-all duration-300 animate-fade-in-slow">
      Узнать больше
   </button>
 </div>
