@@ -11,7 +11,7 @@ from fastapi import APIRouter, Depends
 router = APIRouter()
 
 
-@router.get("/metrics", response_model=MetricsResponse)
+@router.get("/get-metrics", response_model=MetricsResponse)
 async def metrics(user: Annotated[User, Depends(check_user_token)]):
     if not user:
         return badresponse("Unauthorized", 401)

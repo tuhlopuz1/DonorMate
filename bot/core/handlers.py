@@ -22,6 +22,7 @@ from core.states import (
     AdminState,
     MedicalExemptionUpdStates,
     RegisterStates,
+    TGRegister,
     format_value,
 )
 from dependencies.api_dependencies import (
@@ -39,14 +40,17 @@ logger = logging.getLogger(__name__)
 
 
 @router.message(Command("start"))
-async def handle_start(message: Message):
+async def handle_start(message: Message, state: FSMContext):
     async with ClientSession() as session:
         payload = {
             "user_id": message.from_user.id,
             "username": message.from_user.username,
             "tg_name": message.from_user.first_name,
         }
-        await session.post(url=f"{BACKEND_URL}/telegram-register", json=payload)
+        async with session.post(url=f"{BACKEND_URL}/telegram-register", json=payload) as resp:
+            if resp.status == 400:
+                await message.answer("Не удалось получить ваше telegram имя или юзернейм. Введите ваш")
+                state.set_state(TGRegister.EMPTY_NAME_OR_USERNAME)
     await message.answer("Выберите действие:", reply_markup=inline_miniapp_kbd)
 
 

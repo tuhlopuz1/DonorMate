@@ -25,8 +25,8 @@ class DonorEarlier(Enum):
 
 class TelegramUserInfoPayload(BaseModel):
     user_id: int
-    username: str
-    tg_name: str
+    username: Optional[str] = None
+    tg_name: Optional[str] = None
 
 
 class InitDataPayload(BaseModel):

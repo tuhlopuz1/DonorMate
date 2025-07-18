@@ -3,6 +3,10 @@ from datetime import datetime
 from aiogram.fsm.state import State, StatesGroup
 
 
+class TGRegister(StatesGroup):
+    EMPTY_NAME_OR_USERNAME = State()
+
+
 class RegisterStates(StatesGroup):
     FULLNAME = State()
     SURNAME = State()
