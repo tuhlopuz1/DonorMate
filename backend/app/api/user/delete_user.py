@@ -10,6 +10,7 @@ from fastapi.responses import JSONResponse
 
 router = APIRouter()
 
+
 @router.delete("/delete-user")
 async def delete_user(user: Annotated[User, Depends(check_user_token)]):
     if not user:
