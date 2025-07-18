@@ -64,7 +64,11 @@ const MainPage = () => {
         <div className="pt-14 pb-14 flex flex-col gap-6">
             <MainTopBar />
             <div>
-            {loadingUser ? (
+            {loadingUser ? 
+            (<p className="text-2xl bg-blue-600 font-sans font-bold"> Загрузка...
+                </p>)
+                :
+            (
                 <div className="h-auto bg-blue-600 p-6">
                     <p className="text-2xl text-white font-sans font-bold"> {"Привет, " + user?.fullname + "!"}
                 </p>
@@ -72,9 +76,7 @@ const MainPage = () => {
                         <h1 className="text-4xl font-sans font-bold text-white">7</h1>
                         <p className="text-white/75 pb-8">донаций</p>
                     </div>
-                </div>) : 
-                (<p className="text-2xl text-white font-sans font-bold"> Загрузка...
-                </p>)
+                </div>)
             }
             </div>
 
