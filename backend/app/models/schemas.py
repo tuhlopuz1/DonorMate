@@ -1,4 +1,5 @@
-from datetime import date, datetime
+# from datetime import date, datetime
+from datetime import datetime
 from enum import Enum
 from typing import Optional
 from uuid import UUID
@@ -11,22 +12,15 @@ class Role(Enum):
     ADMIN = "ADMIN"
 
 
-class Gender(Enum):
-    MALE = "MALE"
-    FEMALE = "FEMALE"
-    UNDEFINED = "UNDEFINED"
-
-
-class DonorEarlier(Enum):
-    NO = "NO"
-    ONCE = "ONCE"
-    YES = "YES"
+class Place(Enum):
+    FMBA = "г. Москва, ул. Щукинская д. 6, корп. 2"
+    GAUR = "г. Москва, ул. Поликарпова, д. 14, корп. 2"
 
 
 class TelegramUserInfoPayload(BaseModel):
     user_id: int
-    username: str
-    tg_name: str
+    username: Optional[str] = None
+    tg_name: Optional[str] = None
 
 
 class InitDataPayload(BaseModel):
@@ -44,39 +38,43 @@ class RefreshResponse(BaseModel):
 
 class PostRegisterPayload(BaseModel):
     fullname: str
-    surname: str
-    patronymic: Optional[str] = None
-    birth_date: date
-    gender: Gender
-    university: Optional[str] = None
-    group: Optional[str] = None
-    weight: int
-    chronic_disease: bool
-    medical_exemption: bool
-    donor_earlier: DonorEarlier
-    feedback: Optional[str] = None
+
+
+#     surname: str
+#     patronymic: Optional[str] = None
+#     birth_date: date
+#     gender: Gender
+#     university: Optional[str] = None
+#     group: Optional[str] = None
+#     weight: int
+#     chronic_disease: bool
+#     medical_exemption: bool
+#     donor_earlier: DonorEarlier
+#     feedback: Optional[str] = None
 
 
 class ProfileResponse(BaseModel):
     user_id: int
-    username: Optional[str] = None
-    tg_name: Optional[str] = None
-    role: Role
-    created_at: datetime
-    fullname: Optional[str] = None
-    surname: Optional[str] = None
-    patronymic: Optional[str] = None
-    birth_date: Optional[date] = None
-    gender: Optional[Gender] = Gender.UNDEFINED
-    university: Optional[str] = None
-    group: Optional[str] = None
-    weight: Optional[int] = None
-    chronic_disease: Optional[bool] = None
-    medical_exemption: Optional[bool] = None
-    donor_earlier: Optional[DonorEarlier] = None
-    donations: Optional[int] = None
 
-    model_config = {"from_attributes": True}
+
+#     username: Optional[str] = None
+#     tg_name: Optional[str] = None
+#     role: Role
+#     created_at: datetime
+#     fullname: Optional[str] = None
+#     surname: Optional[str] = None
+#     patronymic: Optional[str] = None
+#     birth_date: Optional[date] = None
+#     gender: Optional[Gender] = Gender.UNDEFINED
+#     university: Optional[str] = None
+#     group: Optional[str] = None
+#     weight: Optional[int] = None
+#     chronic_disease: Optional[bool] = None
+#     medical_exemption: Optional[bool] = None
+#     donor_earlier: Optional[DonorEarlier] = None
+#     donations: Optional[int] = None
+
+#     model_config = {"from_attributes": True}
 
 
 class EventPayload(BaseModel):
@@ -108,17 +106,19 @@ class MedicalExemptionResponse(BaseModel):
 
 class UpdateInfoPayload(BaseModel):
     fullname: Optional[str] = None
-    surname: Optional[str] = None
-    patronymic: Optional[str] = None
-    birth_date: Optional[date] = None
-    gender: Optional[Gender] = None
-    university: Optional[str] = None
-    group: Optional[str] = None
-    weight: Optional[int] = None
-    chronic_disease: Optional[bool] = None
-    medical_exemption: Optional[bool] = None
-    donor_earlier: Optional[DonorEarlier] = None
-    feedback: Optional[str] = None
+
+
+#     surname: Optional[str] = None
+#     patronymic: Optional[str] = None
+#     birth_date: Optional[date] = None
+#     gender: Optional[Gender] = None
+#     university: Optional[str] = None
+#     group: Optional[str] = None
+#     weight: Optional[int] = None
+#     chronic_disease: Optional[bool] = None
+#     medical_exemption: Optional[bool] = None
+#     donor_earlier: Optional[DonorEarlier] = None
+#     feedback: Optional[str] = None
 
 
 class DonorResponse(BaseModel):
@@ -135,3 +135,10 @@ class MetricsResponse(BaseModel):
     donations_count: int
     new_events_count: int
     ended_events_count: int
+
+
+class RoleMetricsResponse(BaseModel):
+    users_count: int
+    admins_count: int
+    donors_count: int
+    const_donors_count: int

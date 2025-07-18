@@ -16,6 +16,8 @@ router = APIRouter()
 async def get_deep_analytics(
     user: Annotated[User, Depends(check_user_token)],
 ):
+    if not user:
+        return badresponse("Unauthorized", 401)
     if user.role != Role.ADMIN:
         return badresponse("You are not an admin", 403)
     file_path = await generate_admin_report(adapter)
