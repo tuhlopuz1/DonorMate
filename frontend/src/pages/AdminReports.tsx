@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import BottomNavBar from "../components/layouts/NavBar";
-import PageTopBar from "../components/layouts/PageTopBar";
 import AdminPageTopBar from "../components/layouts/AdminPageTopBar";
 import { FiMessageSquare, FiTrash2, FiSend } from "react-icons/fi";
 import { FiCalendar } from "react-icons/fi";

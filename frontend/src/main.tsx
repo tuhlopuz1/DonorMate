@@ -54,7 +54,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         <Route path="/admin/main" element={<AdminMainPage />} />
         <Route path="/admin/users" element={<AdminUsersPage />} />
         <Route path="/admin/events" element={<AdminEventsPage />} />
-        <Route path="/admin/reports" element={<AdminReportsPage />} />
+        <Route path="/admin/reports" element={<AdminReportPage />} />
         <Route path="/admin/sending" element={<Broadcasts />} />
         <Route path="/admin/event/:id" element={<AdminEventPage />} />
         <Route path="/admin/user/:id" element={<UserProfilePage />} />
