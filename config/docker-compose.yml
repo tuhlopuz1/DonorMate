@@ -22,18 +22,18 @@ services:
       - bot_net
   rabbitmq:
     image: rabbitmq:3-management
-    container_name: rabbit-container
+    container_name: rabbitmq-container
     ports:
       - "5672:5672"
       - "15672:15672"
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
-    healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "ping"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+    # healthcheck:
+    #   test: ["CMD", "rabbitmq-diagnostics", "ping"]
+    #   interval: 5s
+    #   timeout: 5s
+    #   retries: 5
     networks:
       - bot_net
     mem_limit: 1g
@@ -76,10 +76,8 @@ services:
     env_file:
       - .env
     depends_on:
-      rabbitmq:
-        condition: service_healthy
-      fastapi:
-        condition: service_started
+      - rabbitmq
+      - fastapi
     networks:
       - bot_net
   celery:
@@ -89,10 +87,8 @@ services:
     env_file:
       - .env
     depends_on:
-      rabbitmq:
-        condition: service_healthy
-      fastapi:
-        condition: service_started
+      - rabbitmq
+      - fastapi
     restart: unless-stopped
     networks:
       - bot_net
