@@ -14,11 +14,11 @@ const AdminUsersPage = () => {
           <p className="text-lg font-bold text-white">Экспорт данных в XLSX</p>
           <FiDownload color="white" size={23} />
         </div>
-        <button onClick={() => {window.location.href = '/#/admin/add-user'}} className="flex items-center gap-2 bg-white text-red-600 font-medium px-4 py-2 rounded-xl hover:bg-red-100 transition">
+      </div>
+        <button onClick={() => {window.location.href = '/#/admin/add-user'}} className="flex items-center shadow w-full gap-2 bg-white text-red-600 font-medium px-4 py-2 rounded-xl hover:bg-red-100 transition">
           <FiUserPlus size={18} />
           Добавить пользователя
         </button>
-      </div>
 
       {/* Карточки статистики */}
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-2 gap-4">

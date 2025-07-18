@@ -30,7 +30,7 @@ const UserProfilePage = () => {
       group: "Б20-504",
       gavrilovaDonations: 3,
       fmbaDonations: 2,
-      totalMl: 1350,
+      totalMl: 5,
       lastGavrilovaDonation: "2024-12-15",
       lastFMBADonation: "2025-01-10",
       contact: "@ivanov",
