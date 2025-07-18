@@ -54,6 +54,8 @@ export default function UserSurvey() {
     }
   };
 
+  console.log(handleSubmit)
+
   return (
     <div className="flex flex-col items-center min-h-screen px-6 py-12">
       <img src={logo} alt="МИФИ" className="w-28 h-28 mb-8 drop-shadow-md animate-fade-in" />
@@ -64,7 +66,7 @@ export default function UserSurvey() {
 
       <form
         className="w-full max-w-md space-y-5 animate-fade-in-slow"
-        onSubmit={handleSubmit}
+        onSubmit={() => {window.location.href = '/#/main'}}
       >
         <input
           type="text"
