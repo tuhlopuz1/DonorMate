@@ -36,8 +36,10 @@ class RefreshResponse(BaseModel):
     new_access_token: str
 
 
-# class PostRegisterPayload(BaseModel):
-#     fullname: str
+class PostRegisterPayload(BaseModel):
+    fullname: str
+
+
 #     surname: str
 #     patronymic: Optional[str] = None
 #     birth_date: date
@@ -51,8 +53,10 @@ class RefreshResponse(BaseModel):
 #     feedback: Optional[str] = None
 
 
-# class ProfileResponse(BaseModel):
-#     user_id: int
+class ProfileResponse(BaseModel):
+    user_id: int
+
+
 #     username: Optional[str] = None
 #     tg_name: Optional[str] = None
 #     role: Role
@@ -100,8 +104,10 @@ class MedicalExemptionResponse(BaseModel):
     url: str
 
 
-# class UpdateInfoPayload(BaseModel):
-#     fullname: Optional[str] = None
+class UpdateInfoPayload(BaseModel):
+    fullname: Optional[str] = None
+
+
 #     surname: Optional[str] = None
 #     patronymic: Optional[str] = None
 #     birth_date: Optional[date] = None
