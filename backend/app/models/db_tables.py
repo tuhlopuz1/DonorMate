@@ -100,3 +100,10 @@ class Registration(Base):
 
     user: Mapped["User"] = relationship(back_populates="registrations_list")
     event: Mapped["Event"] = relationship(back_populates="registrations_list")
+
+class Notifications(Base):
+    id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
+    user_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("users.id", ondelete="CASCADE"))
+    type: Mapped[str] = mapped_column(String, nullable=False)
+    title: Mapped[str] = mapped_column(String, nullable=False)
+    content: Mapped[str] = mapped_column(String, nullable=True)
