@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
-import BottomNavBar from "../components/layouts/NavBar";
 import AdminPageTopBar from "../components/layouts/AdminPageTopBar";
 import { FiMessageSquare, FiTrash2, FiSend } from "react-icons/fi";
-import { FiCalendar } from "react-icons/fi";
-
+import { MessageCircleQuestion } from "lucide-react";
+import AdminBottomNavBar from "../components/layouts/AdminNavBar";
 interface Question {
   id: string;
   userId: string;
@@ -28,7 +27,7 @@ const AdminReportPage = () => {
       
       // Заглушка для демонстрации
       const mockData: Question[] = [
-        { id: "1", userId: "user123", text: "Как мне зарегистрироваться на мероприятие?" },
+        { id: "1", userId: "user123", text: "Как мне зарегистрироваться  на мероприятие?" },
         { id: "2", userId: "user456", text: "Где будет проходить день донора?" },
         { id: "3", userId: "user789", text: "Нужно ли приносить свои документы?" },
       ];
@@ -104,7 +103,7 @@ const AdminReportPage = () => {
   if (loading) {
     return (
       <div className="pt-10 pb-14">
-        <AdminPageTopBar title="Расписание мероприятий" icon={<FiCalendar size={20} />} />
+        <AdminPageTopBar title="Ответы на вопросы" icon={<MessageCircleQuestion size={20} />} />
         <div className="p-6 mt-14 text-center">Загрузка...</div>
       </div>
     );
@@ -113,7 +112,7 @@ const AdminReportPage = () => {
   if (error) {
     return (
       <div className="pt-10 pb-14">
-        <AdminPageTopBar title="Расписание мероприятий" icon={<FiCalendar size={20} />} />
+        <AdminPageTopBar title="Расписание мероприятий" icon={<MessageCircleQuestion size={20} />} />
         <div className="p-6 mt-14 text-center text-red-500">{error}</div>
       </div>
     );
@@ -121,7 +120,7 @@ const AdminReportPage = () => {
 
   return (
     <div className="pt-10 pb-14">
-      <AdminPageTopBar title="Расписание мероприятий" icon={<FiCalendar size={20} />} />
+      <AdminPageTopBar title="Расписание мероприятий" icon={<MessageCircleQuestion size={20} />} />
 
       {/* Список вопросов */}
       <div className="flex flex-col gap-4 p-6 mt-14">
@@ -191,7 +190,7 @@ const AdminReportPage = () => {
         </div>
       )}
 
-      <BottomNavBar />
+      <AdminBottomNavBar />
     </div>
   );
 };
