@@ -91,14 +91,10 @@ const ProfilePage = () => {
             <p className="text-white/80">Загрузка профиля...</p>
           ) : user ? (
             <>
-              <h2 className="text-2xl font-bold mb-2">{user.fullname}</h2>
-              <p className="text-sm text-white/80">Университет: {user.university}</p>
-              <p className="text-sm text-white/80">Группа: {user.group}</p>
-              <p className="text-sm text-white/80">Дата рождения: {user.birth_date}</p>
-              <p className="text-sm text-white/80">
-                Пол: {user.gender === "FEMALE" ? "Женский" : "Мужской"}
-              </p>
-              <p className="text-sm text-white/80">Вес: {user.weight} кг</p>
+              <h2 className="text-2xl font-bold mb-2">ПРОФИЛЬ</h2>
+              <p className="text-sm text-white/80">ФИО: {user.fullname + " " + user.surname + " " + user.patronymic}</p>
+              <p className="text-sm text-white/80">Роль: {user.role}</p>
+              <p className="text-sm text-white/80">Телефон: {"8 (800) 555-35-35"}</p>
             </>
           ) : (
             <p className="text-white/80">Не удалось загрузить профиль</p>
@@ -106,7 +102,7 @@ const ProfilePage = () => {
         </div>
 
         {/* История донаций (заглушка пока что) */}
-        <div className="bg-white rounded-xl p-5 shadow-md">
+        {/* <div className="bg-white rounded-xl p-5 shadow-md">
           <h3 className="text-xl font-bold mb-3">История донаций</h3>
           {loadingUser ? (
             <p className="text-gray-500 text-sm">Загрузка...</p>
@@ -123,11 +119,11 @@ const ProfilePage = () => {
           ) : (
             <p className="text-gray-500 text-sm">Нет данных о донациях</p>
           )}
-        </div>
+        </div> */}
 
         {/* Медицинский статус */}
         <div className="bg-white rounded-xl p-5 shadow-md">
-          <h3 className="text-xl font-bold mb-3">Медицинский статус</h3>
+          {/* <h3 className="text-xl font-bold mb-3">Медицинский статус</h3>
           {loadingUser ? (
             <p className="text-gray-500 text-sm">Загрузка...</p>
           ) : user ? (
@@ -140,7 +136,7 @@ const ProfilePage = () => {
             </p>
           ) : (
             <p className="text-gray-500 text-sm">Нет данных</p>
-          )}
+          )} */}
 
           {/* История медотводов */}
           <div className="mt-4">

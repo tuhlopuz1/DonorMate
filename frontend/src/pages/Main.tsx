@@ -1,7 +1,7 @@
 import { useEffect, useState} from "react";
 import BottomNavBar from "../components/layouts/NavBar";
 import MainTopBar from "../components/layouts/MainTopBar";
-import { FiFileText, FiCalendar } from "react-icons/fi";
+import { FiFileText } from "react-icons/fi";
 // import { useMedotvodModal } from '../components/layouts/Medotvod';
 // import type { MedotvodData } from '../components/layouts/Medotvod';
 import EventCard from "../components/layouts/EventCard";
@@ -84,12 +84,12 @@ const MainPage = () => {
                     <p className="text-white">Добавить медицинский отвод</p>
                     <FiFileText color="white"/>
                 </div>
-                <div  className="flex items-center justify-between px-6 bg-blue-600 h-20 m-4 rounded-lg">
+                {/* <div  className="flex items-center justify-between px-6 bg-blue-600 h-20 m-4 rounded-lg">
                     <p className="text-white">Расписание мероприятий</p>
                     <FiCalendar color="white"/>
-                </div>
+                </div> */}
 
-                    <div className="flex items-center justify-between px-6 bg-green-600 h-20 m-4 text-white rounded-lg">
+                    <div onClick={() => {window.location.href = '/#/about'}} className="flex items-center justify-between px-6 bg-green-600 h-20 m-4 text-white rounded-lg">
                         <p>Больше о донорстве</p>
                         <Info size={17}/>
                     </div>
