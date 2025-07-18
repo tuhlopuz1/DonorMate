@@ -20,7 +20,7 @@ import EventPage from './pages/Event';
 import AdminMainPage from './pages/AdminMain';
 import AdminUsersPage from './pages/AdminUsers';
 import AdminEventsPage from './pages/AdminEvents';
-import AdminReportsPage from './pages/AdminReports';
+import AdminReportPage from './pages/AdminReports';
 import AdminEventPage from './pages/AdminEvent';
 import QrScanner from './pages/QrScanner';
 import CreateEventPage from './pages/CreateEvent';
@@ -52,7 +52,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         <Route path="/admin/main" element={<AdminMainPage />} />
         <Route path="/admin/users" element={<AdminUsersPage />} />
         <Route path="/admin/events" element={<AdminEventsPage />} />
-        <Route path="/admin/reports" element={<AdminReportsPage />} />
+        <Route path="/admin/reports" element={<AdminReportPage />} />
         <Route path="/admin/event/:id" element={<AdminEventPage />} />
         <Route path="/admin/scanner" element={<QrScanner />} />
         <Route path="/admin/add-user" element={<AddUserPage />} />

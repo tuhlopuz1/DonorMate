@@ -1,103 +1,200 @@
-import AdminBottomNavBar from "../components/layouts/AdminNavBar";
+import { useState, useEffect } from "react";
+import BottomNavBar from "../components/layouts/NavBar";
+import PageTopBar from "../components/layouts/PageTopBar";
 import AdminPageTopBar from "../components/layouts/AdminPageTopBar";
-import { CalendarDays, Users, } from "lucide-react";
-import { FiFileText, FiDownload } from "react-icons/fi";
-import TopDonorCard from "../components/layouts/TopDonor";
+import { FiMessageSquare, FiTrash2, FiSend } from "react-icons/fi";
+import { FiCalendar } from "react-icons/fi";
 
+interface Question {
+  id: string;
+  userId: string;
+  text: string;
+}
 
-const AdminReportsPage = () => {
+const AdminReportPage = () => {
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [answerModalOpen, setAnswerModalOpen] = useState(false);
+  const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
+  const [answerText, setAnswerText] = useState("");
+
+  // Функция для загрузки вопросов с сервера
+  const fetchQuestions = async () => {
+    try {
+      setLoading(true);
+      // Здесь будет реальный GET запрос к вашему API
+      // const response = await fetch('/api/questions');
+      // const data = await response.json();
+      
+      // Заглушка для демонстрации
+      const mockData: Question[] = [
+        { id: "1", userId: "user123", text: "Как мне зарегистрироваться на мероприятие?" },
+        { id: "2", userId: "user456", text: "Где будет проходить день донора?" },
+        { id: "3", userId: "user789", text: "Нужно ли приносить свои документы?" },
+      ];
+      
+      setQuestions(mockData);
+      setLoading(false);
+    } catch (err) {
+      setError("Не удалось загрузить вопросы");
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchQuestions();
+  }, []);
+
+  // Функция для удаления вопроса
+  const handleDeleteQuestion = async (questionId: string) => {
+    try {
+      // Здесь будет реальный DELETE запрос к вашему API
+      // await fetch(`/api/questions/${questionId}`, { method: 'DELETE' });
+      
+      // Заглушка для демонстрации
+      console.log(`Deleting question with ID: ${questionId}`);
+      
+      // Обновляем список вопросов
+      setQuestions(questions.filter(q => q.id !== questionId));
+    } catch (err) {
+      setError("Не удалось удалить вопрос");
+    }
+  };
+
+  // Функция для отправки ответа
+  const handleSendAnswer = async () => {
+    if (!currentQuestion || !answerText.trim()) return;
+
+    try {
+      // 1. Удаляем вопрос
+      await handleDeleteQuestion(currentQuestion.id);
+      
+      // 2. Отправляем уведомление пользователю
+      // Здесь будет реальный POST запрос к вашему API
+      // await fetch('/api/notifications', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify({
+      //     userId: currentQuestion.userId,
+      //     message: answerText
+      //   })
+      // });
+      
+      // Заглушка для демонстрации
+      console.log(`Sending answer to user ${currentQuestion.userId}: ${answerText}`);
+      
+      // Закрываем модальное окно и сбрасываем состояние
+      setAnswerModalOpen(false);
+      setCurrentQuestion(null);
+      setAnswerText("");
+      
+      // Обновляем список вопросов
+      await fetchQuestions();
+    } catch (err) {
+      setError("Не удалось отправить ответ");
+    }
+  };
+
+  // Функция для открытия модального окна ответа
+  const openAnswerModal = (question: Question) => {
+    setCurrentQuestion(question);
+    setAnswerModalOpen(true);
+  };
+
+  if (loading) {
+    return (
+      <div className="pt-10 pb-14">
+        <AdminPageTopBar title="Расписание мероприятий" icon={<FiCalendar size={20} />} />
+        <div className="p-6 mt-14 text-center">Загрузка...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="pt-10 pb-14">
+        <AdminPageTopBar title="Расписание мероприятий" icon={<FiCalendar size={20} />} />
+        <div className="p-6 mt-14 text-center text-red-500">{error}</div>
+      </div>
+    );
+  }
+
   return (
-    <div className="p-4 pb-20 pt-12 space-y-6">
+    <div className="pt-10 pb-14">
+      <AdminPageTopBar title="Расписание мероприятий" icon={<FiCalendar size={20} />} />
 
-     <AdminPageTopBar title="Отчёты" icon={<FiFileText size={20}/>} />
-
-      <div className="flex mt-6 mx-4 gap-3 items-center justify-between bg-red-500 shadow rounded-2xl p-5">
-          <p className="text-lg font-bold text-white">Подробный отчёт</p>
-          <FiDownload color="white" size={23}/>
-      </div>
-
-
-      {/* Карточки статистики */}
-      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-2 gap-4">
-        <div className="bg-white shadow rounded-2xl p-4">
-          <h3 className="text-sm text-gray-500">Всего пользователей</h3>
-          <div className="text-2xl font-bold text-blue-600">3</div>
-
-        </div>
-        <div className="bg-white shadow rounded-2xl p-4">
-          <h3 className="text-sm text-gray-500">Предстоящие мероприятия</h3>
-          <div className="text-2xl font-bold text-green-600">2</div>
-        </div>
-        <div className="bg-white shadow rounded-2xl p-4">
-          <h3 className="text-sm text-gray-500">Завершённые мероприятия</h3>
-          <div className="text-2xl font-bold text-purple-600">1</div>
-        </div>
-        <div className="bg-white shadow rounded-2xl p-4">
-          <h3 className="text-sm text-gray-500">Всего совершено донаций</h3>
-          <div className="text-2xl font-bold text-orange-600">37</div>
-        </div>
-      </div>
-
-        <TopDonorCard  />
-
-      {/* Последняя активность */}
-      <div className="bg-white shadow rounded-2xl p-4">
-        <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-          <CalendarDays className="w-5 h-5 text-gray-500" />
-          Последняя активность
-        </h3>
-        <div className="space-y-4">
-          <div className="flex justify-between items-center border-b pb-2">
-            <div>
-              <p className="font-medium">Донорская акция "Капля жизни"</p>
-              <p className="text-sm text-gray-500">15.12.2024</p>
+      {/* Список вопросов */}
+      <div className="flex flex-col gap-4 p-6 mt-14">
+        {questions.length === 0 ? (
+          <p className="text-center text-gray-500">Нет вопросов для отображения</p>
+        ) : (
+          questions.map((question) => (
+            <div 
+              key={question.id}
+              className="p-4 border border-gray-200 rounded-lg shadow-sm"
+            >
+              <p className="text-gray-800 mb-3">{question.text}</p>
+              <div className="flex justify-end gap-2">
+                <button
+                  onClick={() => openAnswerModal(question)}
+                  className="flex items-center gap-1 px-3 py-1 text-sm text-white bg-blue-600 rounded hover:bg-blue-700"
+                >
+                  <FiMessageSquare size={14} />
+                  Ответить
+                </button>
+                <button
+                  onClick={() => handleDeleteQuestion(question.id)}
+                  className="flex items-center gap-1 px-3 py-1 text-sm text-white bg-red-600 rounded hover:bg-red-700"
+                >
+                  <FiTrash2 size={14} />
+                  Удалить
+                </button>
+              </div>
             </div>
-            <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-semibold">
-              Открыто
-            </span>
-          </div>
-          <div className="flex justify-between items-center">
-            <div>
-              <p className="font-medium">Плановая донация студентов</p>
-              <p className="text-sm text-gray-500">22.12.2024</p>
-            </div>
-            <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-semibold">
-              Открыто
-            </span>
-          </div>
-        </div>
+          ))
+        )}
       </div>
 
-      {/* Распределение ролей */}
-      <div className="bg-white shadow rounded-2xl p-4">
-        <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-          <Users className="w-5 h-5 text-gray-500" />
-          Распределение ролей
-        </h3>
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <span>Пользователи</span>
-            <span className="bg-blue-200 px-3 text-blue-800 rounded-full text-center text-sm font-medium">
-              266
-            </span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span>Доноры</span>
-            <span className="bg-gray-200 px-3 text-gray-800 rounded-full text-center text-sm font-medium">
-              105
-            </span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span>Организаторы</span>
-            <span className="bg-red-200 px-3 text-red-800 rounded-full text-center text-sm font-medium">
-              12
-            </span>
+      {/* Модальное окно для ответа */}
+      {answerModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg w-full max-w-md mx-4">
+            <h3 className="text-lg font-medium mb-4">Ответ на вопрос</h3>
+            <p className="text-gray-700 mb-2">{currentQuestion?.text}</p>
+            <textarea
+              value={answerText}
+              onChange={(e) => setAnswerText(e.target.value)}
+              className="w-full p-2 border border-gray-300 rounded mb-4"
+              rows={4}
+              placeholder="Введите ваш ответ..."
+            />
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => {
+                  setAnswerModalOpen(false);
+                  setAnswerText("");
+                }}
+                className="px-4 py-2 text-gray-600 border border-gray-300 rounded hover:bg-gray-50"
+              >
+                Отмена
+              </button>
+              <button
+                onClick={handleSendAnswer}
+                className="flex items-center gap-1 px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-700"
+                disabled={!answerText.trim()}
+              >
+                <FiSend size={16} />
+                Отправить
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-      <AdminBottomNavBar />
+      )}
+
+      <BottomNavBar />
     </div>
   );
 };
 
-export default AdminReportsPage;
+export default AdminReportPage;
