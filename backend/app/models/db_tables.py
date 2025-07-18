@@ -39,7 +39,7 @@ Base = declarative_base(cls=Base)
 
 class User(Base):
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
-    phone: Mapped[int] = mapped_column(BigInteger, nullable=True)
+    phone: Mapped[int] = mapped_column(BigInteger, nullable=False, unique=True)
     role: Mapped[Role] = mapped_column(Enum(Role), default=Role.DONOR)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
     notifications_bool: Mapped[bool] = mapped_column(Boolean, default=True)
