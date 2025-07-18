@@ -3,7 +3,7 @@ from typing import Any, List
 
 from app.core.config import DATABASE_URL
 from app.models.db_tables import Base
-from sqlalchemy import update
+from sqlalchemy import func, update
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.future import select
 from sqlalchemy.sql import and_
@@ -136,6 +136,48 @@ class AsyncDatabaseAdapter:
                 .where(getattr(parent_model, parameter) == parameter_value)
             )
             return result.all()
+
+    async def get_count(self, model, conditions: dict = None) -> int:
+        async with self.SessionLocal() as session:
+            query = select(func.count()).select_from(model)
+            if conditions:
+                for key, value in conditions.items():
+                    query = query.where(getattr(model, key) == value)
+            result = await session.execute(query)
+            return result.scalar()
+
+    async def get_count_cond(self, model, *conditions) -> int:
+        async with self.SessionLocal() as session:
+            query = select(func.count()).select_from(model)
+            if conditions:
+                for i in range(0, len(conditions), 3):
+                    column_name = conditions[i]
+                    value = conditions[i + 1]
+                    operator = conditions[i + 2]
+
+                    column = getattr(model, column_name)
+
+                    if operator == ">":
+                        query = query.where(column > value)
+                    elif operator == "<":
+                        query = query.where(column < value)
+                    elif operator == ">=":
+                        query = query.where(column >= value)
+                    elif operator == "<=":
+                        query = query.where(column <= value)
+                    elif operator == "==":
+                        query = query.where(column == value)
+                    elif operator == "!=":
+                        query = query.where(column != value)
+                    else:
+                        raise ValueError(f"Unsupported operator: {operator}")
+            result = await session.execute(query)
+            return result.scalar()
+
+    async def get_column_sum(self, model, column_name: str) -> int:
+        async with self.SessionLocal() as session:
+            result = await session.execute(select(func.sum(getattr(model, column_name))).select_from(model))
+            return result.scalar()
 
 
 adapter = AsyncDatabaseAdapter()

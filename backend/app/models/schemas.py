@@ -74,6 +74,7 @@ class ProfileResponse(BaseModel):
     chronic_disease: Optional[bool] = None
     medical_exemption: Optional[bool] = None
     donor_earlier: Optional[DonorEarlier] = None
+    donations: Optional[int] = None
 
     model_config = {"from_attributes": True}
 
@@ -127,3 +128,10 @@ class DonorResponse(BaseModel):
     patronymic: str
     username: str
     donations: int
+
+
+class MetricsResponse(BaseModel):
+    users_count: int
+    donations_count: int
+    new_events_count: int
+    ended_events_count: int
