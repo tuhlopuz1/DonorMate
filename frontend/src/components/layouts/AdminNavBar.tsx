@@ -49,12 +49,12 @@ export default function AdminBottomNavBar() {
           active={current.includes('#/admin/events')}
           onClick={() => (window.location.href = '#/admin/events')}
         />
-        <NavButton
+        {/* <NavButton
           label="Отчёты"
           Icon={FiFileText}
           active={current.includes('#/admin/reports')}
           onClick={() => (window.location.href = '#/admin/reports')}
-        />
+        /> */}
       </div>
     </nav>
   );
