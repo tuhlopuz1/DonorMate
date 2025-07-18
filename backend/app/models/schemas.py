@@ -18,9 +18,8 @@ class Place(Enum):
 
 
 class TelegramUserInfoPayload(BaseModel):
+    phone: int
     user_id: int
-    username: Optional[str] = None
-    tg_name: Optional[str] = None
 
 
 class InitDataPayload(BaseModel):
@@ -142,3 +141,7 @@ class RoleMetricsResponse(BaseModel):
     admins_count: int
     donors_count: int
     const_donors_count: int
+
+class QAPayload(BaseModel):
+    question: Optional[str] = None
+    answer: Optional[str] = None

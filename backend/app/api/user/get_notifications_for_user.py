@@ -9,7 +9,7 @@ from fastapi import APIRouter, Depends
 
 router = APIRouter()
 
-@router.get("/get-notifications-for-users")
+@router.get("/get-notifications-for-user")
 async def get_notifications_for_users(user: Annotated[User, Depends(check_user_token)]):
     if not user:
         return badresponse("Unauthorized", 401)

@@ -65,4 +65,4 @@ async def register_on_event(user: Annotated[User, Depends(check_user_token)], ev
                     eta=eta2,
                 )
     await adapter.update_by_id(Event, event_id, {"registred": event.registred + 1})
-    return okresponse(registration.id)
+    return okresponse(str(registration.id))
