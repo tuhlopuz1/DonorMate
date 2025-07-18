@@ -4,7 +4,7 @@ import AdminMainTopBar from "../components/layouts/AdminMainTopBar";
 import { Users, FilePlus } from "lucide-react";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
-import { FiDownload } from "react-icons/fi";
+import { FiDownload, FiSend } from "react-icons/fi";
 import TopDonors from "../components/layouts/TopDonor";
 const AdminMainPage = () => {
   const MySwal = withReactContent(Swal);
@@ -49,6 +49,10 @@ const AdminMainPage = () => {
         <div className="flex mt-6 mx-4 gap-3 items-center justify-between bg-red-500 shadow rounded-2xl p-5">
             <p className="text-lg font-bold text-white">Подробный отчёт</p>
             <FiDownload color="white" size={23}/>
+        </div>
+        <div onClick={() => {window.location.href = '/#/admin/sending'}} className="flex mt-6 mx-4 gap-3 items-center justify-between bg-green-500 shadow rounded-2xl p-5">
+            <p className="text-lg font-bold text-white">Сделать рассылку</p>
+            <FiSend color="white" size={23}/>
         </div>
 
       {/* Карточки статистики */}

@@ -1,78 +1,60 @@
 import React, { useState } from "react";
+import AdminPageTopBar from "../components/layouts/AdminPageTopBar";
+import { FiSend } from "react-icons/fi";
+import AdminBottomNavBar from "../components/layouts/AdminNavBar";
 
 const categories = [
-  {
-    id: "registered_dd",
-    label: "Зарегистрированы на ближайший ДД",
-  },
-  {
-    id: "not_registered_dd",
-    label: "В базе, но не зарегистрированы",
-  },
-  {
-    id: "no_show",
-    label: "Зарегистрировались, но не пришли",
-  },
-  {
-    id: "dkm_registered",
-    label: "Сдали пробирку на ДКМ",
-  },
+  { id: "all", label: "Все пользователи" },
+  { id: "old", label: "Те, кто давно не приходил на донации" },
 ];
 
 const Broadcasts: React.FC = () => {
   const [message, setMessage] = useState("");
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-
-  const toggleCategory = (id: string) => {
-    setSelectedCategories((prev) =>
-      prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]
-    );
-  };
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
 
   const handleSend = () => {
-    if (!message.trim() || selectedCategories.length === 0) {
-      alert("Введите сообщение и выберите хотя бы одну категорию");
+    if (!message.trim() || !selectedCategory) {
+      alert("Введите сообщение и выберите категорию");
       return;
     }
 
     console.log("Рассылка отправлена", {
       message,
-      categories: selectedCategories,
+      category: selectedCategory,
     });
 
     alert("Рассылка отправлена!");
     setMessage("");
-    setSelectedCategories([]);
+    setSelectedCategory("");
   };
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
+        <AdminPageTopBar title="Рассылка" icon={<FiSend />}/>
       <h1 className="text-3xl font-semibold mb-6">Рассылки</h1>
 
-      {/* Card: Категории */}
+      {/* Категория */}
       <div className="bg-white shadow-md rounded-xl mb-6">
         <div className="p-4">
           <h2 className="text-xl font-medium mb-4">Кому отправить?</h2>
-          <div className="grid gap-4">
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          >
+            <option value="" disabled>
+              Выберите категорию
+            </option>
             {categories.map((category) => (
-              <div key={category.id} className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id={category.id}
-                  checked={selectedCategories.includes(category.id)}
-                  onChange={() => toggleCategory(category.id)}
-                  className="w-5 h-5 accent-blue-600"
-                />
-                <label htmlFor={category.id} className="text-sm">
-                  {category.label}
-                </label>
-              </div>
+              <option key={category.id} value={category.id}>
+                {category.label}
+              </option>
             ))}
-          </div>
+          </select>
         </div>
       </div>
 
-      {/* Card: Сообщение */}
+      {/* Сообщение */}
       <div className="bg-white shadow-md rounded-xl mb-6">
         <div className="p-4">
           <h2 className="text-xl font-medium mb-4">Сообщение</h2>
@@ -85,7 +67,7 @@ const Broadcasts: React.FC = () => {
         </div>
       </div>
 
-      {/* Button */}
+      {/* Кнопка */}
       <div className="text-right">
         <button
           onClick={handleSend}
@@ -94,6 +76,7 @@ const Broadcasts: React.FC = () => {
           Отправить
         </button>
       </div>
+      <AdminBottomNavBar />
     </div>
   );
 };
