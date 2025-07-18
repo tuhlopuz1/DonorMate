@@ -26,7 +26,7 @@ import QrScanner from './pages/QrScanner';
 import CreateEventPage from './pages/CreateEvent';
 import AddMedotvod from './pages/AddMedotvod';
 import AskOrganizers from './pages/Question';
-
+import AddUserPage from './pages/AddUser';
 
 
 
@@ -54,6 +54,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         <Route path="/admin/reports" element={<AdminReportsPage />} />
         <Route path="/admin/event/:id" element={<AdminEventPage />} />
         <Route path="/admin/scanner" element={<QrScanner />} />
+        <Route path="/admin/add-user" element={<AddUserPage />} />
         <Route path="/admin/create-event" element={<CreateEventPage />} />
         <Route path="/not-available" element={<NotAvailable />} />
         <Route path="/not-available" element={<NotAvailable />} />
