@@ -1,17 +1,17 @@
 import BottomNavBar from "../components/layouts/NavBar";
 import MainTopBar from "../components/layouts/MainTopBar";
 import { FiFileText, FiCalendar } from "react-icons/fi";
-import { useMedotvodModal } from '../components/layouts/Medotvod';
-import type { MedotvodData } from '../components/layouts/Medotvod';
+// import { useMedotvodModal } from '../components/layouts/Medotvod';
+// import type { MedotvodData } from '../components/layouts/Medotvod';
 import EventCard from "../components/layouts/EventCard";
 const MainPage = () => {
 
-    const handleMedotvodSubmit = (data: MedotvodData) => {
-        console.log("Медотвод получен:", data);
+    // const handleMedotvodSubmit = (data: MedotvodData) => {
+    //     console.log("Медотвод получен:", data);
 
-      };
+    //   };
     
-      const openMedotvodModal = useMedotvodModal(handleMedotvodSubmit);
+    //   const openMedotvodModal = useMedotvodModal(handleMedotvodSubmit);
 
 
 
@@ -31,7 +31,7 @@ const MainPage = () => {
 
             <div>
                    <p className="text-2xl text-black px-5 font-sans font-bold">Быстрые действия</p>
-                <div onClick={openMedotvodModal} className="flex items-center justify-between px-6 bg-orange-400 h-20 m-4 rounded-lg">
+                <div onClick={() => {window.location.href = '/#/add-medotvod'}} className="flex items-center justify-between px-6 bg-orange-400 h-20 m-4 rounded-lg">
                     <p className="text-white">Добавить медицинский отвод</p>
                     <FiFileText color="white"/>
                 </div>
