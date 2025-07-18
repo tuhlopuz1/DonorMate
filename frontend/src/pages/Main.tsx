@@ -4,6 +4,7 @@ import { FiFileText, FiCalendar } from "react-icons/fi";
 import { useMedotvodModal } from '../components/layouts/Medotvod';
 import type { MedotvodData } from '../components/layouts/Medotvod';
 import EventCard from "../components/layouts/EventCard";
+import { MessageCircleQuestion, Info } from "lucide-react";
 const MainPage = () => {
 
     const handleMedotvodSubmit = (data: MedotvodData) => {
@@ -39,6 +40,21 @@ const MainPage = () => {
                     <p className="text-white">Расписание мероприятий</p>
                     <FiCalendar color="white"/>
                 </div>
+
+                    <div className="flex items-center justify-between px-6 bg-green-600 h-20 m-4 text-white rounded-lg">
+                        <p>Больше о донорстве</p>
+                        <Info size={17}/>
+                    </div>
+                    <div onClick={() => {window.location.href = '/#/ask-organizers'}} className="flex items-center justify-between px-6 bg-purple-600 h-20 m-4 text-white rounded-lg">
+                        <p>Вопрос организаторам</p>
+                        <MessageCircleQuestion size={17}/>
+                    </div>
+
+
+
+
+
+
             </div>
 
                         <div className="px-5">
