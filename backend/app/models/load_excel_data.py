@@ -3,7 +3,7 @@ import re
 from datetime import datetime, timedelta
 from io import BytesIO
 from typing import Dict, List, Optional, Union
-
+from app.models.export_excel import UserExporter
 import pandas as pd
 from app.models.db_adapter import adapter
 from app.models.db_tables import Event, Information, MedicalExemption, Registration, User
