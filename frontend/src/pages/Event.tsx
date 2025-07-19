@@ -2,7 +2,7 @@
 import PageTopBar from "../components/layouts/PageTopBar";
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import EventCard from "../components/layouts/EventCard";
+// import EventCard from "../components/layouts/EventCard";
 import { QrCode } from "lucide-react";
 import { MdEvent } from "react-icons/md";
 
@@ -73,7 +73,7 @@ const EventPage: React.FC = () => {
 
 
 
-        <EventCard
+        {/* <EventCard
           title={event.title}
           date={event.date}
           timeRange={event.timeRange}
@@ -82,7 +82,7 @@ const EventPage: React.FC = () => {
           totalSpots={event.totalSpots}
           description={event.description}
           isRegistered={event.isRegistered}
-        />
+        /> */}
 
 
       {(isToday(event.date) && event.isRegistered) ? (

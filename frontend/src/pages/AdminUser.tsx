@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import AdminPageTopBar from "../components/layouts/AdminPageTopBar";
 import { FiUser } from "react-icons/fi";
+import apiRequest from "../components/utils/apiRequest"; // путь подкорректируйте под ваш проект
 
 type User = {
   id: string;
@@ -17,31 +18,66 @@ type User = {
   phone: string;
 };
 
+const mapApiResponseToUser = (data: any): User => ({
+  id: String(data.id),
+  fullName: data.fsp,
+  role: data.user_class,
+  group: data.group,
+  gavrilovaDonations: data.donations_gaur,
+  fmbaDonations: data.donations_fmba,
+  totalMl: data.donations,
+  lastGavrilovaDonation: data.last_don_gaur ? data.last_don_gaur.split("T")[0] : "",
+  lastFMBADonation: data.last_don_fmba ? data.last_don_fmba.split("T")[0] : "",
+  contact: "", // в ответе нет, оставляем пустым
+  phone: String(data.phone),
+});
+
 const UserProfilePage = () => {
   const { id } = useParams<{ id: string }>();
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Заглушка вместо запроса на сервер
-    const mockUser: User = {
-      id: "12312331",
-      fullName: "Иванов Иван Иванович",
-      role: "Студент МИФИ",
-      group: "Б20-504",
-      gavrilovaDonations: 3,
-      fmbaDonations: 2,
-      totalMl: 5,
-      lastGavrilovaDonation: "2024-12-15",
-      lastFMBADonation: "2025-01-10",
-      contact: "@ivanov",
-      phone: "+7 999 123-45-67",
-    };
+    if (!id) {
+      setError("ID пользователя не указан");
+      setLoading(false);
+      return;
+    }
 
-    setTimeout(() => setUser(mockUser), 500); // имитация загрузки
+    setLoading(true);
+    setError(null);
+
+    apiRequest({
+      url: `/api/get-user/${id}`,
+      auth: true,
+      method: "GET",
+    })
+      .then(async (res) => {
+        if (!res.ok) {
+          throw new Error(`Ошибка загрузки данных: ${res.statusText}`);
+        }
+        const data = await res.json();
+        setUser(mapApiResponseToUser(data));
+      })
+      .catch((err) => {
+        setError(err.message || "Не удалось загрузить данные пользователя");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, [id]);
 
-  if (!user) {
+  if (loading) {
     return <div className="p-6">Загрузка данных пользователя...</div>;
+  }
+
+  if (error) {
+    return <div className="p-6 text-red-600">Ошибка: {error}</div>;
+  }
+
+  if (!user) {
+    return <div className="p-6">Пользователь не найден</div>;
   }
 
   return (
@@ -51,7 +87,7 @@ const UserProfilePage = () => {
       <div className="bg-white p-6 rounded-2xl shadow-md space-y-4">
         <h1 className="text-2xl font-bold mb-4">Редактирование профиля</h1>
 
-        <form className="space-y-4">
+        <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
           <div>
             <label className="block text-sm font-medium mb-1">ФИО</label>
             <input
