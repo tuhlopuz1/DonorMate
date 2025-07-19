@@ -3,10 +3,7 @@ import AdminPageTopBar from "../components/layouts/AdminPageTopBar";
 import { FiSend } from "react-icons/fi";
 import AdminBottomNavBar from "../components/layouts/AdminNavBar";
 
-const categories = [
-  { id: "all", label: "Все пользователи" },
-  { id: "old", label: "Те, кто давно не приходил на донации" },
-];
+
 
 const Broadcasts: React.FC = () => {
   const [message, setMessage] = useState("");
@@ -36,21 +33,7 @@ const Broadcasts: React.FC = () => {
       {/* Категория */}
       <div className="bg-white shadow-md rounded-xl mb-6">
         <div className="p-4">
-          <h2 className="text-xl font-medium mb-4">Кому отправить?</h2>
-          <select
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-            className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-          >
-            <option value="" disabled>
-              Выберите категорию
-            </option>
-            {categories.map((category) => (
-              <option key={category.id} value={category.id}>
-                {category.label}
-              </option>
-            ))}
-          </select>
+          <h2 className="text-xl font-medium mb-4">Рассылка всем пользователям</h2>
         </div>
       </div>
 
