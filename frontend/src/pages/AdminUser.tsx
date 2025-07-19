@@ -140,7 +140,7 @@ const UserProfilePage = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Сумма донаций (мл)</label>
+              <label className="block text-sm font-medium mb-1">Сумма донаций</label>
               <input
                 type="number"
                 defaultValue={user.totalMl}

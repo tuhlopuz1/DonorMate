@@ -19,7 +19,7 @@ const Broadcasts: React.FC = () => {
       const response = await apiRequest({
         url: "https://api.donor.vickz.ru/api/send-msg-all-usr",
         method: "POST",
-        body: { message },
+        body: {message: message},
         auth: true,
       });
 
