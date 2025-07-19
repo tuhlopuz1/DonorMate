@@ -1,55 +1,62 @@
-// pages/EventPage.tsx
-import AdminPageTopBar from "../components/layouts/AdminPageTopBar";
+// pages/AdminEventPage.tsx
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+
+import AdminPageTopBar from "../components/layouts/AdminPageTopBar";
 import AdminEventCard from "../components/layouts/AdminEventCard";
+import apiRequest from "../components/utils/apiRequest";
 
 import { MdEvent } from "react-icons/md";
 import { ScanLine } from "lucide-react";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 
+const MySwal = withReactContent(Swal);
+
 type EventData = {
   id: string;
-  title: string;
-  date: string;
-  timeRange: string;
-  location: string;
+  name: string;
   description: string;
-  totalSpots: number;
-  spotsLeft: number;
-  isRegistered: boolean;
-};
-
-const mockFetchEventById = async (id: string): Promise<EventData> => {
-  await new Promise((resolve) => setTimeout(resolve, 500));
-
-  return {
-    id,
-    title: "Мастер-класс по фотографии",
-    date: "2025-07-17",
-    timeRange: "15:00 – 17:00",
-    location: "ул. Пушкина, д. 10, Москва",
-    description:
-      "Приглашаем вас на мастер-класс, где вы узнаете основы композиции, работы со светом и постобработки.",
-    totalSpots: 20,
-    spotsLeft: 5,
-    isRegistered: true,
-  };
+  place: string;
+  registred: number;
+  start_date: string;
+  end_date: string;
+  created_at: string;
+  is_registred: boolean;
 };
 
 const AdminEventPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [event, setEvent] = useState<EventData | null>(null);
   const [loading, setLoading] = useState(true);
-  const MySwal = withReactContent(Swal);
 
   useEffect(() => {
-    if (id) {
-      mockFetchEventById(id).then((data) => {
-        setEvent(data);
+    const fetchEvent = async () => {
+      try {
+        const response = await apiRequest({
+          url: "https://api.donor.vickz.ru/api/get-all-events",
+          method: "GET",
+          auth: true,
+        });
+
+        const events: EventData[] = await response.json();
+        const matchedEvent = events.find((e) => e.id === id);
+
+        if (matchedEvent) {
+          setEvent(matchedEvent);
+        } else {
+          Swal.fire("Ошибка", "Мероприятие не найдено", "error");
+        }
+      } catch (err) {
+        console.error(err);
+        Swal.fire("Ошибка", "Не удалось загрузить мероприятие", "error");
+      } finally {
         setLoading(false);
-      });
+      }
+    };
+
+    if (id) {
+      fetchEvent();
     }
   }, [id]);
 
@@ -95,14 +102,27 @@ const AdminEventPage: React.FC = () => {
       },
     });
 
-    if (formValues) {
-      console.log("Сообщение:", formValues.message);
-      console.log("Кому отправить:", formValues.recipient);
+    if (formValues && event) {
+      try {
+        console.log("Сообщение:", formValues.message);
+        console.log("Кому отправить:", formValues.recipient);
 
-      // Здесь вы можете отправить данные на сервер:
-      // await sendBroadcastMessage(event.id, formValues.message, formValues.recipient);
+        // Здесь можно отправить рассылку
+        // await apiRequest({
+        //   url: `https://api.donor.vickz.ru/api/send-broadcast/${event.id}`,
+        //   method: "POST",
+        //   body: {
+        //     message: formValues.message,
+        //     recipient: formValues.recipient,
+        //   },
+        //   auth: true,
+        // });
 
-      MySwal.fire("Успешно!", "Рассылка отправлена.", "success");
+        MySwal.fire("Успешно!", "Рассылка отправлена.", "success");
+      } catch (error) {
+        console.error(error);
+        MySwal.fire("Ошибка", "Не удалось отправить рассылку", "error");
+      }
     }
   };
 
@@ -114,18 +134,9 @@ const AdminEventPage: React.FC = () => {
     <div className="p-6 pt-16 max-w-2xl mx-auto">
       <AdminPageTopBar title="Страница мероприятия" icon={<MdEvent size={20} />} />
 
-      <AdminEventCard
-        title={event.title}
-        date={event.date}
-        timeRange={event.timeRange}
-        location={event.location}
-        spotsLeft={event.spotsLeft}
-        totalSpots={event.totalSpots}
-        description={event.description}
-        isRegistered={event.isRegistered}
-      />
+      <AdminEventCard event={event} totalSpots={20} />
 
-      {(isToday(event.date) && event.isRegistered) ? (
+      {isToday(event.start_date) && event.is_registred ? (
         <div className="flex justify-between items-center mt-6 bg-blue-600 text-white px-4 py-2 rounded-xl text-sm">
           <p>Отметить участника по QR-коду</p>
           <ScanLine />
@@ -134,7 +145,6 @@ const AdminEventPage: React.FC = () => {
         <div></div>
       )}
 
-      {/* Кнопка рассылки */}
       <div className="mt-6">
         <button
           onClick={handleSendBroadcast}

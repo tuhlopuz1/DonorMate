@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import AdminBottomNavBar from "../components/layouts/AdminNavBar";
 import AdminMainTopBar from "../components/layouts/AdminMainTopBar";
 import { FiDownload, FiUserPlus } from "react-icons/fi";
-import apiRequest from "../components/utils/apiRequest"; // путь подкорректируй по проекту
+import apiRequest from "../components/utils/apiRequest";
 
 interface User {
   id: number;
@@ -13,11 +13,19 @@ interface User {
   donations: number;
 }
 
+interface RoleMetrics {
+  users_count: number;
+  admins_count: number;
+  donors_count: number;
+  const_donors_count: number;
+}
+
 const AdminUsersPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [metrics, setMetrics] = useState<RoleMetrics | null>(null);
 
   const handleSearch = async () => {
     setLoading(true);
@@ -42,6 +50,29 @@ const AdminUsersPage = () => {
       setLoading(false);
     }
   };
+
+  const fetchMetrics = async () => {
+    try {
+      const response = await apiRequest({
+        url: "https://api.donor.vickz.ru/api/get-role-metrics",
+        method: "GET",
+        auth: true,
+      });
+
+      if (!response.ok) {
+        throw new Error("Ошибка при получении статистики");
+      }
+
+      const data: RoleMetrics = await response.json();
+      setMetrics(data);
+    } catch (err: any) {
+      console.error("Ошибка загрузки метрик:", err.message);
+    }
+  };
+
+  useEffect(() => {
+    fetchMetrics();
+  }, []);
 
   useEffect(() => {
     if (searchQuery.trim() === "") {
@@ -75,19 +106,27 @@ const AdminUsersPage = () => {
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-2 gap-4">
         <div className="bg-white shadow rounded-2xl p-4">
           <h3 className="text-sm text-gray-500">Всего пользователей</h3>
-          <div className="text-2xl font-bold text-blue-600">3</div>
+          <div className="text-2xl font-bold text-blue-600">
+            {metrics ? metrics.users_count : "-"}
+          </div>
         </div>
         <div className="bg-white shadow rounded-2xl p-4">
           <h3 className="text-sm text-gray-500">Доноры</h3>
-          <div className="text-2xl font-bold text-green-600">2</div>
+          <div className="text-2xl font-bold text-green-600">
+            {metrics ? metrics.donors_count : "-"}
+          </div>
         </div>
         <div className="bg-white shadow rounded-2xl p-4">
           <h3 className="text-sm text-gray-500">Постоянные доноры</h3>
-          <div className="text-2xl font-bold text-purple-600">1</div>
+          <div className="text-2xl font-bold text-purple-600">
+            {metrics ? metrics.const_donors_count : "-"}
+          </div>
         </div>
         <div className="bg-white shadow rounded-2xl p-4">
           <h3 className="text-sm text-gray-500">Организаторы</h3>
-          <div className="text-2xl font-bold text-orange-600">37</div>
+          <div className="text-2xl font-bold text-orange-600">
+            {metrics ? metrics.admins_count : "-"}
+          </div>
         </div>
       </div>
 
@@ -121,17 +160,19 @@ const AdminUsersPage = () => {
               <tr className="text-gray-600 border-b">
                 <th className="py-2">ID</th>
                 <th className="py-2">Телефон</th>
-                <th className="py-2">FSP</th>
-                <th className="py-2">Группа</th>
-                <th className="py-2">Класс</th>
-                <th className="py-2">Донорства</th>
               </tr>
             </thead>
             <tbody>
               {users.map((user) => (
-                <tr onClick={() => {window.location.href = '/#/admin/user/'+user.phone}} key={user.id} className="border-b hover:bg-gray-50">
+                <tr
+                  onClick={() =>
+                    (window.location.href = "/#/admin/user/" + user.phone)
+                  }
+                  key={user.id}
+                  className="border-b hover:bg-gray-50 cursor-pointer"
+                >
+                  <td className="py-2">{user.id}</td>
                   <td className="py-2">{user.phone}</td>
-                  <td className="py-2">{user.fsp}</td>
                 </tr>
               ))}
             </tbody>

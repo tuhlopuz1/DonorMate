@@ -2,27 +2,68 @@ import React from "react";
 import withReactContent from "sweetalert2-react-content";
 import { FiMapPin, FiCalendar } from "react-icons/fi";
 import Swal from "sweetalert2";
+import apiRequest from "../utils/apiRequest";
 
 const MySwal = withReactContent(Swal);
 
-type EventCardProps = {
-  title: string;
-  date: string;
-  timeRange: string;
-  location: string;
-  spotsLeft: number;
-  totalSpots: number;
+type EventData = {
+  id: string;
+  name: string;
   description: string;
-  isRegistered: boolean;
+  registred: number;
+  start_date: string;
+  end_date: string;
+  created_at: string;
+  is_registred: boolean;
+  place: string;
 };
 
-  const handleCancelClick = () => {
+type AdminEventCardProps = {
+  event: EventData;
+  totalSpots?: number;
+};
+
+const AdminEventCard: React.FC<AdminEventCardProps> = ({
+  event,
+  totalSpots = 20,
+}) => {
+  const {
+    id,
+    name,
+    description,
+    registred,
+    start_date,
+    end_date,
+    place,
+  } = event;
+  console.log(totalSpots, registred)
+  const startDate = new Date(start_date);
+  const endDate = new Date(end_date);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const isPastEvent = startDate < today;
+
+  const formattedDate = startDate.toLocaleDateString("ru-RU", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  });
+
+  const formattedTimeRange = `${startDate.toLocaleTimeString("ru-RU", {
+    hour: "2-digit",
+    minute: "2-digit",
+  })} — ${endDate.toLocaleTimeString("ru-RU", {
+    hour: "2-digit",
+    minute: "2-digit",
+  })}`;
+
+  const handleCancelEventClick = () => {
     MySwal.fire({
-      title: "Вы уверены, что хотите отменить запись?",
-      text: "Вы больше не сможете участвовать в этом мероприятии.",
+      title: "Вы уверены, что хотите отменить мероприятие?",
+      text: "Эта операция необратима.",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonText: "Отменить запись",
+      confirmButtonText: "Отменить мероприятие",
       cancelButtonText: "Отмена",
       customClass: {
         popup: "rounded-2xl p-6 border border-gray-100 shadow-md",
@@ -32,39 +73,42 @@ type EventCardProps = {
           "bg-gray-200 text-gray-700 px-4 py-2 rounded-xl text-sm ml-2",
       },
       buttonsStyling: false,
-    }).then((result) => {
+    }).then(async (result) => {
       if (result.isConfirmed) {
-        console.log("Пользователь отменил запись на мероприятие");
+        try {
+          const response = await apiRequest({
+            url: `https://api.donor.vickz.ru/api/event/${id}`,
+            method: "DELETE",
+            auth: true,
+          });
+
+          if (!response.ok) {
+            throw new Error("Ошибка при удалении мероприятия");
+          }
+
+          await MySwal.fire({
+            icon: "success",
+            title: "Мероприятие отменено.",
+            showConfirmButton: false,
+            timer: 2000,
+          });
+
+          window.location.reload();
+        } catch (error) {
+          console.error(error);
+          MySwal.fire({
+            icon: "error",
+            title: "Не удалось отменить мероприятие",
+            text: "Попробуйте еще раз позже.",
+          });
+        }
       }
     });
   };
 
-
-
-
-const AdminEventCard: React.FC<EventCardProps> = ({
-  title,
-  date,
-  timeRange,
-  location,
-  spotsLeft,
-  totalSpots,
-  description,
-
-}) => {
-  const eventDate = new Date(date);
-  const today = new Date();
-  today.setHours(0, 0, 0, 0); // убрать время из сравнения
-  const formattedDate = eventDate.toLocaleDateString("ru-RU", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-  });
-
-  const isFull = spotsLeft <= 0;
-  const isPastEvent = eventDate < today;
-
-
+  const handleDetailsClick = () => {
+    window.location.href = `/#/admin/event/${id}`;
+  };
 
   return (
     <div
@@ -73,54 +117,43 @@ const AdminEventCard: React.FC<EventCardProps> = ({
       }`}
     >
       <div className="mb-2">
-        <h2 className="text-xl font-semibold text-gray-900 mb-3">{title}</h2>
+        <h2 className="text-xl font-semibold text-gray-900 mb-3">{name}</h2>
         <div className="flex items-start text-sm text-gray-700 mb-2 gap-1">
           <FiCalendar size={15} className="mt-1" />
           <span className="font-medium text-base">
-            {formattedDate}, {timeRange}
+            {formattedDate}, {formattedTimeRange}
           </span>
         </div>
       </div>
 
       <div className="flex items-start text-sm text-gray-700 mb-2 gap-1">
         <FiMapPin size={15} className="mt-1" />
-        <span className="font-medium text-base">{location}</span>
+        <span className="font-medium text-base">{place}</span>
       </div>
 
       <div className="text-sm text-gray-600 mb-4">{description}</div>
 
       <div className="flex flex-col gap-3 justify-between">
-        {isPastEvent ? (
-          <span className="text-sm font-medium px-3 py-1 rounded-full bg-gray-200 text-gray-700 w-auto">
+        <button
+          className="bg-gray-100 text-gray-800 px-4 py-2 rounded-xl text-sm hover:bg-gray-200 transition"
+          onClick={handleDetailsClick}
+        >
+          Подробнее
+        </button>
+
+        {!isPastEvent ? (
+          <button
+            className="bg-red-600 text-white px-4 py-2 rounded-xl text-sm hover:bg-red-700"
+            onClick={handleCancelEventClick}
+          >
+            Отменить мероприятие
+          </button>
+        ) : (
+          <span className="text-sm text-gray-500 text-center">
             Мероприятие завершено
           </span>
-        ) : (
-          <>
-          <span
-            className={`text-sm font-medium px-3 py-1 rounded-full w-auto ${
-              isFull
-                ? "bg-red-100 text-red-700"
-                : "bg-green-100 text-green-700"
-            }`}
-          >
-            {isFull
-              ? "Мест нет"
-              : `Осталось мест: ${spotsLeft} / ${totalSpots}`}
-          </span>
-        <button
-            className="font-medium px-4 py-2 rounded-xl text-sm mt-2 bg-red-600 text-white hover:bg-red-700"
-            onClick={handleCancelClick}
-          >
-            Отменить Мероприятие
-          </button>
-          </>
         )}
-
       </div>
-
-
-
-
     </div>
   );
 };

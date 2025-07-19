@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useRef } from "react";
 import AdminBottomNavBar from "../components/layouts/AdminNavBar";
 import AdminMainTopBar from "../components/layouts/AdminMainTopBar";
@@ -6,23 +7,51 @@ import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import { FiDownload, FiSend } from "react-icons/fi";
 import TopDonors from "../components/layouts/TopDonor";
+import apiRequest from "../components/utils/apiRequest"; // убедитесь, что путь правильный
+
 const AdminMainPage = () => {
   const MySwal = withReactContent(Swal);
   const fileInputRef = useRef<HTMLInputElement>(null);
   console.log(fileInputRef)
+  const [metrics, setMetrics] = useState({
+    users_count: 0,
+    donations_count: 0,
+    new_events_count: 0,
+    ended_events_count: 0,
+  });
+
+  useEffect(() => {
+    const fetchMetrics = async () => {
+      try {
+        const response = await apiRequest({
+          url: "https://api.donor.vickz.ru/api/get-metrics",
+          auth: true,
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch metrics");
+        }
+
+        const data = await response.json();
+        setMetrics(data);
+      } catch (error) {
+        console.error("Ошибка загрузки метрик:", error);
+      }
+    };
+
+    fetchMetrics();
+  }, []);
+
   const handleAddDonationsClick = () => {
     MySwal.fire({
       title: "Добавить донации из XLSX",
-      html: `
-        <input type="file" id="xlsxFile" accept=".xlsx" class="swal2-file" />
-      `,
+      html: `<input type="file" id="xlsxFile" accept=".xlsx" class="swal2-file" />`,
       showCancelButton: true,
       confirmButtonText: "Добавить",
       cancelButtonText: "Отмена",
       focusConfirm: false,
       preConfirm: () => {
-        const file = (document.getElementById("xlsxFile") as HTMLInputElement)
-          ?.files?.[0];
+        const file = (document.getElementById("xlsxFile") as HTMLInputElement)?.files?.[0];
         if (!file) {
           Swal.showValidationMessage("Пожалуйста, выберите файл");
         }
@@ -31,8 +60,8 @@ const AdminMainPage = () => {
     }).then((result) => {
       if (result.isConfirmed && result.value) {
         const file = result.value as File;
-        // Здесь можно обработать файл
         console.log("Загружен файл:", file.name);
+        // Здесь можно добавить логику обработки файла
       }
     });
   };
@@ -41,37 +70,46 @@ const AdminMainPage = () => {
     <div className="p-4 pb-20 pt-12 space-y-6">
       <AdminMainTopBar />
 
-      
-      <div onClick={handleAddDonationsClick} className="flex mt-6 mx-4 gap-3 items-center justify-between bg-blue-500 shadow rounded-2xl p-5">
-                <p className="text-lg font-bold text-white">Добавить донации из XLSX</p>
-          <FilePlus color="white" className="w-5 h-5" />
+      <div
+        onClick={handleAddDonationsClick}
+        className="flex mt-6 mx-4 gap-3 items-center justify-between bg-blue-500 shadow rounded-2xl p-5 cursor-pointer"
+      >
+        <p className="text-lg font-bold text-white">Добавить донации из XLSX</p>
+        <FilePlus color="white" className="w-5 h-5" />
       </div>
-        <div className="flex mt-6 mx-4 gap-3 items-center justify-between bg-red-500 shadow rounded-2xl p-5">
-            <p className="text-lg font-bold text-white">Подробный отчёт</p>
-            <FiDownload color="white" size={23}/>
-        </div>
-        <div onClick={() => {window.location.href = '/#/admin/sending'}} className="flex mt-6 mx-4 gap-3 items-center justify-between bg-green-500 shadow rounded-2xl p-5">
-            <p className="text-lg font-bold text-white">Сделать рассылку</p>
-            <FiSend color="white" size={23}/>
-        </div>
+
+      <div className="flex mt-6 mx-4 gap-3 items-center justify-between bg-red-500 shadow rounded-2xl p-5">
+        <p className="text-lg font-bold text-white">Подробный отчёт</p>
+        <FiDownload color="white" size={23} />
+      </div>
+
+      <div
+        onClick={() => {
+          window.location.href = "/#/admin/sending";
+        }}
+        className="flex mt-6 mx-4 gap-3 items-center justify-between bg-green-500 shadow rounded-2xl p-5 cursor-pointer"
+      >
+        <p className="text-lg font-bold text-white">Сделать рассылку</p>
+        <FiSend color="white" size={23} />
+      </div>
 
       {/* Карточки статистики */}
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-2 gap-4">
         <div className="bg-white shadow rounded-2xl p-4">
           <h3 className="text-sm text-gray-500">Всего пользователей</h3>
-          <div className="text-2xl font-bold text-blue-600">3</div>
+          <div className="text-2xl font-bold text-blue-600">{metrics.users_count}</div>
         </div>
         <div className="bg-white shadow rounded-2xl p-4">
           <h3 className="text-sm text-gray-500">Предстоящие мероприятия</h3>
-          <div className="text-2xl font-bold text-green-600">2</div>
+          <div className="text-2xl font-bold text-green-600">{metrics.new_events_count}</div>
         </div>
         <div className="bg-white shadow rounded-2xl p-4">
           <h3 className="text-sm text-gray-500">Завершённые мероприятия</h3>
-          <div className="text-2xl font-bold text-purple-600">1</div>
+          <div className="text-2xl font-bold text-purple-600">{metrics.ended_events_count}</div>
         </div>
         <div className="bg-white shadow rounded-2xl p-4">
           <h3 className="text-sm text-gray-500">Всего совершено донаций</h3>
-          <div className="text-2xl font-bold text-orange-600">37</div>
+          <div className="text-2xl font-bold text-orange-600">{metrics.donations_count}</div>
         </div>
       </div>
 
