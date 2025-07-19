@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import AdminBottomNavBar from "../components/layouts/AdminNavBar";
 import AdminMainTopBar from "../components/layouts/AdminMainTopBar";
-import { FiDownload, FiUserPlus } from "react-icons/fi";
+import { FiUserPlus } from "react-icons/fi";
 import apiRequest from "../components/utils/apiRequest";
 
 interface User {
@@ -85,12 +85,12 @@ const AdminUsersPage = () => {
       <AdminMainTopBar />
 
       {/* Верхняя панель */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-red-500 shadow rounded-2xl p-5">
+      {/* <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-red-500 shadow rounded-2xl p-5">
         <div className="flex items-center gap-3">
           <p className="text-lg font-bold text-white">Экспорт данных в XLSX</p>
           <FiDownload color="white" size={23} />
         </div>
-      </div>
+      </div> */}
 
       <button
         onClick={() => {

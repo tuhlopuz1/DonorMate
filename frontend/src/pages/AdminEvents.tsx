@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import AdminBottomNavBar from "../components/layouts/AdminNavBar";
 import AdminEventCard from "../components/layouts/AdminEventCard";
 import AdminPageTopBar from "../components/layouts/AdminPageTopBar";
-import { FiCalendar, FiDownload, FiPlus } from "react-icons/fi";
+import { FiCalendar, FiPlus } from "react-icons/fi";
 import apiRequest from "../components/utils/apiRequest";
 
 type EventData = {
@@ -63,11 +63,6 @@ const AdminEventsPage = () => {
         title="Расписание мероприятий"
         icon={<FiCalendar size={20} />}
       />
-
-      <div className="flex mt-6 mx-4 gap-3 items-center justify-between bg-blue-500 shadow rounded-2xl p-5">
-        <p className="text-lg font-bold text-white">Экспорт данных в XLSX</p>
-        <FiDownload color="white" size={23} />
-      </div>
 
       <div
         className="flex mt-6 mx-4 gap-3 items-center justify-between bg-white shadow rounded-2xl p-5 cursor-pointer"
