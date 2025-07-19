@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import AdminPageTopBar from "../components/layouts/AdminPageTopBar";
 import { FiUser } from "react-icons/fi";
-import apiRequest from "../components/utils/apiRequest"; // путь подкорректируйте под ваш проект
+import apiRequest from "../components/utils/apiRequest";
 
 type User = {
   id: string;
@@ -28,7 +28,7 @@ const mapApiResponseToUser = (data: any): User => ({
   totalMl: data.donations,
   lastGavrilovaDonation: data.last_don_gaur ? data.last_don_gaur.split("T")[0] : "",
   lastFMBADonation: data.last_don_fmba ? data.last_don_fmba.split("T")[0] : "",
-  contact: "", // в ответе нет, оставляем пустым
+  contact: "", // отсутствует в API
   phone: String(data.phone),
 });
 
@@ -37,6 +37,18 @@ const UserProfilePage = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [submitStatus, setSubmitStatus] = useState<string | null>(null);
+
+  // Refs
+  const fullNameRef = useRef<HTMLInputElement>(null);
+  const roleRef = useRef<HTMLSelectElement>(null);
+  const groupRef = useRef<HTMLInputElement>(null);
+  const gaurDonRef = useRef<HTMLInputElement>(null);
+  const fmbaDonRef = useRef<HTMLInputElement>(null);
+  const lastGaurRef = useRef<HTMLInputElement>(null);
+  const lastFmbaRef = useRef<HTMLInputElement>(null);
+  const contactRef = useRef<HTMLInputElement>(null);
+  const phoneRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!id) {
@@ -45,52 +57,75 @@ const UserProfilePage = () => {
       return;
     }
 
-    setLoading(true);
-    setError(null);
-
     apiRequest({
       url: `https://api.donor.vickz.ru/api/get-user/${id}`,
       auth: true,
       method: "GET",
     })
       .then(async (res) => {
-        if (!res.ok) {
-          throw new Error(`Ошибка загрузки данных: ${res.statusText}`);
-        }
+        if (!res.ok) throw new Error(`Ошибка загрузки данных: ${res.statusText}`);
         const data = await res.json();
         setUser(mapApiResponseToUser(data));
       })
-      .catch((err) => {
-        setError(err.message || "Не удалось загрузить данные пользователя");
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+      .catch((err) => setError(err.message || "Не удалось загрузить данные пользователя"))
+      .finally(() => setLoading(false));
   }, [id]);
 
-  if (loading) {
-    return <div className="p-6">Загрузка данных пользователя...</div>;
-  }
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
 
-  if (error) {
-    return <div className="p-6 text-red-600">Ошибка: {error}</div>;
-  }
+    setSubmitStatus(null);
 
-  if (!user) {
-    return <div className="p-6">Пользователь не найден</div>;
-  }
+    const body = {
+      phone: Number(phoneRef.current?.value || 0),
+      fsp: fullNameRef.current?.value || "",
+      group: groupRef.current?.value || "",
+      user_class: roleRef.current?.value || "",
+      social: contactRef.current?.value || "",
+      donations_fmba: Number(fmbaDonRef.current?.value || 0),
+      donations_gaur: Number(gaurDonRef.current?.value || 0),
+      donations:
+        Number(fmbaDonRef.current?.value || 0) + Number(gaurDonRef.current?.value || 0),
+      last_don_gaur: new Date(lastGaurRef.current?.value || "").toISOString(),
+      last_don_fmba: new Date(lastFmbaRef.current?.value || "").toISOString(),
+    };
+
+    try {
+      const res = await apiRequest({
+        url: `https://api.donor.vickz.ru/api/edit-user-profile/${body.phone}`,
+        method: "PUT",
+        body,
+        auth: true,
+      });
+
+      if (!res.ok) {
+        const msg = await res.text();
+        throw new Error(msg);
+      }
+
+      setSubmitStatus("Изменения успешно сохранены");
+    } catch (err: any) {
+      setSubmitStatus(`Ошибка при сохранении: ${err.message}`);
+    }
+  };
+
+  if (loading) return <div className="p-6">Загрузка данных пользователя...</div>;
+  if (error) return <div className="p-6 text-red-600">Ошибка: {error}</div>;
+  if (!user) return <div className="p-6">Пользователь не найден</div>;
 
   return (
     <div className="p-6 pb-20 pt-12 space-y-6">
-      <AdminPageTopBar title={`Профиль пользователя`} icon={<FiUser size={20} />} />
+      <AdminPageTopBar title="Профиль пользователя" icon={<FiUser size={20} />} />
 
       <div className="bg-white p-6 rounded-2xl shadow-md space-y-4">
         <h1 className="text-2xl font-bold mb-4">Редактирование профиля</h1>
 
-        <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+        <form className="space-y-4" onSubmit={handleSubmit}>
           <div>
             <label className="block text-sm font-medium mb-1">ФИО</label>
             <input
+              ref={fullNameRef}
               type="text"
               defaultValue={user.fullName}
               className="w-full border rounded-md px-3 py-2 text-base"
@@ -100,6 +135,7 @@ const UserProfilePage = () => {
           <div>
             <label className="block text-sm font-medium mb-1">Роль</label>
             <select
+              ref={roleRef}
               defaultValue={user.role}
               className="w-full border rounded-md px-3 py-2 text-base"
             >
@@ -113,6 +149,7 @@ const UserProfilePage = () => {
             <div>
               <label className="block text-sm font-medium mb-1">Учебная группа</label>
               <input
+                ref={groupRef}
                 type="text"
                 defaultValue={user.group}
                 className="w-full border rounded-md px-3 py-2 text-base"
@@ -122,8 +159,11 @@ const UserProfilePage = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-1">Кол-во донаций (Гаврилова)</label>
+              <label className="block text-sm font-medium mb-1">
+                Кол-во донаций (Гаврилова)
+              </label>
               <input
+                ref={gaurDonRef}
                 type="number"
                 defaultValue={user.gavrilovaDonations}
                 className="w-full border rounded-md px-3 py-2 text-base"
@@ -131,8 +171,11 @@ const UserProfilePage = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Кол-во донаций (ФМБА)</label>
+              <label className="block text-sm font-medium mb-1">
+                Кол-во донаций (ФМБА)
+              </label>
               <input
+                ref={fmbaDonRef}
                 type="number"
                 defaultValue={user.fmbaDonations}
                 className="w-full border rounded-md px-3 py-2 text-base"
@@ -140,17 +183,11 @@ const UserProfilePage = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Сумма донаций</label>
+              <label className="block text-sm font-medium mb-1">
+                Последняя донация (Гаврилова)
+              </label>
               <input
-                type="number"
-                defaultValue={user.totalMl}
-                className="w-full border rounded-md px-3 py-2 text-base"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">Последняя донация (Гаврилова)</label>
-              <input
+                ref={lastGaurRef}
                 type="date"
                 defaultValue={user.lastGavrilovaDonation}
                 className="w-full border rounded-md px-3 py-2 text-base"
@@ -158,8 +195,11 @@ const UserProfilePage = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Последняя донация (ФМБА)</label>
+              <label className="block text-sm font-medium mb-1">
+                Последняя донация (ФМБА)
+              </label>
               <input
+                ref={lastFmbaRef}
                 type="date"
                 defaultValue={user.lastFMBADonation}
                 className="w-full border rounded-md px-3 py-2 text-base"
@@ -169,6 +209,7 @@ const UserProfilePage = () => {
             <div>
               <label className="block text-sm font-medium mb-1">Контакт (соцсети)</label>
               <input
+                ref={contactRef}
                 type="text"
                 defaultValue={user.contact}
                 className="w-full border rounded-md px-3 py-2 text-base"
@@ -178,6 +219,7 @@ const UserProfilePage = () => {
             <div>
               <label className="block text-sm font-medium mb-1">Телефон</label>
               <input
+                ref={phoneRef}
                 type="tel"
                 defaultValue={user.phone}
                 className="w-full border rounded-md px-3 py-2 text-base"
@@ -193,6 +235,10 @@ const UserProfilePage = () => {
               Сохранить изменения
             </button>
           </div>
+
+          {submitStatus && (
+            <div className="pt-2 text-sm text-center text-green-700">{submitStatus}</div>
+          )}
         </form>
       </div>
     </div>
