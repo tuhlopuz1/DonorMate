@@ -38,14 +38,14 @@ async def register_on_event(user: Annotated[User, Depends(check_user_token)], ev
         )
         text2 = (
             f'Ваша запись на мероприятие "{event_name}" состоится через час!'
-             f"\nВам нужно подойти в Студенческий офис НИЯУ МИФИ"
+            "\nВам нужно подойти в Студенческий офис НИЯУ МИФИ"
             "\nДля связи с организатором пишите в этот чат интересующие вас вопросы,"
             "либо воспользуйтесь формой в МиниПриложении"
             "\nЕсли понадобится, на входе покажите организатору этот QR-код"
         )
         text3 = (
             f"Ваша запись на мероприятие {event_name} состоится уже завтра!"
-             f"\nВам нужно подойти в Студенческий офис НИЯУ МИФИ"
+            "\nВам нужно подойти в Студенческий офис НИЯУ МИФИ"
             "\nДля связи с организатором пишите в этот чат интересующие вас вопросы,"
             "либо воспользуйтесь формой в МиниПриложении"
         )
@@ -58,7 +58,7 @@ async def register_on_event(user: Annotated[User, Depends(check_user_token)], ev
         )
         text5 = (
             f"Ваша запись на мероприятие {event_name} состоится через неделю."
-             f"\nВам нужно подойти в Студенческий офис НИЯУ МИФИ"
+            "\nВам нужно подойти в Студенческий офис НИЯУ МИФИ"
             "\nДля связи с организатором пишите в этот чат интересующие вас вопросы,"
             "либо воспользуйтесь формой в МиниПриложении"
         )
@@ -91,7 +91,7 @@ async def register_on_event(user: Annotated[User, Depends(check_user_token)], ev
                 )
                 await adapter.insert(
                     Notification,
-                    {"user_id": user.id, "type": NotificationEnum.WARNING, "date_to_valid": eta1, "content": text2},
+                    {"user_id": user.id, "type": NotificationEnum.WARNING, "date_to_invalid": eta1, "content": text2},
                 )
             if eta2 > now:
                 schedule_telegram_message.apply_async(
@@ -104,7 +104,7 @@ async def register_on_event(user: Annotated[User, Depends(check_user_token)], ev
                 )
                 await adapter.insert(
                     Notification,
-                    {"user_id": user.id, "type": NotificationEnum.INFO, "date_to_valid": eta2, "content": text3},
+                    {"user_id": user.id, "type": NotificationEnum.INFO, "date_to_invalid": eta2, "content": text3},
                 )
             if eta3 > now:
                 schedule_telegram_message.apply_async(
@@ -117,7 +117,7 @@ async def register_on_event(user: Annotated[User, Depends(check_user_token)], ev
                 )
                 await adapter.insert(
                     Notification,
-                    {"user_id": user.id, "type": NotificationEnum.INFO, "date_to_valid": eta3, "content": text4},
+                    {"user_id": user.id, "type": NotificationEnum.INFO, "date_to_invalid": eta3, "content": text4},
                 )
             if eta4 > now:
                 schedule_telegram_message.apply_async(
@@ -130,7 +130,7 @@ async def register_on_event(user: Annotated[User, Depends(check_user_token)], ev
                 )
                 await adapter.insert(
                     Notification,
-                    {"user_id": user.id, "type": NotificationEnum.INFO, "date_to_valid": eta4, "content": text5},
+                    {"user_id": user.id, "type": NotificationEnum.INFO, "date_to_invalid": eta4, "content": text5},
                 )
     await adapter.update_by_id(Event, event_id, {"registred": event.registred + 1})
     return okresponse(str(registration.id))

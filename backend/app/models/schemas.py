@@ -51,7 +51,7 @@ class PostRegisterPayload(BaseModel):
 
 
 class ProfileResponse(BaseModel):
-    id: int
+    id: Optional[int] = None
     phone: int
     fsp: str
     group: Optional[str] = None
@@ -112,7 +112,6 @@ class UpdateInfoPayload(BaseModel):
     social: Optional[str] = None
     donations_fmba: Optional[int] = None
     donations_gaur: Optional[int] = None
-    donations: Optional[int] = None
     last_don_gaur: Optional[datetime] = None
     last_don_fmba: Optional[datetime] = None
 
