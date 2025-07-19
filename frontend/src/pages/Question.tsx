@@ -3,9 +3,11 @@ import { Phone } from "lucide-react";
 import PageTopBar from "../components/layouts/PageTopBar";
 import { MessageCircleQuestion } from "lucide-react";
 import apiRequest from "../components/utils/apiRequest";
+import { useNavigate } from "react-router-dom"; // Добавьте этот импорт
 
 export default function AskOrganizers() {
   const [question, setQuestion] = useState("");
+  const navigate = useNavigate(); // Используем хук для навигации
 
   const handleSubmit = async () => {
     if (question.trim()) {
@@ -15,33 +17,34 @@ export default function AskOrganizers() {
         answer,
       };
 
-      alert("Ваш вопрос отправлен!");
-      setQuestion("");
       try {
-          const response = await apiRequest({
-            url: 'https://api.donor.vickz.ru/api/ask-question',
-            method: 'POST',
-            body,
-            auth: true,
+        const response = await apiRequest({
+          url: 'https://api.donor.vickz.ru/api/ask-question',
+          method: 'POST',
+          body,
+          auth: true,
         });
 
         if (response.ok) {
-          window.location.href = '/#/main';
+          alert("Ваш вопрос отправлен!");
+          setQuestion("");
+          navigate('/main'); // Используем navigate вместо window.location
         } else {
           const errorData = await response.json();
           console.error('Ошибка при отправке:', errorData);
-          alert('Не удалось отправить анкету. Проверьте данные.');
+          alert('Не удалось отправить вопрос. Проверьте данные.');
         }
       }
       catch (err) {
+        console.error('Ошибка:', err);
         alert("Ошибка при отправке запроса");
-    }
+      }
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-        <PageTopBar title="Вопрос организаторам" icon={<MessageCircleQuestion size={20} />}/>
+      <PageTopBar title="Вопрос организаторам" icon={<MessageCircleQuestion size={20} />}/>
       <div className="w-full max-w-xl bg-white p-6 rounded-2xl shadow-lg">
         <div className="space-y-6">
           <h1 className="text-2xl font-semibold text-gray-800">Задать вопрос организаторам</h1>

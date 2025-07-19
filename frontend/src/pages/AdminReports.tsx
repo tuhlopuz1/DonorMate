@@ -18,6 +18,23 @@ const AdminReportPage = () => {
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
   const [answerText, setAnswerText] = useState("");
 
+  const sendNotification = async (userId: number, message: string) => {
+    try {
+      const response = await apiRequest({
+        url: `https://api.donor.vickz.ru/api/send-message/${userId}`,
+        method: "GET",
+        params: { msg: message },
+        auth: true,
+      });
+
+      if (!response.ok) {
+        throw new Error("Не удалось отправить уведомление");
+      }
+    } catch (err) {
+      throw new Error(err instanceof Error ? err.message : "Ошибка отправки уведомления");
+    }
+  };
+
   // Функция для загрузки вопросов с сервера
   const fetchQuestions = async () => {
     try {
@@ -74,7 +91,7 @@ const AdminReportPage = () => {
       await handleDeleteQuestion(currentQuestion.id);
 
       // 2. Отправляем уведомление пользователю (заглушка)
-      console.log(`Отправка уведомления пользователю ${currentQuestion.user_id}: ${answerText}`);
+      await sendNotification(currentQuestion.user_id, answerText);
       // В реальном приложении здесь будет вызов API для отправки уведомления
 
       // Закрываем модальное окно и сбрасываем состояние
