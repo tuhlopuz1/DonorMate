@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import BottomNavBar from "../components/layouts/NavBar";
+import AdminBottomNavBar from "../components/layouts/AdminNavBar";
 import AdminPageTopBar from "../components/layouts/AdminPageTopBar";
 import { FiMessageSquare, FiTrash2, FiSend, FiCalendar } from "react-icons/fi";
 import apiRequest from "../components/utils/apiRequest";
@@ -91,7 +91,10 @@ const AdminReportPage = () => {
       await handleDeleteQuestion(currentQuestion.id);
 
       // 2. Отправляем уведомление пользователю (заглушка)
-      await sendNotification(currentQuestion.user_id, answerText);
+
+      const tg_message =  "!Администратор ответил на ваш вопрос!\n" + "❓ *Вопрос:*\n" + currentQuestion.question + "💡 *Ответ:*\n" + answerText
+
+      await sendNotification(currentQuestion.user_id, tg_message);
       // В реальном приложении здесь будет вызов API для отправки уведомления
 
       // Закрываем модальное окно и сбрасываем состояние
@@ -202,7 +205,7 @@ const AdminReportPage = () => {
         </div>
       )}
 
-      <BottomNavBar />
+      <AdminBottomNavBar />
     </div>
   );
 };
