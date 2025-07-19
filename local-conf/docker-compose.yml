@@ -24,7 +24,7 @@ services:
       - bot_net
 
   rabbitmq:
-    image: rabbitmq:3-management
+    image: rabbitmq:latest
     container_name: rabbit-container
     ports:
       - "5672:5672"

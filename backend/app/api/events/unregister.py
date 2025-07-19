@@ -19,6 +19,6 @@ async def unregister_on_event(user: Annotated[User, Depends(check_user_token)], 
     if not reg:
         return badresponse("Registration not found", 404)
     reg = reg[0]
-    await adapter.update_by_id(Event, event_id, {"registred", max(event.registred - 1, 0)})
+    await adapter.update_by_id(Event, event_id, {"registred": max(event.registred - 1, 0)})
     await adapter.delete(Registration, reg.id)
     return emptyresponse(204)

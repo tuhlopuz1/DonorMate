@@ -10,4 +10,6 @@ RUN apt-get update && apt-get upgrade -y && \
 
 COPY . .
 
-CMD ["python", "bot.py"]
+RUN chmod +x /wait-for-it.sh
+
+CMD ["sh", "-c", "/wait-for-it.sh rabbitmq:5672 -- /usr/local/bin/python bot.py"]

@@ -15,10 +15,11 @@ async def post_registration(user: Annotated[User, Depends(check_user_token)], us
     if not user:
         return badresponse("Unauthorized", 401)
     updates = user_info.model_dump()
-    existing_info = await adapter.get_by_id(Information, user.id)
+    existing_info = await adapter.get_by_value(Information, "fsp", user_info.fsp)
     if existing_info:
-        await adapter.update_by_id(Information, user.id, updates=updates)
+        await adapter.update_by_value(Information, {"fsp": user_info.fsp}, {"id": user.id, "phone": user.phone})
     else:
         updates["id"] = user.id
+        updates["phone"] = user.phone
         await adapter.insert(Information, updates)
     return okresponse()

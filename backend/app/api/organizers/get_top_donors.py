@@ -16,7 +16,7 @@ async def get_top_donors(user: Annotated[dict, Depends(check_user_token)]):
         return badresponse("Unauthorized", 401)
     if user.role != Role.ADMIN:
         return badresponse("Forbidden", 403)
-    donors = await adapter.get_all_with_join(User, Information, "id")
+    donors = await adapter.get_all_with_join(User, Information, "phone", False)
     donors.sort(key=lambda donor: donor.donations)
     donors = donors[:3]
     result = []

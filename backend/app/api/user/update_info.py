@@ -17,5 +17,5 @@ async def update_user_info(user: Annotated[User, Depends(check_user_token)], inf
     info_dict = UpdateInfoPayload.model_dump(info)
     if not info_dict:
         return badresponse()
-    await adapter.update_by_id(Information, user.id, info_dict)
+    await adapter.update_by_value(Information, user.phone, info_dict)
     return okresponse()

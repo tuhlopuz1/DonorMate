@@ -10,6 +10,8 @@ RUN apt-get update && apt-get upgrade -y && \
 
 COPY . .
 
+RUN chmod +x /wait-for-it.sh
+
 EXPOSE 8000
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["sh", "-c", "/wait-for-it.sh postgres:5432 -- uvicorn app.main:app --host 0.0.0.0 --port 8000"]

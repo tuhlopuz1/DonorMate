@@ -16,31 +16,6 @@ async def get_profile(user: Annotated[User, Depends(check_user_token)]):
         return badresponse("Unauthorized", 401)
 
     user_info = await adapter.get_by_id(Information, user.id)
-
-    response_data = {
-        "user_id": user.id,
-        "username": user.username,
-        "tg_name": user.telegram_name,
-        "role": user.role,
-        "created_at": user.created_at,
-    }
-
-    if user_info:
-        response_data.update(
-            {
-                "fullname": user_info.fullname,
-                "surname": user_info.surname,
-                "patronymic": user_info.patronymic,
-                "birth_date": user_info.birth_date,
-                "gender": user_info.gender,
-                "university": user_info.university,
-                "group": user_info.group,
-                "weight": user_info.weight,
-                "chronic_disease": user_info.chronic_disease,
-                "medical_exemption": user_info.medical_exemption,
-                "donor_earlier": user_info.donor_earlier,
-                "donations": user_info.donations,
-            }
-        )
-
-    return ProfileResponse(**response_data)
+    response_data = ProfileResponse.model_validate(user_info)
+    response_data.donations = response_data.donations_fmba + response_data.donations_gaur
+    return response_data

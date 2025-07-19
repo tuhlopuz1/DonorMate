@@ -30,4 +30,4 @@ async def telegram_auth(initData: str = Form(...)):
         },
         access=False,
     )
-    return TokensResponse(access=access_token, refresh=refresh_token)
+    return TokensResponse(access=access_token, refresh=refresh_token, role=user.role)
