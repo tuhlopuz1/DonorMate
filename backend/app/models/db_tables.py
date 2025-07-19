@@ -58,7 +58,10 @@ class Information(Base):
     fsp: Mapped[str] = mapped_column(String, primary_key=True)
     group: Mapped[str] = mapped_column(String, nullable=True)
     user_class: Mapped[UserClass] = mapped_column(Enum(UserClass), default=UserClass.STU)
-    donations: Mapped[int] = mapped_column(Integer, default=0)
+    donations_fmba: Mapped[int] = mapped_column(Integer, default=0)
+    donations_gaur: Mapped[int] = mapped_column(Integer, default=0)
+    last_don_fmba: Mapped[datetime] = mapped_column(DateTime, nullable=True)
+    last_don_gaur: Mapped[datetime] = mapped_column(DateTime, nullable=True)
 
     user: Mapped[Optional["User"]] = relationship(back_populates="info", uselist=False)
 
@@ -95,6 +98,7 @@ class Registration(Base):
     opened_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
     closed: Mapped[bool] = mapped_column(Boolean, default=False)
     closed_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    accepted: Mapped[bool] = mapped_column(Boolean, default=False)
     notification: Mapped[bool] = mapped_column(Boolean, default=True)
 
     user: Mapped["User"] = relationship(back_populates="registrations_list")

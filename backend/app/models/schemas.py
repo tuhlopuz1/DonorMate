@@ -49,7 +49,11 @@ class ProfileResponse(BaseModel):
     fsp: str
     group: str
     user_class: UserClass
-    donations: int
+    donations_fmba: int
+    donations_gaur: int
+    donations: Optional[int] = None
+    last_don_gaur: Optional[datetime] = None
+    last_don_fmba: Optional[datetime] = None
 
     model_config = {"from_attributes": True}
 
@@ -66,7 +70,6 @@ class EventResponse(BaseModel):
     id: UUID
     name: str
     description: str
-    organizer: int
     registred: int
     start_date: datetime
     end_date: datetime
@@ -77,7 +80,6 @@ class EventSchema(BaseModel):
     id: UUID
     name: str
     description: str
-    organizer: int
     registred: int
     start_date: datetime
     end_date: datetime

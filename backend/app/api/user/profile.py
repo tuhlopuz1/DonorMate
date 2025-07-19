@@ -17,4 +17,5 @@ async def get_profile(user: Annotated[User, Depends(check_user_token)]):
 
     user_info = await adapter.get_by_id(Information, user.id)
     response_data = ProfileResponse.model_validate(user_info)
+    response_data.donations = sum(response_data.donations_fmba, response_data.donations_gaur)
     return response_data

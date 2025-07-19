@@ -10,7 +10,7 @@ from fastapi import APIRouter, Depends
 router = APIRouter()
 
 
-@router.get("/find-user", response_model=ProfileResponse)
+@router.get("/find-user", response_model=list(ProfileResponse))
 async def find_user(user: Annotated[User, Depends(check_user_token)], fsp: str):
     if not user:
         return badresponse("Unauthorized", 401)
@@ -19,4 +19,9 @@ async def find_user(user: Annotated[User, Depends(check_user_token)], fsp: str):
     user_info = await adapter.find_similar_value(Information, "fsp", fsp)
     if not user_info:
         return badresponse("User not found", 404)
-    return ProfileResponse.model_validate(user_info)
+    users = []
+    for user in user_info:
+        user = ProfileResponse.model_validate(user)
+        user.donations = sum(user.donations_fmba, user.donations_gaur)
+        users.append(user)
+    return users

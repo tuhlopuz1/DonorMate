@@ -18,8 +18,12 @@ async def get_users_csv(user: Annotated[User, Depends(check_user_token)]):
         return badresponse("Unauthorized", 401)
     if user.role != Role.ADMIN:
         return badresponse("Forbidden", 403)
-    all_users = await adapter.get_all_with_join(User, Information, "id")
-    all_users = [ProfileResponse.model_dump(user) for user in all_users]
+    all_users_data = await adapter.get_all_with_join(User, Information, "id")
+    all_users = []
+    for userr in all_users_data:
+        userr = ProfileResponse.model_validate(userr)
+        userr.donations = sum(userr.donations_fmba, userr.donations_gaur)
+        all_users.append(userr)
     csv_converter = CSVConverter()
     csv_file_path = await csv_converter.convert(all_users)
     return FileResponse(csv_file_path, media_type="text/csv", filename="users.csv", status_code=200)
