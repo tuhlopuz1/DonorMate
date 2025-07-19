@@ -113,9 +113,8 @@ class Notification(Base):
     type: Mapped[NotificationEnum] = mapped_column(
         Enum(NotificationEnum), nullable=False, default=NotificationEnum.INFO
     )
-    date_to_valid: Mapped[datetime] = mapped_column(DateTime, nullable=True)
-    title: Mapped[str] = mapped_column(String, nullable=False)
-    content: Mapped[str] = mapped_column(String, nullable=True)
+    date_to_invalid: Mapped[datetime] = mapped_column(DateTime, default=func.now())
+    content: Mapped[str] = mapped_column(String, nullable=False)
 
 
 class Question(Base):

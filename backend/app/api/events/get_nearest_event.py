@@ -15,7 +15,7 @@ router = APIRouter()
 async def get_all_events(user: Annotated[User, Depends(check_user_token)]):
     if not user:
         return badresponse("Unauthorized", 401)
-    events = await adapter.get_by_cond(Event, "start_date", ">=", datetime.now(timezone.utc))
+    events = await adapter.get_by_cond(Event, "end_date", datetime.now(timezone.utc), ">=")
     if not events:
         return badresponse("No events found", 404)
     events.sort(key=lambda x: x.start_date)

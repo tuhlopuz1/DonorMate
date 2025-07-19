@@ -2,7 +2,7 @@ from datetime import datetime, timedelta, timezone  # noqa
 from typing import Annotated
 from uuid import UUID
 
-from app.api.tasks import schedule_telegram_message
+from app.api.tasks import schedule_telegram_message, schedule_telegram_qr
 from app.dependencies.checks import check_user_token
 from app.dependencies.responses import badresponse, okresponse
 from app.dependencies.token_manager import TokenManager
@@ -33,8 +33,8 @@ async def register_on_event(user: Annotated[User, Depends(check_user_token)], ev
         expiration = (event.end_date - now).total_seconds()
         access_qr_token = TokenManager.encode_qr_token({"iss": str(user.id), "sub": str(registration.id)}, expiration)
         event_name = event.name if event.name is not None else ""
-        if event.start_date < now and event.end_date > now:
-            schedule_telegram_message.apply_async(
+        if eta1 < now and event.end_date > now:
+            schedule_telegram_qr.apply_async(
                 kwargs={
                     "text": (
                         f"Ваша запись {event.name} активна прямо сейчас! Спешите!",
@@ -47,9 +47,13 @@ async def register_on_event(user: Annotated[User, Depends(check_user_token)], ev
                 },
                 countdown=0.0,
             )
+            await adapter.insert(
+                Notification,
+                {"user_id": user.id, "type": NotificationEnum.ERROR, "content": "lol"},
+            )
         if notif and user.notifications_bool:
             if eta1 > now:
-                schedule_telegram_message.apply_async(
+                schedule_telegram_qr.apply_async(
                     kwargs={
                         "text": (
                             f'Ваша запись на мероприятие "{event_name}" состоится через час!',
@@ -66,7 +70,7 @@ async def register_on_event(user: Annotated[User, Depends(check_user_token)], ev
                 )
                 await adapter.insert(
                     Notification,
-                    {"user_id": user.id, "type": NotificationEnum.WARNING, "date_to_valid": eta1, "title": "lol"},
+                    {"user_id": user.id, "type": NotificationEnum.WARNING, "date_to_valid": eta1, "content": "lol"},
                 )
             if eta2 > now:
                 schedule_telegram_message.apply_async(
@@ -81,6 +85,10 @@ async def register_on_event(user: Annotated[User, Depends(check_user_token)], ev
                         "reg_id": registration.id,
                     },
                     eta=eta2,
+                )
+                await adapter.insert(
+                    Notification,
+                    {"user_id": user.id, "type": NotificationEnum.INFO, "date_to_valid": eta2, "content": "lol"},
                 )
             if eta3 > now:
                 schedule_telegram_message.apply_async(
@@ -97,6 +105,10 @@ async def register_on_event(user: Annotated[User, Depends(check_user_token)], ev
                     },
                     eta=eta3,
                 )
+                await adapter.insert(
+                    Notification,
+                    {"user_id": user.id, "type": NotificationEnum.INFO, "date_to_valid": eta3, "content": "lol"},
+                )
             if eta4 > now:
                 schedule_telegram_message.apply_async(
                     kwargs={
@@ -110,6 +122,10 @@ async def register_on_event(user: Annotated[User, Depends(check_user_token)], ev
                         "reg_id": registration.id,
                     },
                     eta=eta4,
+                )
+                await adapter.insert(
+                    Notification,
+                    {"user_id": user.id, "type": NotificationEnum.INFO, "date_to_valid": eta4, "content": "lol"},
                 )
     await adapter.update_by_id(Event, event_id, {"registred": event.registred + 1})
     return okresponse(str(registration.id))

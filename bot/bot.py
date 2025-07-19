@@ -17,9 +17,9 @@ async def on_message(message: aio_pika.IncomingMessage):
         data = json.loads(message.body)
         chat_id = data["chat_id"]
         text = data["text"]
-        reg_id = UUID(data.get("reg_id"))
+        reg_id = data.get("reg_id")
         if reg_id:
-            send = await check_notifications(chat_id=chat_id, reg_id=reg_id)
+            send = await check_notifications(chat_id=chat_id, reg_id=UUID(reg_id))
             if send:
                 if data["data"]:
                     await send_qr(chat_id=chat_id, text=text, data=data["data"])

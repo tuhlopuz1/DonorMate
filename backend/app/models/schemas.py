@@ -54,7 +54,7 @@ class ProfileResponse(BaseModel):
     id: int
     phone: int
     fsp: str
-    group: str
+    group: Optional[str] = None
     user_class: UserClass
     social: Optional[str] = None
     donations_fmba: int
@@ -120,6 +120,8 @@ class UpdateInfoPayload(BaseModel):
 class MetricsResponse(BaseModel):
     users_count: int
     donations_count: int
+    donations_fmba_count: int
+    donations_gaur_count: int
     new_events_count: int
     ended_events_count: int
 
@@ -131,10 +133,15 @@ class RoleMetricsResponse(BaseModel):
     const_donors_count_fmba: int
     donors_count_gaur: int
     const_donors_count_gaur: int
+    donors_count: int
+    const_donors_count: int
 
 
 class QuestionPayload(BaseModel):
     question: Optional[str] = None
+
+class MesagePayload(BaseModel):
+    message: str
 
 class UserCreateSchema(BaseModel):
     phone: int

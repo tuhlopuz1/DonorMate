@@ -11,15 +11,16 @@ router = APIRouter()
 
 
 @router.get("/get-top-donors", response_model=list[ProfileResponse])
-async def get_top_donors(user: Annotated[dict, Depends(check_user_token)]):
+async def get_top_donors(user: Annotated[User, Depends(check_user_token)]):
     if not user:
         return badresponse("Unauthorized", 401)
     if user.role != Role.ADMIN:
         return badresponse("Forbidden", 403)
-    donors = await adapter.get_all_with_join(User, Information, "phone", False)
+    donors = await adapter.get_all(Information)
     donors_dump = []
     for donor in donors:
         donor = ProfileResponse.model_validate(donor)
         donor.donations = donor.donations_fmba + donor.donations_gaur
+    donors_dump.sort(key=lambda x: x.donations, reverse=True)
     donors_dump = donors_dump[:3]
     return donors_dump

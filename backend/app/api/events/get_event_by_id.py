@@ -16,6 +16,8 @@ async def get_event_by_id(user: Annotated[User, Depends(check_user_token)], id: 
     if not user:
         return badresponse("Unauthorized", 401)
     event = await adapter.get_by_id(Event, id)
+    if not event:
+        return badresponse("Event not found", 404)
     reg = await adapter.get_by_values(Registration, {"user_id": user.id, "event_id": event.id})
     event_dict = EventSchema.model_validate(event)
     if reg:

@@ -19,6 +19,6 @@ async def get_user(user: Annotated[User, Depends(check_user_token)], num: int):
     user_info = await adapter.get_by_value(Information, "phone", num)
     if not user_info:
         return badresponse("User not found", 404)
-    response = ProfileResponse.model_validate(user_info)
+    response = ProfileResponse.model_validate(user_info[0])
     response.donations = response.donations_fmba + response.donations_gaur
     return response
