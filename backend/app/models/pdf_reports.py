@@ -3,9 +3,11 @@ import os
 import tempfile
 from io import BytesIO
 from typing import Dict, List
-from app.models.db_tables import *
+
 import matplotlib
 import matplotlib.pyplot as plt
+import pytz  # Добавлен импорт pytz
+from app.models.db_tables import *
 from app.models.schemas import Role
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
@@ -22,7 +24,6 @@ from reportlab.platypus import (
     Table,
     TableStyle,
 )
-import pytz  # Добавлен импорт pytz
 
 # ======================
 # FONT SETUP FOR CYRILLIC
@@ -139,12 +140,12 @@ class OrganizerAnalyticsReportGenerator:
         """Получение регистраций на мероприятия организатора"""
         events = await self._get_organizer_events()
         event_ids = [event.id for event in events]
-        
+
         registrations = []
         for event_id in event_ids:
             event_regs = await self.adapter.get_by_value(Registration, "event_id", event_id)
             registrations.extend(event_regs)
-            
+
         return registrations
 
     async def _collect_event_stats(self):
@@ -165,12 +166,11 @@ class OrganizerAnalyticsReportGenerator:
             end_date = event.end_date
             if not end_date.tzinfo:
                 end_date = pytz.utc.localize(end_date)
-                
+
             if end_date < now:
                 past_events += 1
             else:
                 upcoming_events += 1
-
 
         self.report_data["past_events"] = past_events
         self.report_data["upcoming_events"] = upcoming_events
@@ -186,7 +186,7 @@ class OrganizerAnalyticsReportGenerator:
         """Сбор статистики по донорам организатора"""
         registrations = await self._get_organizer_registrations()
         donor_ids = {reg.user_id for reg in registrations}
-        
+
         donors = []
         for donor_id in donor_ids:
             donor = await self.adapter.get_by_id(User, donor_id)
@@ -196,9 +196,9 @@ class OrganizerAnalyticsReportGenerator:
         # Собираем информацию о донациях
         donations = []
         for donor in donors:
-            info = await self.adapter.get_by_value(Information, "phone",donor.phone)
+            info = await self.adapter.get_by_value(Information, "phone", donor.phone)
             if info:
-                donations.append(info.donations)
+                donations.append(info.donations_fmba + info.donations_gaur)
             else:
                 donations.append(0)
 
@@ -238,7 +238,7 @@ class OrganizerAnalyticsReportGenerator:
         """Сбор статистики по медицинским отводам доноров организатора"""
         registrations = await self._get_organizer_registrations()
         donor_ids = {reg.user_id for reg in registrations}
-        
+
         exemptions = []
         for donor_id in donor_ids:
             donor_exemptions = await self.adapter.get_by_value(MedicalExemption, "user_id", donor_id)
@@ -254,12 +254,12 @@ class OrganizerAnalyticsReportGenerator:
                 # Приводим даты к одному типу перед вычислением разницы
                 start = exemption.start_date
                 end = exemption.end_date
-                
+
                 if start.tzinfo is None:
                     start = pytz.utc.localize(start)
                 if end.tzinfo is None:
                     end = pytz.utc.localize(end)
-                    
+
                 duration = (end - start).days
                 durations.append(duration)
 
@@ -267,15 +267,8 @@ class OrganizerAnalyticsReportGenerator:
 
     def _categorize_donations(self, donations: list) -> Dict[str, int]:
         """Категоризация количества донаций"""
-        categories = {
-            "0": 0,
-            "1": 0,
-            "2-5": 0,
-            "6-10": 0,
-            "11-20": 0,
-            "20+": 0
-        }
-        
+        categories = {"0": 0, "1": 0, "2-5": 0, "6-10": 0, "11-20": 0, "20+": 0}
+
         for count in donations:
             if count == 0:
                 categories["0"] += 1
@@ -289,7 +282,7 @@ class OrganizerAnalyticsReportGenerator:
                 categories["11-20"] += 1
             else:
                 categories["20+"] += 1
-                
+
         return categories
 
     def generate_pdf_report(self) -> str:
@@ -372,7 +365,7 @@ class OrganizerAnalyticsReportGenerator:
         upcoming = self.report_data.get("upcoming_events", 0)
         status_data = {"Завершено": past, "Предстоящие": upcoming}
         elements.append(Paragraph("Статус мероприятий", styles["Heading2"]))
-        
+
         self._create_pie_chart(elements, status_data, "Статус мероприятий")
 
         # Заполняемость мероприятий
@@ -395,7 +388,9 @@ class OrganizerAnalyticsReportGenerator:
         # Основная статистика
         elements.append(Paragraph("Общая статистика", styles["Heading2"]))
         elements.append(Paragraph(f"Всего доноров: {self.report_data.get('total_donors', 0)}", styles["Body"]))
-        elements.append(Paragraph(f"Среднее количество донаций: {self.report_data.get('avg_donations', 0):.1f}", styles["Body"]))
+        elements.append(
+            Paragraph(f"Среднее количество донаций: {self.report_data.get('avg_donations', 0):.1f}", styles["Body"])
+        )
         elements.append(Spacer(1, 0.5 * cm))
 
         # Распределение по количеству донаций
