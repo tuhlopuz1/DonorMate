@@ -22,7 +22,7 @@ async def get_users_csv(user: Annotated[User, Depends(check_user_token)]):
     all_users = []
     for userr in all_users_data:
         userr = ProfileResponse.model_validate(userr)
-        userr.donations = sum(userr.donations_fmba, userr.donations_gaur)
+        userr.donations = userr.donations_fmba + userr.donations_gaur
         all_users.append(userr)
     csv_converter = CSVConverter()
     csv_file_path = await csv_converter.convert(all_users)

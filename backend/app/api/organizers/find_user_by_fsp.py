@@ -22,6 +22,6 @@ async def find_user(user: Annotated[User, Depends(check_user_token)], fsp: str):
     users = []
     for user in user_info:
         user = ProfileResponse.model_validate(user)
-        user.donations = sum(user.donations_fmba, user.donations_gaur)
+        user.donations = user.donations_fmba + user.donations_gaur
         users.append(user)
     return users

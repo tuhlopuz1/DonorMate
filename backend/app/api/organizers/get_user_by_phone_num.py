@@ -20,5 +20,5 @@ async def get_user(user: Annotated[User, Depends(check_user_token)], num: int):
     if not user_info:
         return badresponse("User not found", 404)
     response = ProfileResponse.model_validate(user_info)
-    response.donations = sum(response.donations_fmba, response.donations_gaur)
+    response.donations = response.donations_fmba + response.donations_gaur
     return response
