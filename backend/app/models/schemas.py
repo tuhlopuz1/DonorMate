@@ -41,7 +41,7 @@ class PostRegisterPayload(BaseModel):
     fsp: str
     group: Optional[str] = None
     user_class: UserClass
-    social: str
+    social: Optional[str] = None
 
 
 class ProfileResponse(BaseModel):
