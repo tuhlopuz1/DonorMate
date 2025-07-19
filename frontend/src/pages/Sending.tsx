@@ -2,35 +2,48 @@ import React, { useState } from "react";
 import AdminPageTopBar from "../components/layouts/AdminPageTopBar";
 import { FiSend } from "react-icons/fi";
 import AdminBottomNavBar from "../components/layouts/AdminNavBar";
-
-
+import apiRequest from "../components/utils/apiRequest"; // Убедитесь, что путь к apiRequest корректный
 
 const Broadcasts: React.FC = () => {
   const [message, setMessage] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSend = () => {
-    if (!message.trim() || !selectedCategory) {
-      alert("Введите сообщение и выберите категорию");
+  const handleSend = async () => {
+    if (!message.trim()) {
+      alert("Введите сообщение");
       return;
     }
 
-    console.log("Рассылка отправлена", {
-      message,
-      category: selectedCategory,
-    });
+    try {
+      setIsLoading(true);
+      const response = await apiRequest({
+        url: "https://api.donor.vickz.ru/api/send-msg-all-usr",
+        method: "POST",
+        body: { message },
+        auth: true,
+      });
 
-    alert("Рассылка отправлена!");
-    setMessage("");
-    setSelectedCategory("");
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Ошибка отправки: ${errorText}`);
+      }
+
+      alert("Рассылка отправлена!");
+      setMessage("");
+    } catch (error) {
+      console.error("Ошибка при отправке рассылки:", error);
+      alert("Не удалось отправить рассылку. Попробуйте позже.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
-        <AdminPageTopBar title="Рассылка" icon={<FiSend />}/>
+      <AdminPageTopBar title="Рассылка" icon={<FiSend />} />
       <h1 className="text-3xl font-semibold mb-6">Рассылки</h1>
 
-      {/* Категория */}
+      {/* Категория (временно убрана, если не используется) */}
       <div className="bg-white shadow-md rounded-xl mb-6">
         <div className="p-4">
           <h2 className="text-xl font-medium mb-4">Рассылка всем пользователям</h2>
@@ -54,9 +67,12 @@ const Broadcasts: React.FC = () => {
       <div className="text-right">
         <button
           onClick={handleSend}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2 rounded-lg text-lg transition"
+          disabled={isLoading}
+          className={`${
+            isLoading ? "bg-blue-400" : "bg-blue-600 hover:bg-blue-700"
+          } text-white font-medium px-6 py-2 rounded-lg text-lg transition`}
         >
-          Отправить
+          {isLoading ? "Отправка..." : "Отправить"}
         </button>
       </div>
       <AdminBottomNavBar />
