@@ -1,6 +1,6 @@
 import React from "react";
 import logo from '../assets/MEPHI_logo.png';
-import { HeartPulse, Users, Clock, Bot, ShieldCheck } from "lucide-react";
+import { HeartPulse, Users, Bot, ShieldCheck } from "lucide-react";
 import '../index.css';
 
 const About: React.FC = () => {
