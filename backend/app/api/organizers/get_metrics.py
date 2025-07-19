@@ -17,17 +17,13 @@ async def metrics(user: Annotated[User, Depends(check_user_token)]):
         return badresponse("Unauthorized", 401)
     if user.role != Role.ADMIN:
         return badresponse("Forbidden", 403)
-    users = await adapter.get_all_with_join(User, Information, "phone", False)
-    users_count = len(users) if users else 0
-    donations_fmba_count = await adapter.get_column_sum(Information, "donations_fmba") if users else 0
-    donations_gaur_count = await adapter.get_column_sum(Information, "donations_gaur") if users else 0
+    users = await adapter.get_by_cond(User, "role", Role.ADMIN, "!=")
+    users_count = len(users)
+    donations_fmba_count = await adapter.get_column_sum(Information, "donations_fmba")
+    donations_gaur_count = await adapter.get_column_sum(Information, "donations_gaur")
     donations_count = donations_fmba_count + donations_gaur_count
-    new_events_count = (
-        await adapter.get_count_cond(Event, "start_date", datetime.now(timezone.utc), ">") if users else 0
-    )
-    ended_events_count = (
-        await adapter.get_count_cond(Event, "end_date", datetime.now(timezone.utc), "<") if users else 0
-    )
+    new_events_count = await adapter.get_count_cond(Event, "start_date", datetime.now(timezone.utc), ">")
+    ended_events_count = await adapter.get_count_cond(Event, "end_date", datetime.now(timezone.utc), "<")
     return MetricsResponse(
         users_count=users_count,
         donations_fmba_count=donations_fmba_count,

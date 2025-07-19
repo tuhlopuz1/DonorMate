@@ -133,6 +133,8 @@ class RoleMetricsResponse(BaseModel):
     const_donors_count_fmba: int
     donors_count_gaur: int
     const_donors_count_gaur: int
+    donors_count: int
+    const_donors_count: int
 
 
 class QuestionPayload(BaseModel):
