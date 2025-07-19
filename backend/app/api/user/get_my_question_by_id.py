@@ -1,13 +1,14 @@
 from typing import Annotated
 from uuid import UUID
+
 from app.dependencies.checks import check_user_token
-from app.dependencies.responses import badresponse, okresponse
+from app.dependencies.responses import badresponse
 from app.models.db_adapter import adapter
-from app.models.db_tables import MedicalExemption, User, Questions
+from app.models.db_tables import Questions, User
 from fastapi import APIRouter, Depends
-from app.models.schemas import QAPayload
 
 router = APIRouter()
+
 
 @router.get("/get-question-by-id")
 async def ask_question(user: Annotated[User, Depends(check_user_token)], question_id: UUID):
@@ -19,4 +20,3 @@ async def ask_question(user: Annotated[User, Depends(check_user_token)], questio
     if question.user_id != user.id:
         return badresponse("You can not get this question", 403)
     return question
-    

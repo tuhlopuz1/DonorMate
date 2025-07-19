@@ -50,6 +50,8 @@ class ProfileResponse(BaseModel):
     user_class: UserClass
     donations: int
 
+    model_config = {"from_attributes": True}
+
 
 class EventPayload(BaseModel):
     name: Optional[str] = None
@@ -80,19 +82,6 @@ class MedicalExemptionResponse(BaseModel):
 
 class UpdateInfoPayload(BaseModel):
     fullname: Optional[str] = None
-
-
-#     surname: Optional[str] = None
-#     patronymic: Optional[str] = None
-#     birth_date: Optional[date] = None
-#     gender: Optional[Gender] = None
-#     university: Optional[str] = None
-#     group: Optional[str] = None
-#     weight: Optional[int] = None
-#     chronic_disease: Optional[bool] = None
-#     medical_exemption: Optional[bool] = None
-#     donor_earlier: Optional[DonorEarlier] = None
-#     feedback: Optional[str] = None
 
 
 class DonorResponse(BaseModel):
