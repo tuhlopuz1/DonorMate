@@ -17,7 +17,7 @@ async def get_all_events(user: Annotated[User, Depends(check_user_token)]):
     events = await adapter.get_all(Event)
     if not events:
         return badresponse("No events found", 404)
-    events.sort(key=lambda x: x.start_date, reverse=True)
+    events.sort(key=lambda x: x.start_date)
     event = EventSchema.model_validate(events[0])
     reg = await adapter.get_by_values(Registration, {"user_id": user.id, "event_id": event.id})
     if reg:
