@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from typing import Annotated
 
 from app.dependencies.checks import check_user_token
@@ -13,5 +14,7 @@ router = APIRouter()
 async def get_notifications_for_users(user: Annotated[User, Depends(check_user_token)]):
     if not user:
         return badresponse("Unauthorized", 401)
-    user_notifications = await adapter.get_by_value(Notification, "user_id", user.id)
+    user_notifications = await adapter.get_by_cond(
+        Notification, "user_id", user.id, "==", "time_to_invalid", datetime.now(timezone.utc), "<"
+    )
     return user_notifications

@@ -47,6 +47,10 @@ async def register_on_event(user: Annotated[User, Depends(check_user_token)], ev
                 },
                 countdown=0.0,
             )
+            await adapter.insert(
+                Notification,
+                {"user_id": user.id, "type": NotificationEnum.ERROR, "content": "lol"},
+            )
         if notif and user.notifications_bool:
             if eta1 > now:
                 schedule_telegram_qr.apply_async(
@@ -66,7 +70,7 @@ async def register_on_event(user: Annotated[User, Depends(check_user_token)], ev
                 )
                 await adapter.insert(
                     Notification,
-                    {"user_id": user.id, "type": NotificationEnum.WARNING, "date_to_valid": eta1, "title": "lol"},
+                    {"user_id": user.id, "type": NotificationEnum.WARNING, "date_to_valid": eta1, "content": "lol"},
                 )
             if eta2 > now:
                 schedule_telegram_message.apply_async(
@@ -81,6 +85,10 @@ async def register_on_event(user: Annotated[User, Depends(check_user_token)], ev
                         "reg_id": registration.id,
                     },
                     eta=eta2,
+                )
+                await adapter.insert(
+                    Notification,
+                    {"user_id": user.id, "type": NotificationEnum.INFO, "date_to_valid": eta2, "content": "lol"},
                 )
             if eta3 > now:
                 schedule_telegram_message.apply_async(
@@ -97,6 +105,10 @@ async def register_on_event(user: Annotated[User, Depends(check_user_token)], ev
                     },
                     eta=eta3,
                 )
+                await adapter.insert(
+                    Notification,
+                    {"user_id": user.id, "type": NotificationEnum.INFO, "date_to_valid": eta3, "content": "lol"},
+                )
             if eta4 > now:
                 schedule_telegram_message.apply_async(
                     kwargs={
@@ -110,6 +122,10 @@ async def register_on_event(user: Annotated[User, Depends(check_user_token)], ev
                         "reg_id": registration.id,
                     },
                     eta=eta4,
+                )
+                await adapter.insert(
+                    Notification,
+                    {"user_id": user.id, "type": NotificationEnum.INFO, "date_to_valid": eta4, "content": "lol"},
                 )
     await adapter.update_by_id(Event, event_id, {"registred": event.registred + 1})
     return okresponse(str(registration.id))

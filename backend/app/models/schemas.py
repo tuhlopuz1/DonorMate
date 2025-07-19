@@ -54,7 +54,7 @@ class ProfileResponse(BaseModel):
     id: int
     phone: int
     fsp: str
-    group: str
+    group: Optional[str] = None
     user_class: UserClass
     social: Optional[str] = None
     donations_fmba: int
@@ -137,3 +137,7 @@ class RoleMetricsResponse(BaseModel):
 
 class QuestionPayload(BaseModel):
     question: Optional[str] = None
+
+
+class MesagePayload(BaseModel):
+    message: str
