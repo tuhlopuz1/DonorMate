@@ -61,8 +61,9 @@ class Information(Base):
     social: Mapped[str] = mapped_column(String, nullable=True)
     donations_fmba: Mapped[int] = mapped_column(Integer, default=0)
     donations_gaur: Mapped[int] = mapped_column(Integer, default=0)
-    last_don_fmba: Mapped[datetime] = mapped_column(DateTime, nullable=True)
-    last_don_gaur: Mapped[datetime] = mapped_column(DateTime, nullable=True)
+    donations_total: Mapped[int] = mapped_column(Integer, default=0)  # Новое поле для суммы
+    last_don_fmba: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    last_don_gaur: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
 
     user: Mapped[Optional["User"]] = relationship(back_populates="info", uselist=False)
 

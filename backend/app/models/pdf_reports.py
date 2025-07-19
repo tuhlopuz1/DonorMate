@@ -118,9 +118,8 @@ if "StatValue" not in styles:
 
 
 class OrganizerAnalyticsReportGenerator:
-    def __init__(self, adapter, organizer_id):
+    def __init__(self, adapter):
         self.adapter = adapter
-        self.organizer_id = organizer_id
         self.temp_dir = tempfile.mkdtemp()
         self.report_data = {}
 
@@ -133,7 +132,7 @@ class OrganizerAnalyticsReportGenerator:
 
     async def _get_organizer_events(self) -> List:
         """Получение мероприятий организатора"""
-        return await self.adapter.get_by_value(Event, "organizer", self.organizer_id)
+        return await self.adapter.get_all(Event)
 
     async def _get_organizer_registrations(self) -> List:
         """Получение регистраций на мероприятия организатора"""
@@ -283,7 +282,7 @@ class OrganizerAnalyticsReportGenerator:
     def generate_pdf_report(self) -> str:
         """Генерация PDF отчета организатора"""
         report_id = datetime.now().strftime("%Y%m%d%H%M%S")
-        pdf_path = os.path.join(self.temp_dir, f"organizer_report_{self.organizer_id}_{report_id}.pdf")
+        pdf_path = os.path.join(self.temp_dir, f"organizer_report_{report_id}.pdf")
 
         doc = SimpleDocTemplate(
             pdf_path,
@@ -316,7 +315,7 @@ class OrganizerAnalyticsReportGenerator:
 
     def _create_cover_page(self, elements):
         """Создание титульной страницы"""
-        elements.append(Paragraph(f"АНАЛИТИЧЕСКИЙ ОТЧЕТ ОРГАНИЗАТОРА #{self.organizer_id}", styles["Title"]))
+        elements.append(Paragraph(f"АНАЛИТИЧЕСКИЙ ОТЧЕТ ОРГАНИЗАТОРА", styles["Title"]))
         elements.append(Spacer(1, 1 * cm))
         elements.append(Paragraph("Анализ мероприятий и участников", styles["Heading2"]))
         elements.append(Spacer(1, 2 * cm))
@@ -360,6 +359,7 @@ class OrganizerAnalyticsReportGenerator:
         upcoming = self.report_data.get("upcoming_events", 0)
         status_data = {"Завершено": past, "Предстоящие": upcoming}
         elements.append(Paragraph("Статус мероприятий", styles["Heading2"]))
+        
         self._create_pie_chart(elements, status_data, "Статус мероприятий")
 
         # Заполняемость мероприятий
@@ -499,9 +499,9 @@ class OrganizerAnalyticsReportGenerator:
         elements.append(Image(buf, width=16 * cm, height=10 * cm))
 
 
-async def generate_organizer_report(adapter, organizer_id):
+async def generate_organizer_report(adapter):
     """Генерация аналитического отчета для организатора"""
-    report_generator = OrganizerAnalyticsReportGenerator(adapter, organizer_id)
+    report_generator = OrganizerAnalyticsReportGenerator(adapter)
     await report_generator.collect_data()
     report_path = report_generator.generate_pdf_report()
     return report_path
