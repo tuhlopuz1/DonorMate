@@ -15,6 +15,6 @@ async def get_notifications_for_users(user: Annotated[User, Depends(check_user_t
     if not user:
         return badresponse("Unauthorized", 401)
     user_notifications = await adapter.get_by_cond(
-        Notification, "user_id", user.id, "==", "time_to_invalid", datetime.now(timezone.utc), "<"
+        Notification, "user_id", user.id, "==", "date_to_invalid", datetime.now(timezone.utc), "<"
     )
     return user_notifications
