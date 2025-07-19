@@ -3,8 +3,9 @@ from typing import Optional
 from uuid import UUID, uuid4
 
 import inflect
-from app.models.schemas import Role
+from app.models.schemas import Place, Role, UserClass
 from sqlalchemy import (
+    TIMESTAMP,
     BigInteger,
     Boolean,
     Date,
@@ -49,16 +50,21 @@ class User(Base):
     )
 
     registrations_list: Mapped[list["Registration"]] = relationship(back_populates="user", cascade="all, delete-orphan")
-    events: Mapped[list["Event"]] = relationship(back_populates="organizer_user", cascade="all, delete-orphan")
 
 
 class Information(Base):
-    phone: Mapped[int] = mapped_column(BigInteger, ForeignKey("users.phone", ondelete="CASCADE"), primary_key=True)
-    fsp: Mapped[str] = mapped_column(String)
+    id: Mapped[Optional[int]] = mapped_column(BigInteger, ForeignKey("users.id", ondelete="SET NULL"))
+    phone: Mapped[int] = mapped_column(BigInteger, nullable=True)
+    fsp: Mapped[str] = mapped_column(String, primary_key=True)
     group: Mapped[str] = mapped_column(String, nullable=True)
-    donations: Mapped[int] = mapped_column(Integer, default=0)
+    user_class: Mapped[UserClass] = mapped_column(Enum(UserClass), default=UserClass.STU)
+    social: Mapped[str] = mapped_column(String, nullable=True)
+    donations_fmba: Mapped[int] = mapped_column(Integer, default=0)
+    donations_gaur: Mapped[int] = mapped_column(Integer, default=0)
+    last_don_fmba: Mapped[datetime] = mapped_column(DateTime, nullable=True)
+    last_don_gaur: Mapped[datetime] = mapped_column(DateTime, nullable=True)
 
-    user: Mapped["User"] = relationship(back_populates="info")
+    user: Mapped[Optional["User"]] = relationship(back_populates="info", uselist=False)
 
 
 class MedicalExemption(Base):
@@ -74,19 +80,16 @@ class MedicalExemption(Base):
 class Event(Base):
     id: Mapped[UUID] = mapped_column(Uuid, index=True, primary_key=True, default=uuid4)
     name: Mapped[Optional[str]] = mapped_column(String, nullable=True)
-    place: Mapped[str] = mapped_column(String)
-    organizer: Mapped[int] = mapped_column(BigInteger, ForeignKey("users.id", ondelete="CASCADE"))
+    place: Mapped[Place] = mapped_column(Enum(Place))
     description: Mapped[str] = mapped_column(Text, nullable=False)
-    max_donors: Mapped[int] = mapped_column(Integer, nullable=False)
     registred: Mapped[int] = mapped_column(Integer, default=0)
-    start_date: Mapped[datetime] = mapped_column(DateTime)
-    end_date: Mapped[datetime] = mapped_column(DateTime)
+    start_date: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True))
+    end_date: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True))
     created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
 
     registrations_list: Mapped[list["Registration"]] = relationship(
         back_populates="event", cascade="all, delete-orphan"
     )
-    organizer_user: Mapped["User"] = relationship(back_populates="events")
 
 
 class Registration(Base):
@@ -96,10 +99,12 @@ class Registration(Base):
     opened_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
     closed: Mapped[bool] = mapped_column(Boolean, default=False)
     closed_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    accepted: Mapped[bool] = mapped_column(Boolean, default=False)
     notification: Mapped[bool] = mapped_column(Boolean, default=True)
 
     user: Mapped["User"] = relationship(back_populates="registrations_list")
     event: Mapped["Event"] = relationship(back_populates="registrations_list")
+
 
 class Notifications(Base):
     id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
@@ -107,6 +112,7 @@ class Notifications(Base):
     type: Mapped[str] = mapped_column(String, nullable=False)
     title: Mapped[str] = mapped_column(String, nullable=False)
     content: Mapped[str] = mapped_column(String, nullable=True)
+
 
 class Questions(Base):
     id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)

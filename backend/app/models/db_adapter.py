@@ -7,6 +7,7 @@ from sqlalchemy import func, update
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.future import select
 from sqlalchemy.sql import and_
+from thefuzz import fuzz, process
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -178,6 +179,41 @@ class AsyncDatabaseAdapter:
         async with self.SessionLocal() as session:
             result = await session.execute(select(func.sum(getattr(model, column_name))).select_from(model))
             return result.scalar()
+
+    async def find_similar_value(
+        self,
+        model,
+        column_name: str,
+        search_value: str,
+        limit: int = 5,
+        similarity_threshold: int = 85,
+    ) -> list:
+        all_records = await self.get_all(model)
+        values = []
+        records_map = {}
+        for record in all_records:
+            value = getattr(record, column_name)
+            if value not in records_map:
+                records_map[value] = []
+            records_map[value].append(record)
+            values.append(value)
+        results = process.extractBests(
+            search_value,
+            list(set(values)),
+            limit=limit * 5,
+            score_cutoff=similarity_threshold,
+            scorer=fuzz.token_sort_ratio,
+        )
+        output = []
+        for value, score in results:
+            for record in records_map[value]:
+                record_dict = {}
+                for column in record.__table__.columns:
+                    record_dict[column.name] = getattr(record, column.name)
+                record_dict["similarity"] = score
+                output.append(record_dict)
+        output.sort(key=lambda x: x["similarity"], reverse=True)
+        return output[:limit]
 
 
 adapter = AsyncDatabaseAdapter()

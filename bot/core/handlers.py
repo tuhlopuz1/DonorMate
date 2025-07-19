@@ -86,25 +86,26 @@ async def get_or_check_admin_code(message: Message, state: FSMContext):
     else:
         async with ClientSession() as session:
             response = await session.get(f"{BACKEND_URL}/is-registred/{message.chat.id}")
-            if response.status == 404:
-                async with ClientSession() as session:
-                    payload = {
-                        "user_id": message.from_user.id,
-                        "username": message.from_user.username,
-                        "tg_name": message.from_user.first_name,
-                    }
-                    await session.post(url=f"{BACKEND_URL}/telegram-register", json=payload)
+            if response.status == 204:
+                await session.post(url=f"{BACKEND_URL}/pre-reg-no-phone", params={"id": message.chat.id})
                 await state.set_state(AdminState.ADMIN_CODE)
                 await message.answer("Введите код отправленный вам админом")
-            else:
+            elif response.status == 200:
                 await state.set_state(AdminState.ADMIN_CODE)
                 await message.answer("Введите код отправленный вам админом")
 
 
 @router.message(TGRegister.PHONE_NUMBER)
 async def validate_phone_num(message: Message, state: FSMContext):
-    phone_number = message.text.strip()
-    cleaned_number = re.sub(r"[^0-9]", "", phone_number)
+    phone_number = message.text
+    phone_contact = message.contact.phone_number
+    if phone_number:
+        cleaned_number = re.sub(r"[^0-9]", "", phone_number.strip())
+    elif phone_contact:
+        cleaned_number = re.sub(r"[^0-9]", "", phone_contact.strip())
+    else:
+        await message.answer("Это не номер телефона.", reply_markup=phone_share_num)
+        return
     if len(cleaned_number) == 11:
         cleaned_number = cleaned_number[1:]
     if len(cleaned_number) == 10:
@@ -112,16 +113,21 @@ async def validate_phone_num(message: Message, state: FSMContext):
             async with session.get(f"{BACKEND_URL}/check-num/{cleaned_number}") as resp:
                 if resp.status == 200:
                     name = resp.json()["message"]
-                    await state.set_data(name=name, num=cleaned_number)
+                    await state.set_data(num=cleaned_number, id=message.chat.id)
                     await message.answer(f"Ваше имя - {name}?", reply_markup=yes_no_kbd)
                     await state.set_state(TGRegister.FSP_CONFIRM)
                 elif resp.status == 204:
+                    await session.post(
+                        f"{BACKEND_URL}/pre-register", params={"num": cleaned_number, "id": message.chat.id}
+                    )
                     await message.answer(
                         "Для продолжения перейдите в МиниПриложение", reply_markup=register_miniapp_kbd
                     )
                     await state.clear()
     else:
-        await message.answer("Неверный формат номера телефона. Пожалуйста, введите номер еще раз.")
+        await message.answer(
+            "Неверный формат номера телефона. Пожалуйста, введите номер еще раз.", reply_markup=phone_share_num
+        )
         return
 
 
@@ -133,6 +139,8 @@ async def confirm_existing_fsp(message: Message, state: FSMContext):
         async with ClientSession() as session:
             await session.post(f"{BACKEND_URL}/link-number", params=data)
     elif text == "нет":
+        data = await state.get_data()
+        await session.post(f"{BACKEND_URL}/pre-register", params={"num": data["num"], "id": message.chat.id})
         await message.answer("Для продолжения перейдите в МиниПриложение", reply_markup=register_miniapp_kbd)
         await state.clear()
     else:

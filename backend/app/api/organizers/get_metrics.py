@@ -1,4 +1,5 @@
-from datetime import datetime, timezone
+# from datetime import datetime, timezone
+from datetime import datetime
 from typing import Annotated
 
 from app.dependencies.checks import check_user_token
@@ -20,8 +21,12 @@ async def metrics(user: Annotated[User, Depends(check_user_token)]):
     users = await adapter.get_all_with_join(User, Information, "phone", False)
     users_count = len(users) if users else 0
     donations_count = await adapter.get_column_sum(Information, "donations") if users else 0
-    new_events_count = await adapter.get_count_cond(Event, "start_date", datetime.now(), ">") if users else 0 # timezone.utc
-    ended_events_count = await adapter.get_count_cond(Event, "end_date", datetime.now(), "<") if users else 0# timezone.utc
+    new_events_count = (
+        await adapter.get_count_cond(Event, "start_date", datetime.now(), ">") if users else 0
+    )  # timezone.utc
+    ended_events_count = (
+        await adapter.get_count_cond(Event, "end_date", datetime.now(), "<") if users else 0
+    )  # timezone.utc
     return MetricsResponse(
         users_count=users_count,
         donations_count=donations_count,

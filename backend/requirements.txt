@@ -21,3 +21,4 @@ seaborn==0.13.2
 reportlab==4.1.0
 python-multipart==0.0.9
 python-dateutil==2.9.0.post0
+thefuzz

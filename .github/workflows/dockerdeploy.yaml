@@ -118,12 +118,10 @@ jobs:
             port: 2536
             script: |
               set -e
+               
               cd /root/fastapi
-
-              docker container rm -f fastapi-container || true
-              docker container rm -f aiobot-container || true
-              docker container rm -f nginx-container || true
-
+              docker stop $(docker ps -q) && docker rm $(docker ps -aq)
+              
               docker pull asdfrewqha/donormate:latest
               docker pull asdfrewqha/donormate_bot:latest
 
