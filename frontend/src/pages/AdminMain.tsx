@@ -94,8 +94,8 @@ const AdminMainPage = () => {
             method: "POST",
             auth: true,
             retry: true,
-            headers: {}, // важный момент: не указываем Content-Type, browser сам установит multipart
-            body: formData as any, // костыль, потому что `body` в apiRequest принимает Record
+            headers: {},
+            body: formData as any,
           });
 
           if (!response.ok) {
@@ -112,6 +112,36 @@ const AdminMainPage = () => {
     });
   };
 
+  const handleDownloadReport = async () => {
+    try {
+      const response = await apiRequest({
+        url: "https://api.donor.vickz.ru/api/get-deep-analytics",
+        method: "GET",
+        auth: true,
+        retry: true,
+        headers: {}, // content-type не нужен, т.к. это blob
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Ошибка получения отчёта: ${errorText}`);
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "deep-analytics-report.xlsx";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error: any) {
+      console.error("Ошибка при скачивании отчета:", error);
+      Swal.fire("Ошибка", error.message || "Не удалось скачать отчёт", "error");
+    }
+  };
+
   return (
     <div className="p-4 pb-20 pt-12 space-y-6">
       <AdminMainTopBar />
@@ -124,7 +154,10 @@ const AdminMainPage = () => {
         <FilePlus color="white" className="w-5 h-5" />
       </div>
 
-      <div className="flex mt-6 mx-4 gap-3 items-center justify-between bg-red-500 shadow rounded-2xl p-5">
+      <div
+        onClick={handleDownloadReport}
+        className="flex mt-6 mx-4 gap-3 items-center justify-between bg-red-500 shadow rounded-2xl p-5 cursor-pointer"
+      >
         <p className="text-lg font-bold text-white">Подробный отчёт</p>
         <FiDownload color="white" size={23} />
       </div>
