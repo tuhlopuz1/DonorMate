@@ -15,12 +15,6 @@ inline_miniapp_kbd = InlineKeyboardMarkup(
                 web_app=WebAppInfo(url=FRONTEND_URL),
             )
         ],
-        [
-            InlineKeyboardButton(
-                text="Открыть меню",
-                callback_data="menu",
-            )
-        ],
     ]
 )
 
@@ -32,8 +26,6 @@ register_miniapp_kbd = InlineKeyboardMarkup(
         [InlineKeyboardButton(text="Открыть МиниПриложение", web_app=WebAppInfo(url=f"{FRONTEND_URL}welcome"))]
     ]
 )
-
-menu_kbd = ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text="foo")]])
 
 phone_share_num = ReplyKeyboardMarkup(
     keyboard=[[KeyboardButton(text="Поделиться номером", request_contact=True)]],

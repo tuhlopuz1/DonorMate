@@ -30,17 +30,44 @@ async def register_on_event(user: Annotated[User, Depends(check_user_token)], ev
         eta2 = event.start_date - timedelta(days=1)
         eta3 = event.start_date - timedelta(days=3)
         eta4 = event.start_date - timedelta(days=7)
+        event_name = event.name if event.name is not None else ""
+        text1 = (
+            f"Ваша запись {event.name} активна прямо сейчас! Спешите!"
+            f"\nВам нужно подойти в Студенческий офис НИЯУ МИФИ"
+            "\nЕсли понадобится, на входе покажите организатору этот QR-код"
+        )
+        text2 = (
+            f'Ваша запись на мероприятие "{event_name}" состоится через час!'
+            "\nВам нужно подойти в Студенческий офис НИЯУ МИФИ"
+            "\nДля связи с организатором пишите в этот чат интересующие вас вопросы,"
+            "либо воспользуйтесь формой в МиниПриложении"
+            "\nЕсли понадобится, на входе покажите организатору этот QR-код"
+        )
+        text3 = (
+            f"Ваша запись на мероприятие {event_name} состоится уже завтра!"
+            "\nВам нужно подойти в Студенческий офис НИЯУ МИФИ"
+            "\nДля связи с организатором пишите в этот чат интересующие вас вопросы,"
+            "либо воспользуйтесь формой в МиниПриложении"
+        )
+        text4 = (
+            f"Ваша запись на мероприятие {event_name} состоится через три дня!"
+            "\nНапоминаем, что за двое суток до сдачи нельзя принимать алкоголь,"
+            "\nа так же необходимо отказаться от любых лекарств (в т. ч. анальгетиков),"
+            "\nДля связи с организатором пишите в этот чат интересующие вас вопросы,"
+            "либо воспользуйтесь формой в МиниПриложении"
+        )
+        text5 = (
+            f"Ваша запись на мероприятие {event_name} состоится через неделю."
+            "\nВам нужно подойти в Студенческий офис НИЯУ МИФИ"
+            "\nДля связи с организатором пишите в этот чат интересующие вас вопросы,"
+            "либо воспользуйтесь формой в МиниПриложении"
+        )
         expiration = (event.end_date - now).total_seconds()
         access_qr_token = TokenManager.encode_qr_token({"iss": str(user.id), "sub": str(registration.id)}, expiration)
-        event_name = event.name if event.name is not None else ""
         if eta1 < now and event.end_date > now:
             schedule_telegram_qr.apply_async(
                 kwargs={
-                    "text": (
-                        f"Ваша запись {event.name} активна прямо сейчас! Спешите!",
-                        f"\nВам нужно подойти в {event.place}",
-                        "\nЕсли понадобится, на входе покажите организатору этот QR-код",
-                    ),
+                    "text": text1,
                     "chat_id": user.id,
                     "reg_id": registration.id,
                     "data": access_qr_token,
@@ -49,19 +76,13 @@ async def register_on_event(user: Annotated[User, Depends(check_user_token)], ev
             )
             await adapter.insert(
                 Notification,
-                {"user_id": user.id, "type": NotificationEnum.ERROR, "content": "lol"},
+                {"user_id": user.id, "type": NotificationEnum.ERROR, "content": text1},
             )
         if notif and user.notifications_bool:
             if eta1 > now:
                 schedule_telegram_qr.apply_async(
                     kwargs={
-                        "text": (
-                            f'Ваша запись на мероприятие "{event_name}" состоится через час!',
-                            f"\nПодойдите в: {event.place}, ",
-                            "\nДля связи с организатором пишите в этот чат интересующие вас вопросы,",
-                            "либо воспользуйтесь формой в МиниПриложении"
-                            "\nЕсли понадобится, на входе покажите организатору этот QR-код",
-                        ),
+                        "text": text2,
                         "chat_id": user.id,
                         "reg_id": registration.id,
                         "data": access_qr_token,
@@ -70,17 +91,12 @@ async def register_on_event(user: Annotated[User, Depends(check_user_token)], ev
                 )
                 await adapter.insert(
                     Notification,
-                    {"user_id": user.id, "type": NotificationEnum.WARNING, "date_to_valid": eta1, "content": "lol"},
+                    {"user_id": user.id, "type": NotificationEnum.WARNING, "date_to_invalid": eta1, "content": text2},
                 )
             if eta2 > now:
                 schedule_telegram_message.apply_async(
                     kwargs={
-                        "text": (
-                            f"Ваша запись на мероприятие {event_name} состоится уже завтра!",
-                            f"\nПриходить в: {event.place}, ",
-                            "\nДля связи с организатором пишите в этот чат интересующие вас вопросы,",
-                            "либо воспользуйтесь формой в МиниПриложении",
-                        ),
+                        "text": text3,
                         "chat_id": user.id,
                         "reg_id": registration.id,
                     },
@@ -88,18 +104,12 @@ async def register_on_event(user: Annotated[User, Depends(check_user_token)], ev
                 )
                 await adapter.insert(
                     Notification,
-                    {"user_id": user.id, "type": NotificationEnum.INFO, "date_to_valid": eta2, "content": "lol"},
+                    {"user_id": user.id, "type": NotificationEnum.INFO, "date_to_invalid": eta2, "content": text3},
                 )
             if eta3 > now:
                 schedule_telegram_message.apply_async(
                     kwargs={
-                        "text": (
-                            f"Ваша запись на мероприятие {event_name} состоится через три дня!",
-                            "\nНапоминаем, что за двое суток до сдачи нельзя принимать алкоголь,",
-                            "\nа так же необходимо отказаться от любых лекарств (в т. ч. анальгетиков),",
-                            "\nДля связи с организатором пишите в этот чат интересующие вас вопросы,",
-                            "либо воспользуйтесь формой в МиниПриложении",
-                        ),
+                        "text": text4,
                         "chat_id": user.id,
                         "reg_id": registration.id,
                     },
@@ -107,17 +117,12 @@ async def register_on_event(user: Annotated[User, Depends(check_user_token)], ev
                 )
                 await adapter.insert(
                     Notification,
-                    {"user_id": user.id, "type": NotificationEnum.INFO, "date_to_valid": eta3, "content": "lol"},
+                    {"user_id": user.id, "type": NotificationEnum.INFO, "date_to_invalid": eta3, "content": text4},
                 )
             if eta4 > now:
                 schedule_telegram_message.apply_async(
                     kwargs={
-                        "text": (
-                            f"Ваша запись на мероприятие {event_name} состоится через неделю.",
-                            f"\nПриходите в: {event.place}, будем ждать!",
-                            "\nДля связи с организатором пишите в этот чат интересующие вас вопросы,",
-                            "либо воспользуйтесь формой в МиниПриложении",
-                        ),
+                        "text": text5,
                         "chat_id": user.id,
                         "reg_id": registration.id,
                     },
@@ -125,7 +130,7 @@ async def register_on_event(user: Annotated[User, Depends(check_user_token)], ev
                 )
                 await adapter.insert(
                     Notification,
-                    {"user_id": user.id, "type": NotificationEnum.INFO, "date_to_valid": eta4, "content": "lol"},
+                    {"user_id": user.id, "type": NotificationEnum.INFO, "date_to_invalid": eta4, "content": text5},
                 )
     await adapter.update_by_id(Event, event_id, {"registred": event.registred + 1})
     return okresponse(str(registration.id))
