@@ -22,7 +22,7 @@ const AdminReportPage = () => {
     try {
       const response = await apiRequest({
         url: `https://api.donor.vickz.ru/api/send-message/${userId}`,
-        method: "GET",
+        method: "POST",
         params: { msg: message },
         auth: true,
       });
