@@ -15,7 +15,7 @@ router = APIRouter()
 async def send_message_to_all_users(user: Annotated[User, Depends(check_user_token)], msg: MesagePayload):
     if not user:
         return badresponse("Unauthorized", 401)
-    if user.role == Role.ADMIN:
+    if user.role != Role.ADMIN:
         return badresponse("Forbidden", 403)
     users = await adapter.get_all(User)
     for user in users:
