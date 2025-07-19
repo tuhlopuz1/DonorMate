@@ -15,6 +15,6 @@ async def get_profile(user: Annotated[User, Depends(check_user_token)]):
     if not user:
         return badresponse("Unauthorized", 401)
 
-    user_info = await adapter.get_by_id_with_join(User, Information, user.id, "id", isouter=False)
+    user_info = await adapter.get_by_id(Information, user.id)
     response_data = ProfileResponse.model_validate(user_info)
     return ProfileResponse(**response_data)
