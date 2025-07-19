@@ -36,18 +36,8 @@ const About: React.FC = () => {
                 <HeartPulse className="w-5 h-5 text-blue-600" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-1">500+ доноров</h3>
-                <p className="text-gray-600">Ежемесячно участвуют в акциях через наш сервис</p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-4">
-              <div className="bg-blue-100 p-2 rounded-full flex-shrink-0">
-                <Clock className="w-5 h-5 text-blue-600" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-1">90% экономии времени</h3>
-                <p className="text-gray-600">Автоматизация рутинных процессов для организаторов</p>
+                <h3 className="text-lg font-semibold text-gray-900 mb-1">400+ доноров</h3>
+                <p className="text-gray-600">Участвуют в акциях через наш сервис</p>
               </div>
             </div>
 
@@ -56,7 +46,7 @@ const About: React.FC = () => {
                 <Users className="w-5 h-5 text-blue-600" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-1">15+ учебных заведений</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-1"></h3>
                 <p className="text-gray-600">Уже используют наше решение для донорских акций</p>
               </div>
             </div>
@@ -85,14 +75,14 @@ const About: React.FC = () => {
               <div className="bg-blue-600 text-white font-bold rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-1">
                 1
               </div>
-              <p className="text-gray-700">Студент регистрируется на донорскую акцию через бота</p>
+              <p className="text-gray-700">Студент регистрируется в боте чере Telegram</p>
             </div>
             
             <div className="flex gap-4">
               <div className="bg-blue-600 text-white font-bold rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-1">
                 2
               </div>
-              <p className="text-gray-700">Система автоматически проверяет медицинские противопоказания</p>
+              <p className="text-gray-700">Студент выбирает мероприятие в личном кабинете</p>
             </div>
             
             <div className="flex gap-4">
