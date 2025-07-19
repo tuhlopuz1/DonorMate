@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
+import BottomNavBar from "../components/layouts/NavBar";
 import AdminPageTopBar from "../components/layouts/AdminPageTopBar";
-import { FiMessageSquare, FiTrash2, FiSend } from "react-icons/fi";
-import { MessageCircleQuestion } from "lucide-react";
-import AdminBottomNavBar from "../components/layouts/AdminNavBar";
+import { FiMessageSquare, FiTrash2, FiSend, FiCalendar } from "react-icons/fi";
+import apiRequest from "../components/utils/apiRequest";
+
 interface Question {
   id: string;
-  userId: string;
-  text: string;
+  user_id: number;
+  question: string;
 }
 
 const AdminReportPage = () => {
@@ -21,21 +22,21 @@ const AdminReportPage = () => {
   const fetchQuestions = async () => {
     try {
       setLoading(true);
-      // Здесь будет реальный GET запрос к вашему API
-      // const response = await fetch('/api/questions');
-      // const data = await response.json();
-      
-      // Заглушка для демонстрации
-      const mockData: Question[] = [
-        { id: "1", userId: "user123", text: "Как мне зарегистрироваться  на мероприятие?" },
-        { id: "2", userId: "user456", text: "Где будет проходить день донора?" },
-        { id: "3", userId: "user789", text: "Нужно ли приносить свои документы?" },
-      ];
-      
-      setQuestions(mockData);
+      const response = await apiRequest({
+        url: "https://api.donor.vickz.ru/api/ask-question",
+        method: "GET",
+        auth: true,
+      });
+
+      if (!response.ok) {
+        throw new Error("Не удалось загрузить вопросы");
+      }
+
+      const data: Question[] = await response.json();
+      setQuestions(data);
       setLoading(false);
     } catch (err) {
-      setError("Не удалось загрузить вопросы");
+      setError(err instanceof Error ? err.message : "Неизвестная ошибка");
       setLoading(false);
     }
   };
@@ -47,16 +48,20 @@ const AdminReportPage = () => {
   // Функция для удаления вопроса
   const handleDeleteQuestion = async (questionId: string) => {
     try {
-      // Здесь будет реальный DELETE запрос к вашему API
-      // await fetch(`/api/questions/${questionId}`, { method: 'DELETE' });
-      
-      // Заглушка для демонстрации
-      console.log(`Deleting question with ID: ${questionId}`);
-      
+      const response = await apiRequest({
+        url: `https://api.donor.vickz.ru/api/delete-question/${questionId}`,
+        method: "DELETE",
+        auth: true,
+      });
+
+      if (!response.ok) {
+        throw new Error("Не удалось удалить вопрос");
+      }
+
       // Обновляем список вопросов
-      setQuestions(questions.filter(q => q.id !== questionId));
+      setQuestions(questions.filter((q) => q.id !== questionId));
     } catch (err) {
-      setError("Не удалось удалить вопрос");
+      setError(err instanceof Error ? err.message : "Не удалось удалить вопрос");
     }
   };
 
@@ -67,30 +72,20 @@ const AdminReportPage = () => {
     try {
       // 1. Удаляем вопрос
       await handleDeleteQuestion(currentQuestion.id);
-      
-      // 2. Отправляем уведомление пользователю
-      // Здесь будет реальный POST запрос к вашему API
-      // await fetch('/api/notifications', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({
-      //     userId: currentQuestion.userId,
-      //     message: answerText
-      //   })
-      // });
-      
-      // Заглушка для демонстрации
-      console.log(`Sending answer to user ${currentQuestion.userId}: ${answerText}`);
-      
+
+      // 2. Отправляем уведомление пользователю (заглушка)
+      console.log(`Отправка уведомления пользователю ${currentQuestion.user_id}: ${answerText}`);
+      // В реальном приложении здесь будет вызов API для отправки уведомления
+
       // Закрываем модальное окно и сбрасываем состояние
       setAnswerModalOpen(false);
       setCurrentQuestion(null);
       setAnswerText("");
-      
+
       // Обновляем список вопросов
       await fetchQuestions();
     } catch (err) {
-      setError("Не удалось отправить ответ");
+      setError(err instanceof Error ? err.message : "Не удалось отправить ответ");
     }
   };
 
@@ -103,7 +98,7 @@ const AdminReportPage = () => {
   if (loading) {
     return (
       <div className="pt-10 pb-14">
-        <AdminPageTopBar title="Ответы на вопросы" icon={<MessageCircleQuestion size={20} />} />
+        <AdminPageTopBar title="Вопросы от пользователей" icon={<FiCalendar size={20} />} />
         <div className="p-6 mt-14 text-center">Загрузка...</div>
       </div>
     );
@@ -112,7 +107,7 @@ const AdminReportPage = () => {
   if (error) {
     return (
       <div className="pt-10 pb-14">
-        <AdminPageTopBar title="Расписание мероприятий" icon={<MessageCircleQuestion size={20} />} />
+        <AdminPageTopBar title="Вопросы от пользователей" icon={<FiCalendar size={20} />} />
         <div className="p-6 mt-14 text-center text-red-500">{error}</div>
       </div>
     );
@@ -120,7 +115,7 @@ const AdminReportPage = () => {
 
   return (
     <div className="pt-10 pb-14">
-      <AdminPageTopBar title="Расписание мероприятий" icon={<MessageCircleQuestion size={20} />} />
+      <AdminPageTopBar title="Вопросы от пользователей" icon={<FiCalendar size={20} />} />
 
       {/* Список вопросов */}
       <div className="flex flex-col gap-4 p-6 mt-14">
@@ -128,11 +123,11 @@ const AdminReportPage = () => {
           <p className="text-center text-gray-500">Нет вопросов для отображения</p>
         ) : (
           questions.map((question) => (
-            <div 
+            <div
               key={question.id}
               className="p-4 border border-gray-200 rounded-lg shadow-sm"
             >
-              <p className="text-gray-800 mb-3">{question.text}</p>
+              <p className="text-gray-800 mb-3">{question.question}</p>
               <div className="flex justify-end gap-2">
                 <button
                   onClick={() => openAnswerModal(question)}
@@ -159,7 +154,7 @@ const AdminReportPage = () => {
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded-lg w-full max-w-md mx-4">
             <h3 className="text-lg font-medium mb-4">Ответ на вопрос</h3>
-            <p className="text-gray-700 mb-2">{currentQuestion?.text}</p>
+            <p className="text-gray-700 mb-2">{currentQuestion?.question}</p>
             <textarea
               value={answerText}
               onChange={(e) => setAnswerText(e.target.value)}
@@ -190,7 +185,7 @@ const AdminReportPage = () => {
         </div>
       )}
 
-      <AdminBottomNavBar />
+      <BottomNavBar />
     </div>
   );
 };

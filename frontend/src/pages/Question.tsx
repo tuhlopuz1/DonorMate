@@ -2,14 +2,40 @@ import { useState } from "react";
 import { Phone } from "lucide-react";
 import PageTopBar from "../components/layouts/PageTopBar";
 import { MessageCircleQuestion } from "lucide-react";
+import apiRequest from "../components/utils/apiRequest";
 
 export default function AskOrganizers() {
   const [question, setQuestion] = useState("");
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (question.trim()) {
+      const answer = "";
+      const body = {
+        question,
+        answer,
+      };
+
       alert("Ваш вопрос отправлен!");
       setQuestion("");
+      try {
+          const response = await apiRequest({
+            url: 'https://api.donor.vickz.ru/api/ask-question',
+            method: 'POST',
+            body,
+            auth: true,
+        });
+
+        if (response.ok) {
+          window.location.href = '/#/main';
+        } else {
+          const errorData = await response.json();
+          console.error('Ошибка при отправке:', errorData);
+          alert('Не удалось отправить анкету. Проверьте данные.');
+        }
+      }
+      catch (err) {
+        alert("Ошибка при отправке запроса");
+    }
     }
   };
 
@@ -28,7 +54,7 @@ export default function AskOrganizers() {
             <Phone className="w-4 h-4" />
             Срочный вопрос? Позвоните:{" "}
             <a
-              href="tel:+79991234567"
+              href="tel:+7 929 654 8310"
               className="text-blue-600 hover:underline font-medium"
             >
               +7 (999) 123-45-67
