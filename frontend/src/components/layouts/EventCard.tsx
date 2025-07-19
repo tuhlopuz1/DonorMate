@@ -39,6 +39,7 @@ const EventCard: React.FC<EventCardProps> = ({
     is_registred,
     place,
   } = event;
+
   console.log(location)
   const startDate = new Date(start_date);
   const endDate = new Date(end_date);
@@ -178,8 +179,12 @@ const EventCard: React.FC<EventCardProps> = ({
     });
   };
 
+  const handleDetailsClick = () => {
+    window.location.href = `/#/event/${id}`;
+  };
+
   return (
-    <div onClick={() => {window.location.href = '/#/event/'+id}}
+    <div
       className={`bg-white rounded-2xl p-6 w-full max-w-md border shadow ${
         isPastEvent ? "border-gray-200 bg-gray-50 opacity-70" : "border-gray-100"
       }`}
@@ -202,6 +207,13 @@ const EventCard: React.FC<EventCardProps> = ({
       <div className="text-sm text-gray-600 mb-4">{description}</div>
 
       <div className="flex flex-col gap-3 justify-between">
+        <button
+          className="bg-gray-100 text-gray-800 px-4 py-2 rounded-xl text-sm hover:bg-gray-200 transition"
+          onClick={handleDetailsClick}
+        >
+          Подробнее
+        </button>
+
         {!is_registred && !isPastEvent && (
           <button
             className={`font-medium px-4 py-2 rounded-xl text-sm transition ${

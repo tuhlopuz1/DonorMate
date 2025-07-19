@@ -49,7 +49,7 @@ const UserProfilePage = () => {
     setError(null);
 
     apiRequest({
-      url: `/api/get-user/${id}`,
+      url: `https://api.donor.vickz.ru/api/get-user/${id}`,
       auth: true,
       method: "GET",
     })
