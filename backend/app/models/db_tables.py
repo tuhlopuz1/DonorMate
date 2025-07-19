@@ -118,4 +118,3 @@ class Questions(Base):
     id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
     user_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("users.id", ondelete="CASCADE"))
     question: Mapped[str] = mapped_column(String, nullable=False)
-    answer: Mapped[str] = mapped_column(String, nullable=True)

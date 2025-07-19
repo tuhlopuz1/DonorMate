@@ -134,6 +134,5 @@ class RoleMetricsResponse(BaseModel):
     const_donors_count: int
 
 
-class QAPayload(BaseModel):
+class QuestionPayload(BaseModel):
     question: Optional[str] = None
-    answer: Optional[str] = None
