@@ -18,4 +18,4 @@ async def create_event(user: Annotated[User, Depends(check_user_token)], event: 
         return badresponse("Forbidden", 403)
     event_dict = EventPayload.model_dump(event)
     new_event = await adapter.insert(Event, event_dict)
-    return okresponse(new_event.id)
+    return okresponse(str(new_event.id))

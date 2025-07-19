@@ -12,8 +12,8 @@ async def register_telegram_user(user: TelegramUserInfoPayload):
     existing_user = await adapter.get_by_id(User, user.user_id)
     if existing_user:
         return okresponse()
-    if not user.username and not user.tg_name:
+    if not user.phone:
         return badresponse()
-    new_user = {"id": user.user_id, "username": user.username, "telegram_name": user.tg_name}
+    new_user = {"id": user.user_id, "phone": user.phone}
     await adapter.insert(User, new_user)
     return okresponse(201)

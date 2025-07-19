@@ -2,17 +2,10 @@ import datetime
 import os
 import tempfile
 from io import BytesIO
-from typing import Dict
+from typing import Dict, List
 
 import matplotlib
 import matplotlib.pyplot as plt
-from app.models.db_tables import (
-    Event,
-    Information,
-    MedicalExemption,
-    Registration,
-    User,
-)
 from app.models.schemas import Role
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
@@ -124,53 +117,44 @@ if "StatValue" not in styles:
     )
 
 
-class AdminAnalyticsReportGenerator:
-    def __init__(self, adapter):
+class OrganizerAnalyticsReportGenerator:
+    def __init__(self, adapter, organizer_id):
         self.adapter = adapter
+        self.organizer_id = organizer_id
         self.temp_dir = tempfile.mkdtemp()
         self.report_data = {}
 
     async def collect_data(self):
-        """Сбор и обработка данных для аналитического отчета"""
-        await self._collect_user_stats()
+        """Сбор и обработка данных для аналитического отчета организатора"""
         await self._collect_event_stats()
         await self._collect_donor_stats()
         await self._collect_registration_stats()
         await self._collect_medical_exemption_stats()
-        await self._collect_organizer_stats()
 
-    async def _collect_user_stats(self):
-        """Сбор статистики по пользователям"""
-        # Общее количество пользователей
-        users = await self.adapter.get_all(User)
-        self.report_data["total_users"] = len(users)
+    async def _get_organizer_events(self) -> List:
+        """Получение мероприятий организатора"""
+        return await self.adapter.get_by_value("Event", "organizer", self.organizer_id)
 
-        # Распределение по ролям
-        roles_count = {}
-        for user in users:
-            role = user.role.value
-            roles_count[role] = roles_count.get(role, 0) + 1
-        self.report_data["roles_distribution"] = roles_count
-
-        # Динамика регистрации
-        reg_dynamics = {}
-        for user in users:
-            month_key = user.created_at.strftime("%Y-%m")
-            reg_dynamics[month_key] = reg_dynamics.get(month_key, 0) + 1
-
-        # Сортировка по дате
-        sorted_dynamics = sorted(reg_dynamics.items(), key=lambda x: x[0])
-        self.report_data["registration_dynamics"] = sorted_dynamics
+    async def _get_organizer_registrations(self) -> List:
+        """Получение регистраций на мероприятия организатора"""
+        events = await self._get_organizer_events()
+        event_ids = [event.id for event in events]
+        
+        registrations = []
+        for event_id in event_ids:
+            event_regs = await self.adapter.get_by_value("Registration", "event_id", event_id)
+            registrations.extend(event_regs)
+            
+        return registrations
 
     async def _collect_event_stats(self):
-        """Сбор статистики по мероприятиям"""
-        # Общее количество мероприятий
-        events = await self.adapter.get_all(Event)
+        """Сбор статистики по мероприятиям организатора"""
+        events = await self._get_organizer_events()
         total_events = len(events)
         self.report_data["total_events"] = total_events
 
         # Статистика по завершенным/текущим мероприятиям
-        now = datetime.now()
+        now = datetime.datetime.now()
         past_events = 0
         upcoming_events = 0
         total_occupancy = 0
@@ -196,76 +180,41 @@ class AdminAnalyticsReportGenerator:
         self.report_data["avg_occupancy"] = total_occupancy / total_events if total_events else 0
 
     async def _collect_donor_stats(self):
-        """Сбор статистики по донорам"""
-        # Получаем всех пользователей-доноров
-        donors = await self.adapter.get_by_value(User, "role", Role.DONOR)
+        """Сбор статистики по донорам организатора"""
+        registrations = await self._get_organizer_registrations()
+        donor_ids = {reg.user_id for reg in registrations}
+        
+        donors = []
+        for donor_id in donor_ids:
+            donor = await self.adapter.get_by_id("User", donor_id)
+            if donor:
+                donors.append(donor)
 
-        # Собираем информацию о донорах
-        genders = {}
-        ages = []
-        weights = []
-        universities = {}
-        donor_experience = {}
-        chronic_disease_count = 0
-
+        # Собираем информацию о донациях
+        donations = []
         for donor in donors:
-            info = await self.adapter.get_by_id(Information, donor.id)
-            if not info:
-                continue
+            info = await self.adapter.get_by_id("Information", donor.phone)
+            if info:
+                donations.append(info.donations)
+            else:
+                donations.append(0)
 
-            # Пол
-            gender = info.gender.value
-            genders[gender] = genders.get(gender, 0) + 1
-
-            # Возраст
-            today = datetime.today()
-            age = (
-                today.year
-                - info.birth_date.year
-                - ((today.month, today.day) < (info.birth_date.month, info.birth_date.day))
-            )
-            ages.append(age)
-
-            # Вес
-            weights.append(info.weight)
-
-            # Университет
-            if info.university:
-                universities[info.university] = universities.get(info.university, 0) + 1
-
-            # Опыт донорства
-            experience = info.donor_earlier.value
-            donor_experience[experience] = donor_experience.get(experience, 0) + 1
-
-            # Хронические заболевания
-            if info.chronic_disease:
-                chronic_disease_count += 1
-
-        # Категоризация возрастов и весов
-        age_distribution = self._categorize_ages(ages)
-        weight_distribution = self._categorize_weights(weights)
-
-        # Топ университетов
-        sorted_universities = sorted(universities.items(), key=lambda x: x[1], reverse=True)[:10]
-        top_universities = {uni: count for uni, count in sorted_universities}
+        # Категоризация донаций
+        donation_distribution = self._categorize_donations(donations)
 
         # Сохранение статистик
-        self.report_data["gender_distribution"] = genders
-        self.report_data["age_distribution"] = age_distribution
-        self.report_data["weight_distribution"] = weight_distribution
-        self.report_data["university_distribution"] = top_universities
-        self.report_data["donor_experience"] = donor_experience
-        self.report_data["chronic_disease_percentage"] = (chronic_disease_count / len(donors)) * 100 if donors else 0
+        self.report_data["total_donors"] = len(donors)
+        self.report_data["donation_distribution"] = donation_distribution
+        self.report_data["avg_donations"] = sum(donations) / len(donors) if donors else 0
 
     async def _collect_registration_stats(self):
-        """Сбор статистики по регистрациям"""
-        # Общее количество регистраций
-        registrations = await self.adapter.get_all(Registration)
+        """Сбор статистики по регистрациям организатора"""
+        registrations = await self._get_organizer_registrations()
         total_registrations = len(registrations)
         self.report_data["total_registrations"] = total_registrations
 
         # Подсчет закрытых регистраций
-        closed_registrations = await self.adapter.get_by_value(Registration, "closed", True)
+        closed_registrations = [reg for reg in registrations if reg.closed]
         closed_count = len(closed_registrations)
 
         # Конверсия регистраций
@@ -283,13 +232,19 @@ class AdminAnalyticsReportGenerator:
         self.report_data["registration_hours"] = hours
 
     async def _collect_medical_exemption_stats(self):
-        """Сбор статистики по медицинским отводам"""
-        # Общее количество отводов
-        exemptions = await self.adapter.get_all(MedicalExemption)
+        """Сбор статистики по медицинским отводам доноров организатора"""
+        registrations = await self._get_organizer_registrations()
+        donor_ids = {reg.user_id for reg in registrations}
+        
+        exemptions = []
+        for donor_id in donor_ids:
+            donor_exemptions = await self.adapter.get_by_value("MedicalExemption", "user_id", donor_id)
+            exemptions.extend(donor_exemptions)
+
         total_exemptions = len(exemptions)
         self.report_data["total_exemptions"] = total_exemptions
 
-        # Длительность отводов
+        # Длительность отводов (только для отводов с указанной датой окончания)
         durations = []
         for exemption in exemptions:
             if exemption.end_date:
@@ -298,63 +253,37 @@ class AdminAnalyticsReportGenerator:
 
         self.report_data["exemption_durations"] = durations
 
-    async def _collect_organizer_stats(self):
-        """Сбор статистики по организаторам"""
-        # Получаем все мероприятия
-        events = await self.adapter.get_all(Event)
-
-        # Считаем количество мероприятий по организаторам
-        organizer_counts = {}
-        for event in events:
-            organizer_id = event.organizer
-            organizer_counts[organizer_id] = organizer_counts.get(organizer_id, 0) + 1
-
-        # Сортируем по убыванию и берем топ 10
-        sorted_organizers = sorted(organizer_counts.items(), key=lambda x: x[1], reverse=True)[:10]
-        self.report_data["top_organizers"] = sorted_organizers
-
-    def _categorize_ages(self, ages: list) -> Dict[str, int]:
-        """Категоризация возрастов"""
-        bins = [18, 25, 30, 35, 40, 45, 50, 55, 100]
-        labels = ["18-25", "26-30", "31-35", "36-40", "41-45", "46-50", "51-55", "55+"]
-        distribution = {label: 0 for label in labels}
-
-        for age in ages:
-            if age < 18:
-                continue
-            for i, upper_bound in enumerate(bins[1:]):
-                if age < upper_bound:
-                    distribution[labels[i]] += 1
-                    break
+    def _categorize_donations(self, donations: list) -> Dict[str, int]:
+        """Категоризация количества донаций"""
+        categories = {
+            "0": 0,
+            "1": 0,
+            "2-5": 0,
+            "6-10": 0,
+            "11-20": 0,
+            "20+": 0
+        }
+        
+        for count in donations:
+            if count == 0:
+                categories["0"] += 1
+            elif count == 1:
+                categories["1"] += 1
+            elif 2 <= count <= 5:
+                categories["2-5"] += 1
+            elif 6 <= count <= 10:
+                categories["6-10"] += 1
+            elif 11 <= count <= 20:
+                categories["11-20"] += 1
             else:
-                distribution[labels[-1]] += 1
-
-        return distribution
-
-    def _categorize_weights(self, weights: list) -> Dict[str, int]:
-        """Категоризация весов"""
-        bins = [0, 50, 55, 60, 65, 70, 75, 80, 85, 90, 100, 150]
-        labels = ["<50", "50-54", "55-59", "60-64", "65-69", "70-74", "75-79", "80-84", "85-89", "90-99", "100+"]
-        distribution = {label: 0 for label in labels}
-
-        for weight in weights:
-            if weight < 50:
-                distribution["<50"] += 1
-                continue
-
-            for i, upper_bound in enumerate(bins[1:]):
-                if weight < upper_bound:
-                    distribution[labels[i + 1]] += 1
-                    break
-            else:
-                distribution["100+"] += 1
-
-        return distribution
+                categories["20+"] += 1
+                
+        return categories
 
     def generate_pdf_report(self) -> str:
-        """Генерация PDF отчета"""
-        report_id = datetime.now().strftime("%Y%m%d%H%M%S")
-        pdf_path = os.path.join(self.temp_dir, f"admin_report_{report_id}.pdf")
+        """Генерация PDF отчета организатора"""
+        report_id = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+        pdf_path = os.path.join(self.temp_dir, f"organizer_report_{self.organizer_id}_{report_id}.pdf")
 
         doc = SimpleDocTemplate(
             pdf_path,
@@ -370,19 +299,15 @@ class AdminAnalyticsReportGenerator:
         self._create_cover_page(elements)
         elements.append(PageBreak())
 
-        # Статистика пользователей
-        self._create_user_stats_page(elements)
+        # Статистика мероприятий
+        self._create_event_stats_page(elements)
         elements.append(PageBreak())
 
         # Статистика доноров
         self._create_donor_stats_page(elements)
         elements.append(PageBreak())
 
-        # Статистика мероприятий
-        self._create_event_stats_page(elements)
-        elements.append(PageBreak())
-
-        # Статистика регистраций и организаторов
+        # Статистика регистраций
         self._create_registration_stats_page(elements)
 
         # Сборка документа
@@ -391,16 +316,16 @@ class AdminAnalyticsReportGenerator:
 
     def _create_cover_page(self, elements):
         """Создание титульной страницы"""
-        elements.append(Paragraph("АНАЛИТИЧЕСКИЙ ОТЧЕТ ДЛЯ АДМИНИСТРАТОРОВ", styles["Title"]))
+        elements.append(Paragraph(f"АНАЛИТИЧЕСКИЙ ОТЧЕТ ОРГАНИЗАТОРА #{self.organizer_id}", styles["Title"]))
         elements.append(Spacer(1, 1 * cm))
-        elements.append(Paragraph("Полный анализ системы донорства", styles["Heading2"]))
+        elements.append(Paragraph("Анализ мероприятий и участников", styles["Heading2"]))
         elements.append(Spacer(1, 2 * cm))
 
         # Ключевые метрики
         metrics = [
-            ("Общее количество пользователей", self.report_data.get("total_users", 0)),
             ("Общее количество мероприятий", self.report_data.get("total_events", 0)),
-            ("Общее количество регистраций", self.report_data.get("total_registrations", 0)),
+            ("Уникальных доноров", self.report_data.get("total_donors", 0)),
+            ("Всего регистраций", self.report_data.get("total_registrations", 0)),
             ("Активных медицинских отводов", self.report_data.get("total_exemptions", 0)),
         ]
 
@@ -423,81 +348,7 @@ class AdminAnalyticsReportGenerator:
 
         elements.append(metrics_table)
         elements.append(Spacer(1, 3 * cm))
-        elements.append(Paragraph(f"Сгенерировано {datetime.now().strftime('%d.%m.%Y %H:%M')}", styles["Caption"]))
-
-    def _create_user_stats_page(self, elements):
-        """Страница статистики пользователей"""
-        elements.append(Paragraph("СТАТИСТИКА ПОЛЬЗОВАТЕЛЕЙ", styles["Title"]))
-        elements.append(Spacer(1, 0.5 * cm))
-
-        # Распределение ролей
-        elements.append(Paragraph("Распределение по ролям", styles["Heading2"]))
-        self._create_pie_chart(
-            elements, self.report_data.get("roles_distribution", {}), "Распределение ролей пользователей"
-        )
-
-        # Динамика регистраций
-        elements.append(Spacer(1, 0.5 * cm))
-        elements.append(Paragraph("Динамика регистраций", styles["Heading2"]))
-        self._create_registration_dynamics_chart(elements)
-
-        # Таблица распределения ролей
-        roles_data = [["Роль", "Количество"]]
-        for role, count in self.report_data.get("roles_distribution", {}).items():
-            roles_data.append([role, str(count)])
-
-        roles_table = Table(roles_data, colWidths=[8 * cm, 7 * cm])
-        roles_table.setStyle(
-            TableStyle(
-                [
-                    ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#2563eb")),
-                    ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-                    ("FONTNAME", (0, 0), (-1, 0), BOLD_FONT),
-                    ("BACKGROUND", (0, 1), (-1, -1), colors.white),
-                    ("GRID", (0, 0), (-1, -1), 1, colors.HexColor("#e2e8f0")),
-                    ("FONTNAME", (0, 1), (-1, -1), MAIN_FONT),
-                ]
-            )
-        )
-        elements.append(roles_table)
-
-    def _create_donor_stats_page(self, elements):
-        """Страница статистики доноров"""
-        elements.append(Paragraph("СТАТИСТИКА ДОНОРОВ", styles["Title"]))
-        elements.append(Spacer(1, 0.5 * cm))
-
-        # Распределение по полу
-        elements.append(Paragraph("Распределение по полу", styles["Heading2"]))
-        self._create_pie_chart(
-            elements, self.report_data.get("gender_distribution", {}), "Распределение доноров по полу"
-        )
-
-        # Распределение по возрасту
-        elements.append(Spacer(1, 0.5 * cm))
-        elements.append(Paragraph("Распределение по возрасту", styles["Heading2"]))
-        self._create_bar_chart(
-            elements,
-            self.report_data.get("age_distribution", {}),
-            "Возрастные группы доноров",
-            "Возрастная группа",
-            "Количество",
-        )
-
-        # Распределение по весу
-        elements.append(Spacer(1, 0.5 * cm))
-        elements.append(Paragraph("Распределение по весу", styles["Heading2"]))
-        self._create_bar_chart(
-            elements,
-            self.report_data.get("weight_distribution", {}),
-            "Весовая категория доноров",
-            "Весовая группа (кг)",
-            "Количество",
-        )
-
-        # Опыт донорства
-        elements.append(Spacer(1, 0.5 * cm))
-        elements.append(Paragraph("Опыт донорства", styles["Heading2"]))
-        self._create_pie_chart(elements, self.report_data.get("donor_experience", {}), "Опыт донорства")
+        elements.append(Paragraph(f"Сгенерировано {datetime.datetime.now().strftime('%d.%m.%Y %H:%M')}", styles["Caption"]))
 
     def _create_event_stats_page(self, elements):
         """Страница статистики мероприятий"""
@@ -523,9 +374,30 @@ class AdminAnalyticsReportGenerator:
             )
         )
 
+    def _create_donor_stats_page(self, elements):
+        """Страница статистики доноров"""
+        elements.append(Paragraph("СТАТИСТИКА ДОНОРОВ", styles["Title"]))
+        elements.append(Spacer(1, 0.5 * cm))
+
+        # Основная статистика
+        elements.append(Paragraph("Общая статистика", styles["Heading2"]))
+        elements.append(Paragraph(f"Всего доноров: {self.report_data.get('total_donors', 0)}", styles["Body"]))
+        elements.append(Paragraph(f"Среднее количество донаций: {self.report_data.get('avg_donations', 0):.1f}", styles["Body"]))
+        elements.append(Spacer(1, 0.5 * cm))
+
+        # Распределение по количеству донаций
+        elements.append(Paragraph("Распределение по количеству донаций", styles["Heading2"]))
+        self._create_bar_chart(
+            elements,
+            self.report_data.get("donation_distribution", {}),
+            "Количество донаций у доноров",
+            "Количество донаций",
+            "Количество доноров",
+        )
+
     def _create_registration_stats_page(self, elements):
-        """Страница статистики регистраций и организаторов"""
-        elements.append(Paragraph("РЕГИСТРАЦИИ И ОРГАНИЗАТОРЫ", styles["Title"]))
+        """Страница статистики регистраций"""
+        elements.append(Paragraph("СТАТИСТИКА РЕГИСТРАЦИЙ", styles["Title"]))
         elements.append(Spacer(1, 0.5 * cm))
 
         # Конверсия регистраций
@@ -543,29 +415,6 @@ class AdminAnalyticsReportGenerator:
             "Час дня",
             "Количество регистраций",
         )
-
-        # Топ организаторов
-        elements.append(Spacer(1, 0.5 * cm))
-        elements.append(Paragraph("Топ организаторов", styles["Heading2"]))
-
-        org_data = [["ID Организатора", "Количество мероприятий"]]
-        for org_id, count in self.report_data.get("top_organizers", [])[:5]:
-            org_data.append([str(org_id), str(count)])
-
-        org_table = Table(org_data, colWidths=[8 * cm, 7 * cm])
-        org_table.setStyle(
-            TableStyle(
-                [
-                    ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#2563eb")),
-                    ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-                    ("FONTNAME", (0, 0), (-1, 0), BOLD_FONT),
-                    ("BACKGROUND", (0, 1), (-1, -1), colors.white),
-                    ("GRID", (0, 0), (-1, -1), 1, colors.HexColor("#e2e8f0")),
-                    ("FONTNAME", (0, 1), (-1, -1), MAIN_FONT),
-                ]
-            )
-        )
-        elements.append(org_table)
 
     # Методы для создания графиков
     def _create_pie_chart(self, elements, data_dict, title):
@@ -603,7 +452,7 @@ class AdminAnalyticsReportGenerator:
         plt.title(title, fontsize=14)
         plt.xlabel(xlabel, fontsize=12)
         plt.ylabel(ylabel, fontsize=12)
-        plt.xticks(rotation=45, fontsize=10)
+        plt.xticks(fontsize=10)
         plt.yticks(fontsize=10)
 
         # Добавление значений на столбцы
@@ -649,42 +498,10 @@ class AdminAnalyticsReportGenerator:
 
         elements.append(Image(buf, width=16 * cm, height=10 * cm))
 
-    def _create_registration_dynamics_chart(self, elements):
-        """Создание графика динамики регистраций"""
-        dynamics = self.report_data.get("registration_dynamics", [])
-        if not dynamics:
-            return
 
-        dates, counts = zip(*dynamics)
-
-        # Увеличиваем размер диаграммы
-        plt.figure(figsize=(16, 8))
-        plt.plot(dates, counts, marker="o", linestyle="-", color="#2563eb", linewidth=2, markersize=8)
-        plt.title("Динамика регистраций пользователей", fontsize=14)
-        plt.xlabel("Месяц", fontsize=12)
-        plt.ylabel("Количество регистраций", fontsize=12)
-        plt.grid(True, linestyle="--", alpha=0.7)
-        plt.xticks(rotation=45, fontsize=10)
-        plt.yticks(fontsize=10)
-
-        # Добавление значений в точки
-        for i, count in enumerate(counts):
-            plt.text(
-                i, count + max(counts) * 0.05, str(count), ha="center", va="bottom", fontsize=10, fontweight="bold"
-            )
-
-        plt.tight_layout()
-        buf = BytesIO()
-        plt.savefig(buf, format="png", dpi=150, bbox_inches="tight")
-        plt.close()
-        buf.seek(0)
-
-        elements.append(Image(buf, width=18 * cm, height=10 * cm))
-
-
-async def generate_admin_report(adapter):
-    """Генерация аналитического отчета для администратора"""
-    report_generator = AdminAnalyticsReportGenerator(adapter)
+async def generate_organizer_report(adapter, organizer_id):
+    """Генерация аналитического отчета для организатора"""
+    report_generator = OrganizerAnalyticsReportGenerator(adapter, organizer_id)
     await report_generator.collect_data()
     report_path = report_generator.generate_pdf_report()
     return report_path
