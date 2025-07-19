@@ -202,7 +202,6 @@ class UserLoader(BaseDataLoader):
             "user_class": user_class,
             "donations_gaur": self._safe_int(row.get("Кол-во Гаврилова", 0)),
             "donations_fmba": self._safe_int(row.get("Кол-во ФМБА", 0)),
-            "donations_total": self._safe_int(row.get("Сумма", 0)),
             "last_don_gaur": last_don_gaur,
             "last_don_fmba": last_don_fmba,
         }
@@ -224,7 +223,8 @@ class DonationLoader(BaseDataLoader):
             "users_updated": 0,
             "donations_added": 0,
             "events_created": 0,
-            "registrations_added": 0
+            "registrations_added": 0,
+            "errors": 0
         }
     
     async def load_data(self) -> Dict:
@@ -308,7 +308,6 @@ class DonationLoader(BaseDataLoader):
                 update_data["last_don_fmba"] = donation_date
         
         if update_data:
-            update_data["donations_total"] = (info.donations_gaur or 0) + (info.donations_fmba or 0) + 1
             await self.adapter.update_by_id(Information, user.phone, update_data)
             self.stats["donations_added"] += 1
 
