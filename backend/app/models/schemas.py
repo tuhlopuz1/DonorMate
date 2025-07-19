@@ -50,7 +50,7 @@ class ProfileResponse(BaseModel):
     fsp: str
     group: str
     user_class: UserClass
-    social: str
+    social: Optional[str] = None
     donations_fmba: int
     donations_gaur: int
     donations: Optional[int] = None
