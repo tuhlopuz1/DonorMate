@@ -22,6 +22,7 @@ from reportlab.platypus import (
     Table,
     TableStyle,
 )
+import pytz  # Добавлен импорт pytz
 
 # ======================
 # FONT SETUP FOR CYRILLIC
@@ -153,30 +154,33 @@ class OrganizerAnalyticsReportGenerator:
         self.report_data["total_events"] = total_events
 
         # Статистика по завершенным/текущим мероприятиям
-        now = datetime.now()
+        # Исправлено: теперь now - aware datetime в UTC
+        now = datetime.now(pytz.utc)
         past_events = 0
         upcoming_events = 0
         total_occupancy = 0
 
         for event in events:
-            if event.end_date < now:
+            # Приводим даты к одному типу (aware) перед сравнением
+            end_date = event.end_date
+            if not end_date.tzinfo:
+                end_date = pytz.utc.localize(end_date)
+                
+            if end_date < now:
                 past_events += 1
             else:
                 upcoming_events += 1
 
-            if event.max_donors > 0:
-                occupancy = (event.registred / event.max_donors) * 100
-                total_occupancy += occupancy
 
         self.report_data["past_events"] = past_events
         self.report_data["upcoming_events"] = upcoming_events
 
         # Среднее количество доноров на мероприятие
-        avg_donors = sum(event.max_donors for event in events) / total_events if total_events else 0
-        self.report_data["avg_donors_per_event"] = avg_donors
+        # avg_donors = sum(event.id for event in events) / total_events if total_events else 0
+        # self.report_data["avg_donors_per_event"] = avg_donors
 
-        # Процент заполняемости мероприятий
-        self.report_data["avg_occupancy"] = total_occupancy / total_events if total_events else 0
+        # # Процент заполняемости мероприятий
+        # self.report_data["avg_occupancy"] = total_occupancy / total_events if total_events else 0
 
     async def _collect_donor_stats(self):
         """Сбор статистики по донорам организатора"""
@@ -247,7 +251,16 @@ class OrganizerAnalyticsReportGenerator:
         durations = []
         for exemption in exemptions:
             if exemption.end_date:
-                duration = (exemption.end_date - exemption.start_date).days
+                # Приводим даты к одному типу перед вычислением разницы
+                start = exemption.start_date
+                end = exemption.end_date
+                
+                if start.tzinfo is None:
+                    start = pytz.utc.localize(start)
+                if end.tzinfo is None:
+                    end = pytz.utc.localize(end)
+                    
+                duration = (end - start).days
                 durations.append(duration)
 
         self.report_data["exemption_durations"] = durations
