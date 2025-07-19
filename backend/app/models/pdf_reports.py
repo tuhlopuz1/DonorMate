@@ -198,6 +198,7 @@ class OrganizerAnalyticsReportGenerator:
         for donor in donors:
             info = await self.adapter.get_by_value(Information, "phone", donor.phone)
             if info:
+                info = info[0]
                 donations.append(info.donations_fmba + info.donations_gaur)
             else:
                 donations.append(0)
