@@ -127,6 +127,5 @@ class RoleMetricsResponse(BaseModel):
     const_donors_count_gaur: int
 
 
-class QAPayload(BaseModel):
+class QuestionPayload(BaseModel):
     question: Optional[str] = None
-    answer: Optional[str] = None
