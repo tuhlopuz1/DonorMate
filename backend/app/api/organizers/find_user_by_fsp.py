@@ -10,7 +10,7 @@ from fastapi import APIRouter, Depends
 router = APIRouter()
 
 
-@router.get("/find-user", response_model=list(ProfileResponse))
+@router.get("/find-user", response_model=list[ProfileResponse])
 async def find_user(user: Annotated[User, Depends(check_user_token)], fsp: str):
     if not user:
         return badresponse("Unauthorized", 401)
