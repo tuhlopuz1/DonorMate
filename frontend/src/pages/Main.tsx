@@ -9,22 +9,9 @@ import { MessageCircleQuestion, Info } from "lucide-react";
 import apiRequest from "../components/utils/apiRequest";
 
 interface UserProfile {
-  user_id: number;
-  username: string;
-  tg_name: string;
-  role: string;
-  created_at: string;
-  fullname: string;
-  surname: string;
-  patronymic: string;
-  birth_date: string;
-  gender: "MALE" | "FEMALE";
-  university: string;
-  group: string;
-  weight: number;
-  chronic_disease: boolean;
-  medical_exemption: boolean;
-  donor_earlier: "YES" | "NO";
+  fsp: string
+  donations: number
+  phone: number
 }
 
 const MainPage = () => {
@@ -47,6 +34,7 @@ const MainPage = () => {
 
             if (!res.ok) throw new Error("Ошибка при получении профиля");
             const data: UserProfile = await res.json();
+            localStorage.setItem('phone', data.phone.toString())
             setUser(data);
         } catch (error) {
             console.error("Ошибка загрузки профиля:", error);
@@ -55,7 +43,7 @@ const MainPage = () => {
         }
         }
         fetchUserProfile();
-    }
+    }, []
     );
 
 
@@ -70,10 +58,10 @@ const MainPage = () => {
                 :
             (
                 <div className="h-auto bg-blue-600 p-6">
-                    <p className="text-2xl text-white font-sans font-bold"> {"Привет, " + user?.fullname + "!"}
+                    <p className="text-2xl text-white font-sans font-bold"> {"Привет, " + user?.fsp + "!"}
                 </p>
                     <div className="flex flex-col items-center bg-blue-400/50 rounded-xl my-6 pt-8">
-                        <h1 className="text-4xl font-sans font-bold text-white">7</h1>
+                        <h1 className="text-4xl font-sans font-bold text-white">{user?.donations}</h1>
                         <p className="text-white/75 pb-8">донаций</p>
                     </div>
                 </div>)

@@ -1,6 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import logo from '../assets/donor_logo.jpg';
 import apiRequest from '../components/utils/apiRequest';
+
+// Валидация ФИО: только кириллица и пробелы
+const isValidFullname = (name: string) => /^[А-Яа-яЁё\s]+$/.test(name.trim());
 
 export default function UserSurvey() {
   const [fullname, setFullname] = useState('');
@@ -8,10 +11,55 @@ export default function UserSurvey() {
   const [group, setGroup] = useState('');
   const [consent, setConsent] = useState(false);
 
+  // Получение токенов при загрузке страницы
+  useEffect(() => {
+    const tg = (window as any)?.Telegram?.WebApp;
+    const initData = tg?.initData;
+    if (localStorage.getItem('phone')) {
+      if (localStorage.getItem('role') == 'DONOR') {
+        window.location.href = '/#/main'
+      }
+      if (localStorage.getItem('role') == 'ADMIN') {
+        window.location.href = '/#/admin/main'
+      }
+    }
+    if (!initData) {
+      console.warn('initData не найдено');
+      return;
+    }
+
+      const formData = new URLSearchParams();
+      formData.append('initData', tg.initData);
+
+    const fetchTokens = async () => {
+      try {
+        const response = await fetch('https://api.donor.vickz.ru/api/get-token', {
+          method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: formData,
+        });
+
+        if (!response.ok) throw new Error('Не удалось получить токены');
+
+        const data = await response.json();
+        localStorage.setItem('access_token', data.access);
+        localStorage.setItem('refresh_token', data.refresh);
+      } catch (err) {
+        console.error('Ошибка получения токенов:', err);
+        alert('Ошибка авторизации через Telegram.');
+      }
+    };
+
+    fetchTokens();
+  }, []);
+
   const isFormValid = () => {
     const nameParts = fullname.trim().split(' ');
     return (
       nameParts.length >= 2 &&
+      isValidFullname(fullname) &&
       role &&
       (role !== 'Студент МИФИ' || group.trim() !== '') &&
       consent
@@ -21,16 +69,10 @@ export default function UserSurvey() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const nameParts = fullname.trim().split(' ');
-    const [surname = '', name = '', patronymic = ''] = nameParts;
-
     const body = {
-      fullname,
-      surname,
-      name,
-      patronymic,
-      role,
-      group: role === 'Студент МИФИ' ? group : '',
+      fsp: fullname.trim(),
+      group: role === 'Студент МИФИ' ? group.trim() : '',
+      user_class: role,
     };
 
     try {
@@ -54,8 +96,6 @@ export default function UserSurvey() {
     }
   };
 
-  console.log(handleSubmit)
-
   return (
     <div className="flex flex-col items-center min-h-screen px-6 py-12">
       <img src={logo} alt="МИФИ" className="w-28 h-28 mb-8 drop-shadow-md animate-fade-in" />
@@ -66,7 +106,7 @@ export default function UserSurvey() {
 
       <form
         className="w-full max-w-md space-y-5 animate-fade-in-slow"
-        onSubmit={() => {window.location.href = '/#/main'}}
+        onSubmit={handleSubmit}
       >
         <input
           type="text"
@@ -74,7 +114,11 @@ export default function UserSurvey() {
           value={fullname}
           onChange={(e) => setFullname(e.target.value)}
           required
-          className="w-full px-4 py-3 rounded-xl border border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-sm"
+          className={`w-full px-4 py-3 rounded-xl border ${
+            isValidFullname(fullname) || fullname === ''
+              ? 'border-blue-300'
+              : 'border-red-500'
+          } focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-sm`}
         />
 
         <select

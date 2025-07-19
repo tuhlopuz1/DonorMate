@@ -64,7 +64,7 @@ export default function App() {
           if (data.access && data.refresh) {
             localStorage.setItem('access_token', data.access);
             localStorage.setItem('refresh_token', data.refresh);
-
+            localStorage.setItem('role', data.role)
             // Теперь проверим, зарегистрирован ли пользователь
             const userId = userData.id;
             fetch(`https://api.donor.vickz.ru/api/is-registred/${userId}`, {
@@ -75,7 +75,13 @@ export default function App() {
             })
               .then((res) => {
                 if (res.status === 200) {
-                  window.location.href = '/#/main';
+                  if (localStorage.getItem('role') == 'DONOR'){
+                    window.location.href = '/#/main';
+                  }
+                  if (localStorage.getItem('role') == 'ADMIN') {
+                    window.location.href = '/#/admin/main';
+                  }
+
                 } else if (res.status === 204) {
                   window.location.href = '/#/welcome';
                 } else {

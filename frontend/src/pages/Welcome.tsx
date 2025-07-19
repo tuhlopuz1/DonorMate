@@ -1,6 +1,25 @@
 import logo from '../assets/donor_logo.jpg'
-
+import { useEffect } from 'react';
 export default function WelcomePage() {
+
+  useEffect(() => {
+      const tg = (window as any)?.Telegram?.WebApp;
+      const initData = tg?.initData;
+      if (localStorage.getItem('phone')) {
+        if (localStorage.getItem('role') == 'DONOR') {
+          window.location.href = '/#/main'
+        }
+        if (localStorage.getItem('role') == 'ADMIN') {
+          window.location.href = '/#/admin/main'
+        }
+      }
+      if (!initData) {
+        console.warn('initData не найдено');
+        return;
+      }
+    }, []);
+
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen px-6 text-center">
       {/* Логотип */}

@@ -14,7 +14,7 @@ function getRefreshToken(): string | null {
 }
 
 async function refreshToken(): Promise<string> {
-    const response = await fetch('https://api.donor.vickz.ru/api/v2/refresh', {
+    const response = await fetch('https://api.donor.vickz.ru/api/refresh', {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -96,7 +96,7 @@ async function apiRequest({
             if (!window.location.href.endsWith('login')) {
                 localStorage.setItem('location_after_login', window.location.href);
             }
-            window.location.href = '/#/login';
+            window.location.href = '/#/';
             throw error;
         }
     }
