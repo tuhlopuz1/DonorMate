@@ -19,8 +19,8 @@ async def metrics(user: Annotated[User, Depends(check_user_token)]):
         return badresponse("Forbidden", 403)
     users = await adapter.get_all_with_join(User, Information, "phone", False)
     users_count = len(users) if users else 0
-    donations_fmba_count = await adapter.get_column_sum(Information, "donations") if users else 0
-    donations_gaur_count = await adapter.get_column_sum(Information, "donations") if users else 0
+    donations_fmba_count = await adapter.get_column_sum(Information, "donations_fmba_count") if users else 0
+    donations_gaur_count = await adapter.get_column_sum(Information, "donations_gaur_count") if users else 0
     donations_count = donations_fmba_count + donations_gaur_count
     new_events_count = (
         await adapter.get_count_cond(Event, "start_date", datetime.now(timezone.utc), ">") if users else 0
