@@ -72,7 +72,7 @@ async def register_on_event(user: Annotated[User, Depends(check_user_token)], ev
                     "reg_id": registration.id,
                     "data": access_qr_token,
                 },
-                countdown=0.0,
+                eta=now,
             )
             await adapter.insert(
                 Notification,
