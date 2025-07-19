@@ -9,12 +9,11 @@ from app.models.pdf_reports import generate_organizer_report
 from app.models.schemas import Role
 from app.models.s3_adapter import S3HttpxSigV4Adapter
 from fastapi import APIRouter, Depends
-from fastapi.responses import FileResponse
 
 router = APIRouter()
 
 
-@router.get("/get-deep-analytics", response_class=FileResponse)
+@router.get("/get-deep-analytics")
 async def get_deep_analytics(
     user: Annotated[User, Depends(check_user_token)],
 ):
