@@ -79,7 +79,6 @@ class Event(Base):
     place: Mapped[Place] = mapped_column(Enum(Place))
     organizer: Mapped[int] = mapped_column(BigInteger, ForeignKey("users.id", ondelete="CASCADE"))
     description: Mapped[str] = mapped_column(Text, nullable=False)
-    max_donors: Mapped[int] = mapped_column(Integer, nullable=False)
     registred: Mapped[int] = mapped_column(Integer, default=0)
     start_date: Mapped[datetime] = mapped_column(DateTime)
     end_date: Mapped[datetime] = mapped_column(DateTime)

@@ -13,8 +13,8 @@ class Role(Enum):
 
 
 class Place(Enum):
-    FMBA = "г. Москва, ул. Щукинская д. 6, корп. 2"
-    GAUR = "г. Москва, ул. Поликарпова, д. 14, корп. 2"
+    FMBA = "ЦК ФМБА"
+    GAUR = "ЦК им. Гаврилова"
 
 
 class UserClass(Enum):
@@ -56,12 +56,11 @@ class ProfileResponse(BaseModel):
 
 class EventPayload(BaseModel):
     name: Optional[str] = None
-    max_donors: int
     start_date: datetime
     end_date: datetime
     organizer: int
     description: str
-    place: str
+    place: Place
 
 
 class EventResponse(BaseModel):
@@ -69,11 +68,24 @@ class EventResponse(BaseModel):
     name: str
     description: str
     organizer: int
-    max_donors: int
     registred: int
     start_date: datetime
     end_date: datetime
     created_at: datetime
+
+
+class EventSchema(BaseModel):
+    id: UUID
+    name: str
+    description: str
+    organizer: int
+    registred: int
+    start_date: datetime
+    end_date: datetime
+    created_at: datetime
+    is_registred: bool = False
+
+    model_config = {"from_attributes": True}
 
 
 class MedicalExemptionResponse(BaseModel):
