@@ -41,6 +41,7 @@ class PostRegisterPayload(BaseModel):
     fsp: str
     group: Optional[str] = None
     user_class: UserClass
+    social: str
 
 
 class ProfileResponse(BaseModel):
@@ -49,6 +50,7 @@ class ProfileResponse(BaseModel):
     fsp: str
     group: str
     user_class: UserClass
+    social: str
     donations_fmba: int
     donations_gaur: int
     donations: Optional[int] = None
@@ -70,6 +72,7 @@ class EventResponse(BaseModel):
     id: UUID
     name: str
     description: str
+    place: Place
     registred: int
     start_date: datetime
     end_date: datetime
@@ -80,6 +83,7 @@ class EventSchema(BaseModel):
     id: UUID
     name: str
     description: str
+    place: Place
     registred: int
     start_date: datetime
     end_date: datetime
@@ -95,7 +99,16 @@ class MedicalExemptionResponse(BaseModel):
 
 
 class UpdateInfoPayload(BaseModel):
-    fullname: Optional[str] = None
+    phone: Optional[int] = None
+    fsp: Optional[str] = None
+    group: Optional[str] = None
+    user_class: Optional[UserClass] = None
+    social: Optional[str] = None
+    donations_fmba: Optional[int] = None
+    donations_gaur: Optional[int] = None
+    donations: Optional[int] = None
+    last_don_gaur: Optional[datetime] = None
+    last_don_fmba: Optional[datetime] = None
 
 
 class DonorResponse(BaseModel):

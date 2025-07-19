@@ -58,6 +58,7 @@ class Information(Base):
     fsp: Mapped[str] = mapped_column(String, primary_key=True)
     group: Mapped[str] = mapped_column(String, nullable=True)
     user_class: Mapped[UserClass] = mapped_column(Enum(UserClass), default=UserClass.STU)
+    social: Mapped[str] = mapped_column(String, nullable=True)
     donations_fmba: Mapped[int] = mapped_column(Integer, default=0)
     donations_gaur: Mapped[int] = mapped_column(Integer, default=0)
     last_don_fmba: Mapped[datetime] = mapped_column(DateTime, nullable=True)

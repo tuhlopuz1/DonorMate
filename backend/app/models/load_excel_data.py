@@ -1,7 +1,6 @@
 import logging
 import re
-
-# from datetime import datetime
+from datetime import datetime
 from io import BytesIO
 from typing import Dict, List, Optional, Tuple, Union
 
@@ -58,15 +57,22 @@ class DataLoader:
         fsp = str(row.get("ФИО", "")).strip()
         phone = str(row.get("Телефон", "")).strip()
         group = str(row.get("Группа", "")).strip()
-        # Обработка дат
-        # last_donation_gavrilov = self._parse_date(row.get("Дата последней донации Гаврилова"))
-        # last_donation_fmba = self._parse_date(row.get("Дата последней донации ФМБА"))
-        # Обработка числовых значений
-        # donations_gavrilov = self._safe_int(row.get("Кол-во Гаврилова"))
-        # donations_fmba = self._safe_int(row.get("Кол-во ФМБА"))
-        donations = self._safe_int(row.get("Сумма"))
+        social = str(row.get("Контакты соцсети", "")).strip()
+        last_don_gaur = self._parse_date(row.get("Дата последней донации Гаврилова"))
+        last_don_fmba = self._parse_date(row.get("Дата последней донации ФМБА"))
+        donations_gaur = self._safe_int(row.get("Кол-во Гаврилова"))
+        donations_fmba = self._safe_int(row.get("Кол-во ФМБА"))
 
-        info_data = {"phone": phone, "fsp": fsp, "group": group, "donations": donations}
+        info_data = {
+            "phone": phone,
+            "fsp": fsp,
+            "group": group,
+            "social": social,
+            "donations_gaur": donations_gaur,
+            "donations_fmba": donations_fmba,
+            "last_don_gaur": last_don_gaur,
+            "last_don_fmba": last_don_fmba,
+        }
 
         return info_data
 
@@ -76,30 +82,30 @@ class DataLoader:
         except (ValueError, TypeError):
             return 0
 
-    # def _parse_date(self, date_val):
-    #     if not date_val or pd.isna(date_val):
-    #         return None
-    #     if isinstance(date_val, datetime):
-    #         return date_val.date()
-    #     if isinstance(date_val, str):
-    #         date_str = date_val.strip()
-    #         if "-" in date_str and len(date_str) > 7:
-    #             return None
-    #         if len(date_str) == 4 and date_str.isdigit():
-    #             return datetime(int(date_str), 1, 1).date()
+    def _parse_date(self, date_val):
+        if not date_val or pd.isna(date_val):
+            return None
+        if isinstance(date_val, datetime):
+            return date_val.date()
+        if isinstance(date_val, str):
+            date_str = date_val.strip()
+            if "-" in date_str and len(date_str) > 7:
+                return None
+            if len(date_str) == 4 and date_str.isdigit():
+                return datetime(int(date_str), 1, 1).date()
 
-    #         date_str = date_str.replace('/', '.').replace('-', '.')
+            date_str = date_str.replace("/", ".").replace("-", ".")
 
-    #         for fmt in self.DATE_FORMATS:
-    #             try:
-    #                 return datetime.strptime(date_str, fmt).date()
-    #             except ValueError:
-    #                 continue
+            for fmt in self.DATE_FORMATS:
+                try:
+                    return datetime.strptime(date_str, fmt).date()
+                except ValueError:
+                    continue
 
-    #     try:
-    #         return datetime.fromordinal(datetime(1900, 1, 1).toordinal() + int(date_val) - 2).date()
-    #     except (ValueError, TypeError):
-    #         return None
+        try:
+            return datetime.fromordinal(datetime(1900, 1, 1).toordinal() + int(date_val) - 2).date()
+        except (ValueError, TypeError):
+            return None
 
     def _clean_phone(self, phone: Optional[str]) -> Optional[str]:
         if not phone or pd.isna(phone):
