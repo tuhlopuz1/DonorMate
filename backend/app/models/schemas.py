@@ -58,7 +58,6 @@ class EventPayload(BaseModel):
     name: Optional[str] = None
     start_date: datetime
     end_date: datetime
-    organizer: int
     description: str
     place: Place
 
