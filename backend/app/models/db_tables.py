@@ -5,6 +5,7 @@ from uuid import UUID, uuid4
 import inflect
 from app.models.schemas import Place, Role, UserClass
 from sqlalchemy import (
+    TIMESTAMP,
     BigInteger,
     Boolean,
     Date,
@@ -80,8 +81,8 @@ class Event(Base):
     organizer: Mapped[int] = mapped_column(BigInteger, ForeignKey("users.id", ondelete="CASCADE"))
     description: Mapped[str] = mapped_column(Text, nullable=False)
     registred: Mapped[int] = mapped_column(Integer, default=0)
-    start_date: Mapped[datetime] = mapped_column(DateTime)
-    end_date: Mapped[datetime] = mapped_column(DateTime)
+    start_date: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True))
+    end_date: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True))
     created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
 
     registrations_list: Mapped[list["Registration"]] = relationship(
