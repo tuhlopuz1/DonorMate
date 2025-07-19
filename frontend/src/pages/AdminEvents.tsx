@@ -1,17 +1,9 @@
-// pages/AdminEventPage.tsx
-import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-
-import AdminPageTopBar from "../components/layouts/AdminPageTopBar";
+import { useEffect, useState } from "react";
+import AdminBottomNavBar from "../components/layouts/AdminNavBar";
 import AdminEventCard from "../components/layouts/AdminEventCard";
+import AdminPageTopBar from "../components/layouts/AdminPageTopBar";
+import { FiCalendar, FiDownload, FiPlus } from "react-icons/fi";
 import apiRequest from "../components/utils/apiRequest";
-
-import { MdEvent } from "react-icons/md";
-import { ScanLine } from "lucide-react";
-import Swal from "sweetalert2";
-import withReactContent from "sweetalert2-react-content";
-
-const MySwal = withReactContent(Swal);
 
 type EventData = {
   id: string;
@@ -25,136 +17,114 @@ type EventData = {
   is_registred: boolean;
 };
 
-const AdminEventPage: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
-  const [event, setEvent] = useState<EventData | null>(null);
+const AdminEventsPage = () => {
+  const [activeTab, setActiveTab] = useState<"upcoming" | "past">("upcoming");
+  const [events, setEvents] = useState<EventData[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchEvent = async () => {
+    const fetchEvents = async () => {
       try {
         const response = await apiRequest({
           url: "https://api.donor.vickz.ru/api/get-all-events",
-          method: "GET",
           auth: true,
         });
 
-        const events: EventData[] = await response.json();
-        const matchedEvent = events.find((e) => e.id === id);
-
-        if (matchedEvent) {
-          setEvent(matchedEvent);
-        } else {
-          Swal.fire("Ошибка", "Мероприятие не найдено", "error");
+        if (!response.ok) {
+          throw new Error("Ошибка при загрузке мероприятий");
         }
-      } catch (err) {
-        console.error(err);
-        Swal.fire("Ошибка", "Не удалось загрузить мероприятие", "error");
+
+        const data: EventData[] = await response.json();
+        setEvents(data);
+      } catch (error) {
+        console.error("Ошибка загрузки мероприятий:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    if (id) {
-      fetchEvent();
-    }
-  }, [id]);
+    fetchEvents();
+  }, []);
 
-  const isToday = (eventDate: string) => {
-    const today = new Date();
-    const eventD = new Date(eventDate);
-    return (
-      today.getFullYear() === eventD.getFullYear() &&
-      today.getMonth() === eventD.getMonth() &&
-      today.getDate() === eventD.getDate()
-    );
-  };
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
-  const handleSendBroadcast = async () => {
-    const { value: formValues } = await MySwal.fire({
-      title: "Рассылка участникам",
-      html: `
-        <textarea id="message-text" class="swal2-textarea" placeholder="Введите сообщение"></textarea>
-        <select id="recipient-type" class="swal2-select" style="margin-top: 10px">
-          <option value="registered">Зарегистрированные участники</option>
-          <option value="registered-not-attended">Зарегистрированные, не пришли</option>
-          <option value="attended">Те, кто пришёл</option>
-          <option value="not-registered">Не зарегистрированные</option>
-        </select>
-      `,
-      focusConfirm: false,
-      showCancelButton: true,
-      confirmButtonText: "Отправить рассылку",
-      preConfirm: () => {
-        const message = (
-          document.getElementById("message-text") as HTMLTextAreaElement
-        )?.value;
-        const recipient = (
-          document.getElementById("recipient-type") as HTMLSelectElement
-        )?.value;
+  const upcomingEvents = events.filter(
+    (event) => new Date(event.start_date) >= today
+  );
 
-        if (!message || !recipient) {
-          Swal.showValidationMessage("Пожалуйста, заполните все поля.");
-          return;
-        }
-
-        return { message, recipient };
-      },
-    });
-
-    if (formValues && event) {
-      try {
-        console.log("Сообщение:", formValues.message);
-        console.log("Кому отправить:", formValues.recipient);
-
-        // Здесь можно отправить рассылку
-        // await apiRequest({
-        //   url: `https://api.donor.vickz.ru/api/send-broadcast/${event.id}`,
-        //   method: "POST",
-        //   body: {
-        //     message: formValues.message,
-        //     recipient: formValues.recipient,
-        //   },
-        //   auth: true,
-        // });
-
-        MySwal.fire("Успешно!", "Рассылка отправлена.", "success");
-      } catch (error) {
-        console.error(error);
-        MySwal.fire("Ошибка", "Не удалось отправить рассылку", "error");
-      }
-    }
-  };
-
-  if (loading || !event) {
-    return <div className="p-6 text-gray-600">Загрузка мероприятия...</div>;
-  }
+  const pastEvents = events.filter(
+    (event) => new Date(event.start_date) < today
+  );
 
   return (
-    <div className="p-6 pt-16 max-w-2xl mx-auto">
-      <AdminPageTopBar title="Страница мероприятия" icon={<MdEvent size={20} />} />
+    <div className="pt-10 pb-14">
+      <AdminPageTopBar
+        title="Расписание мероприятий"
+        icon={<FiCalendar size={20} />}
+      />
 
-      <AdminEventCard event={event} totalSpots={20} />
+      <div className="flex mt-6 mx-4 gap-3 items-center justify-between bg-blue-500 shadow rounded-2xl p-5">
+        <p className="text-lg font-bold text-white">Экспорт данных в XLSX</p>
+        <FiDownload color="white" size={23} />
+      </div>
 
-      {isToday(event.start_date) && event.is_registred ? (
-        <div className="flex justify-between items-center mt-6 bg-blue-600 text-white px-4 py-2 rounded-xl text-sm">
-          <p>Отметить участника по QR-коду</p>
-          <ScanLine />
-        </div>
-      ) : (
-        <div></div>
-      )}
+      <div
+        className="flex mt-6 mx-4 gap-3 items-center justify-between bg-white shadow rounded-2xl p-5 cursor-pointer"
+        onClick={() => {
+          window.location.href = "/#/admin/create-event";
+        }}
+      >
+        <p className="text-lg font-bold text-black">Новое мероприятие</p>
+        <FiPlus size={23} />
+      </div>
 
-      <div className="mt-6">
+      <div className="w-full flex justify-center mt-4 border-b border-gray-300 bg-white">
         <button
-          onClick={handleSendBroadcast}
-          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-xl text-sm"
+          onClick={() => setActiveTab("upcoming")}
+          className={`px-6 py-2 font-medium ${
+            activeTab === "upcoming"
+              ? "border-b-2 border-red-600 text-red-600"
+              : "text-gray-500"
+          }`}
         >
-          Сделать рассылку
+          Предстоящие
+        </button>
+        <button
+          onClick={() => setActiveTab("past")}
+          className={`px-6 py-2 font-medium ${
+            activeTab === "past"
+              ? "border-b-2 border-red-600 text-red-600"
+              : "text-gray-500"
+          }`}
+        >
+          Завершённые
         </button>
       </div>
+
+      <div className="flex flex-col gap-6 p-6">
+        {loading ? (
+          <p>Загрузка мероприятий...</p>
+        ) : activeTab === "upcoming" ? (
+          upcomingEvents.length ? (
+            upcomingEvents.map((event) => (
+              <AdminEventCard key={event.id} event={event} />
+            ))
+          ) : (
+            <p>Нет предстоящих мероприятий</p>
+          )
+        ) : pastEvents.length ? (
+          pastEvents.map((event) => (
+            <AdminEventCard key={event.id} event={event} />
+          ))
+        ) : (
+          <p>Нет завершённых мероприятий</p>
+        )}
+      </div>
+
+      <AdminBottomNavBar />
     </div>
   );
 };
 
-export default AdminEventPage;
+export default AdminEventsPage;
