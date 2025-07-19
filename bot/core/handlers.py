@@ -1,15 +1,14 @@
 import logging
 import re
 
-from aiogram import F, Router
+from aiogram import Router
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
-from aiogram.types import CallbackQuery, Message
+from aiogram.types import Message
 from aiohttp import ClientSession
 from core.config import ADMIN_IDS, BACKEND_URL
 from core.keyboards import (
     inline_miniapp_kbd,
-    menu_kbd,
     phone_share_num,
     register_miniapp_kbd,
     yes_no_kbd,
@@ -28,7 +27,7 @@ async def handle_start(message: Message, state: FSMContext):
     async with ClientSession() as session:
         async with session.get(f"{BACKEND_URL}/is-registred/{message.chat.id}") as resp:
             if resp.status == 200:
-                await message.answer("Выберите действие:", reply_markup=inline_miniapp_kbd)
+                await message.answer("Открыть МиниПриложение:", reply_markup=inline_miniapp_kbd)
             elif resp.status == 204:
                 await message.answer(
                     text=(
@@ -40,35 +39,6 @@ async def handle_start(message: Message, state: FSMContext):
                 await state.set_state(TGRegister.PHONE_NUMBER)
 
 
-@router.message(Command("menu"))
-async def open_menu_command(message: Message, state: FSMContext):
-    async with ClientSession() as session:
-        response = await session.get(f"{BACKEND_URL}/is-registred/{message.chat.id}")
-        if response.status == 200:
-            await message.answer("Выберите пункт меню:", reply_markup=menu_kbd)
-        elif response.status == 204:
-            await message.answer(
-                "Для того чтобы перейти в меню введите свой номер телефона\n(или поделитесь им)",
-                reply_markup=phone_share_num,
-            )
-            await state.set_state(TGRegister.PHONE_NUMBER)
-
-
-@router.callback_query(F.data == "menu")
-async def open_menu(callback: CallbackQuery, state: FSMContext):
-    await callback.answer()
-    async with ClientSession() as session:
-        response = await session.get(f"{BACKEND_URL}/is-registred/{callback.message.chat.id}")
-        if response.status == 200:
-            await callback.message.answer("Выберите пункт меню:", reply_markup=menu_kbd)
-        elif response.status == 204:
-            await callback.message.answer(
-                "Для того чтобы перейти в меню введите свой номер телефона\n(или поделитесь им)",
-                reply_markup=phone_share_num,
-            )
-            await state.set_state(TGRegister.PHONE_NUMBER)
-
-
 @router.message(Command("code"))
 async def get_or_check_admin_code(message: Message, state: FSMContext):
     if message.chat.id in ADMIN_IDS:
@@ -76,7 +46,7 @@ async def get_or_check_admin_code(message: Message, state: FSMContext):
         await redis_adapter.set(f"admin_code:{code}", message.chat.id, expire=600)
         await message.answer(
             text=(
-                "Чтобы назначить кого-то админом, попросите ввести команду:\n"
+                "Чтобы назначить кого-то админом, используйте комманду \n"
                 "```/code```\n"
                 f"Затем введите этот код:\n```{code}```\n"
                 "_Код действителен в течение 10 минут_"
@@ -157,7 +127,10 @@ async def validate_code(message: Message, state: FSMContext):
             f"{BACKEND_URL}/set-organizer/{code}", headers={"Authorization": f"Bearer {token}"}
         ) as resp:
             if resp.status == 200:
-                await message.answer("Теперь вы организатор мероприятий.")
+                await message.answer(
+                    "Теперь вы организатор мероприятий. Нажмите на кнопку чтобы перейти в админ-панель.",
+                    reply_markup=inline_miniapp_kbd,
+                )
                 await state.clear()
             elif resp.status == 401:
                 await message.answer("Ошибка авторизации. Попробуйте снова")

@@ -140,12 +140,6 @@ class RoleMetricsResponse(BaseModel):
 class QuestionPayload(BaseModel):
     question: Optional[str] = None
 
+
 class MesagePayload(BaseModel):
     message: str
-
-class UserCreateSchema(BaseModel):
-    phone: int
-    role: Role
-    notifications_bool: bool
-    created_at: datetime
-    id: Optional[int] = None
