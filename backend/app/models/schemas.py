@@ -44,7 +44,7 @@ class PostRegisterPayload(BaseModel):
 
 class ProfileResponse(BaseModel):
     id: int
-    phone: str
+    phone: int
     fsp: str
     group: str
     user_class: UserClass
