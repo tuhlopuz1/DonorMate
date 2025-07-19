@@ -7,7 +7,6 @@ from aiogram.types import (
 )
 from core.config import FRONTEND_URL
 
-
 inline_miniapp_kbd = InlineKeyboardMarkup(
     inline_keyboard=[
         [
@@ -30,15 +29,11 @@ menu_kbd = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="foo
 
 register_miniapp_kbd = InlineKeyboardMarkup(
     inline_keyboard=[
-        [InlineKeyboardButton(text="Открыть МиниПриложение", web_app=WebAppInfo(url=f"{FRONTEND_URL}survey"))]
+        [InlineKeyboardButton(text="Открыть МиниПриложение", web_app=WebAppInfo(url=f"{FRONTEND_URL}welcome"))]
     ]
 )
 
-menu_kbd = ReplyKeyboardMarkup(
-    keyboard=[
-        [KeyboardButton(text="foo")]
-    ]
-)
+menu_kbd = ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text="foo")]])
 
 phone_share_num = ReplyKeyboardMarkup(
     keyboard=[[KeyboardButton(text="Поделиться номером", request_contact=True)]],

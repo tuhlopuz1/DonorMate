@@ -3,7 +3,7 @@ from typing import Optional
 from uuid import UUID, uuid4
 
 import inflect
-from app.models.schemas import Role
+from app.models.schemas import Role, UserClass
 from sqlalchemy import (
     BigInteger,
     Boolean,
@@ -57,6 +57,7 @@ class Information(Base):
     phone: Mapped[int] = mapped_column(BigInteger, nullable=True)
     fsp: Mapped[str] = mapped_column(String, primary_key=True)
     group: Mapped[str] = mapped_column(String, nullable=True)
+    user_class: Mapped[UserClass] = mapped_column(Enum(UserClass), default=UserClass.STU)
     donations: Mapped[int] = mapped_column(Integer, default=0)
 
     user: Mapped[Optional["User"]] = relationship(back_populates="info", uselist=False)

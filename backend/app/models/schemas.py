@@ -17,9 +17,10 @@ class Place(Enum):
     GAUR = "г. Москва, ул. Поликарпова, д. 14, корп. 2"
 
 
-class TelegramUserInfoPayload(BaseModel):
-    phone: int
-    user_id: int
+class UserClass(Enum):
+    EXT = "Внешний донор"
+    STU = "Студент МИФИ"
+    STF = "Сотрудник МИФИ"
 
 
 class InitDataPayload(BaseModel):
@@ -36,7 +37,9 @@ class RefreshResponse(BaseModel):
 
 
 class PostRegisterPayload(BaseModel):
-    fullname: str
+    fsp: str
+    group: Optional[str] = None
+    user_class: UserClass
 
 
 #     surname: str
@@ -141,6 +144,7 @@ class RoleMetricsResponse(BaseModel):
     admins_count: int
     donors_count: int
     const_donors_count: int
+
 
 class QAPayload(BaseModel):
     question: Optional[str] = None
