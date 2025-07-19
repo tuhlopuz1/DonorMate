@@ -1,8 +1,12 @@
 import { useEffect, useState } from "react";
 import BottomNavBar from "../components/layouts/NavBar";
 import PageTopBar from "../components/layouts/PageTopBar";
-import { FiUser, FiSettings } from "react-icons/fi";
+import { FiUser, FiTrash2 } from "react-icons/fi";
 import apiRequest from "../components/utils/apiRequest";
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
+
+const MySwal = withReactContent(Swal);
 
 interface Medotvod {
   medic_phone_num: string;
@@ -31,6 +35,8 @@ interface UserProfile {
   chronic_disease: boolean;
   medical_exemption: boolean;
   donor_earlier: "YES" | "NO";
+  phone: number;
+  fsp: string;
 }
 
 const ProfilePage = () => {
@@ -38,6 +44,8 @@ const ProfilePage = () => {
   const [medotvods, setMedotvods] = useState<Medotvod[]>([]);
   const [loadingUser, setLoadingUser] = useState(true);
   const [loadingMedotvods, setLoadingMedotvods] = useState(true);
+
+  console.log(medotvods, loadingMedotvods);
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -80,6 +88,48 @@ const ProfilePage = () => {
     fetchExemptions();
   }, []);
 
+  const handleDeleteAccount = async () => {
+    const result = await MySwal.fire({
+      title: "Вы уверены?",
+      text: "Это действие удалит все ваши данные без возможности восстановления.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#e3342f",
+      cancelButtonColor: "#6c757d",
+      confirmButtonText: "Да, удалить",
+      cancelButtonText: "Отмена",
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const res = await apiRequest({
+          url: "https://api.donor.vickz.ru/api/delete-user",
+          method: "DELETE",
+          auth: true,
+        });
+
+        if (!res.ok) throw new Error("Ошибка при удалении аккаунта");
+
+        await MySwal.fire({
+          icon: "success",
+          title: "Удалено!",
+          text: "Ваши данные были успешно удалены.",
+        });
+
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("refresh_token");
+        window.location.href = "/#/";
+      } catch (error) {
+        console.error("Ошибка удаления аккаунта:", error);
+        await MySwal.fire({
+          icon: "error",
+          title: "Ошибка",
+          text: "Не удалось удалить данные. Попробуйте позже.",
+        });
+      }
+    }
+  };
+
   return (
     <>
       <PageTopBar title="Профиль" icon={<FiUser size={20} />} />
@@ -92,97 +142,23 @@ const ProfilePage = () => {
           ) : user ? (
             <>
               <h2 className="text-2xl font-bold mb-2">ПРОФИЛЬ</h2>
-              <p className="text-sm text-white/80">ФИО: {user.fullname + " " + user.surname + " " + user.patronymic}</p>
-              <p className="text-sm text-white/80">Роль: {user.role}</p>
-              <p className="text-sm text-white/80">Телефон: {"8 (800) 555-35-35"}</p>
+              <p className="text-sm text-white/80">ФИО: {user.fsp}</p>
+              <p className="text-sm text-white/80">Телефон: {user.phone}</p>
             </>
           ) : (
             <p className="text-white/80">Не удалось загрузить профиль</p>
           )}
         </div>
 
-        {/* История донаций (заглушка пока что) */}
-        {/* <div className="bg-white rounded-xl p-5 shadow-md">
-          <h3 className="text-xl font-bold mb-3">История донаций</h3>
-          {loadingUser ? (
-            <p className="text-gray-500 text-sm">Загрузка...</p>
-          ) : user ? (
-            <>
-              <p className="text-gray-700">
-                Был донором ранее: <b>{user.donor_earlier === "YES" ? "Да" : "Нет"}</b>
-              </p>
-              <p className="text-gray-700">
-                Хронические заболевания:{" "}
-                <b>{user.chronic_disease ? "Есть" : "Нет"}</b>
-              </p>
-            </>
-          ) : (
-            <p className="text-gray-500 text-sm">Нет данных о донациях</p>
-          )}
-        </div> */}
-
-        {/* Медицинский статус */}
-        <div className="bg-white rounded-xl p-5 shadow-md">
-          {/* <h3 className="text-xl font-bold mb-3">Медицинский статус</h3>
-          {loadingUser ? (
-            <p className="text-gray-500 text-sm">Загрузка...</p>
-          ) : user ? (
-            <p
-              className={`font-semibold ${
-                user.medical_exemption ? "text-red-500" : "text-green-600"
-              }`}
-            >
-              {user.medical_exemption ? "Не допущен (есть медотвод)" : "Допущен"}
-            </p>
-          ) : (
-            <p className="text-gray-500 text-sm">Нет данных</p>
-          )} */}
-
-          {/* История медотводов */}
-          <div className="mt-4">
-            <h4 className="text-md font-semibold mb-2">История медотводов</h4>
-            {loadingMedotvods ? (
-              <p className="text-gray-500 text-sm">Загрузка...</p>
-            ) : medotvods.length === 0 ? (
-              <p className="text-gray-500 text-sm">Нет данных о медотводах</p>
-            ) : (
-              <ul className="space-y-3">
-                {medotvods.map((entry) => (
-                  <li
-                    key={entry.id}
-                    className="border border-gray-200 rounded-lg p-3 bg-gray-50"
-                  >
-                    <p className="text-sm font-medium">
-                      {entry.start_date} — {entry.end_date || "не указано"}
-                    </p>
-                    <p className="text-sm text-gray-600 italic">
-                      {entry.comment || "Без комментария"}
-                    </p>
-                    {entry.url && (
-                      <a
-                        href={entry.url}
-                        download
-                        className="text-blue-600 text-sm underline mt-1 inline-block"
-                      >
-                        Скачать справку
-                      </a>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            )}
+        {/* Удаление данных */}
+        <div className="bg-white rounded-xl p-5 shadow-md border border-red-200">
+          <div className="flex items-center gap-3 mb-3">
+            <FiTrash2 size={20} className="text-red-600" />
+            <h3 className="text-xl font-bold text-red-600">Удаление данных</h3>
           </div>
-        </div>
-
-        {/* Настройки */}
-        <div
-          onClick={() => {
-            window.location.href = "/#/settings";
-          }}
-          className="flex items-center gap-3 bg-white rounded-xl p-5 shadow-md cursor-pointer"
-        >
-          <FiSettings size={20} />
-          <p>Настройки</p>
+          <button onClick={handleDeleteAccount} className="text-red-600">
+            Удалить все мои данные
+          </button>
         </div>
       </div>
 

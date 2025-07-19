@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import { useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import AdminBottomNavBar from "../components/layouts/AdminNavBar";
 import AdminMainTopBar from "../components/layouts/AdminMainTopBar";
 import { Users, FilePlus } from "lucide-react";
@@ -7,7 +6,7 @@ import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import { FiDownload, FiSend } from "react-icons/fi";
 import TopDonors from "../components/layouts/TopDonor";
-import apiRequest from "../components/utils/apiRequest"; // убедитесь, что путь правильный
+import apiRequest from "../components/utils/apiRequest";
 
 const AdminMainPage = () => {
   const MySwal = withReactContent(Swal);
@@ -18,6 +17,12 @@ const AdminMainPage = () => {
     donations_count: 0,
     new_events_count: 0,
     ended_events_count: 0,
+  });
+
+  const [roleMetrics, setRoleMetrics] = useState({
+    users_count: 0,
+    donors_count: 0,
+    admins_count: 0,
   });
 
   useEffect(() => {
@@ -39,7 +44,30 @@ const AdminMainPage = () => {
       }
     };
 
+    const fetchRoleMetrics = async () => {
+      try {
+        const response = await apiRequest({
+          url: "https://api.donor.vickz.ru/api/get-role-metrics",
+          auth: true,
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch role metrics");
+        }
+
+        const data = await response.json();
+        setRoleMetrics({
+          users_count: data.users_count,
+          donors_count: data.donors_count,
+          admins_count: data.admins_count,
+        });
+      } catch (error) {
+        console.error("Ошибка загрузки распределения ролей:", error);
+      }
+    };
+
     fetchMetrics();
+    fetchRoleMetrics();
   }, []);
 
   const handleAddDonationsClick = () => {
@@ -125,19 +153,19 @@ const AdminMainPage = () => {
           <div className="flex items-center justify-between">
             <span>Пользователи</span>
             <span className="bg-blue-200 px-3 text-blue-800 rounded-full text-center text-sm font-medium">
-              266
+              {roleMetrics.users_count}
             </span>
           </div>
           <div className="flex items-center justify-between">
             <span>Доноры</span>
             <span className="bg-gray-200 px-3 text-gray-800 rounded-full text-center text-sm font-medium">
-              105
+              {roleMetrics.donors_count}
             </span>
           </div>
           <div className="flex items-center justify-between">
             <span>Организаторы</span>
             <span className="bg-red-200 px-3 text-red-800 rounded-full text-center text-sm font-medium">
-              12
+              {roleMetrics.admins_count}
             </span>
           </div>
         </div>
