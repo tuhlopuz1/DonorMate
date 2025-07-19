@@ -3,7 +3,7 @@ from typing import Optional
 from uuid import UUID, uuid4
 
 import inflect
-from app.models.schemas import Place, Role, UserClass
+from app.models.schemas import NotificationEnum, Place, Role, UserClass
 from sqlalchemy import (
     TIMESTAMP,
     BigInteger,
@@ -106,15 +106,18 @@ class Registration(Base):
     event: Mapped["Event"] = relationship(back_populates="registrations_list")
 
 
-class Notifications(Base):
+class Notification(Base):
     id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
     user_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("users.id", ondelete="CASCADE"))
-    type: Mapped[str] = mapped_column(String, nullable=False)
+    type: Mapped[NotificationEnum] = mapped_column(
+        Enum(NotificationEnum), nullable=False, default=NotificationEnum.INFO
+    )
+    date_to_valid: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     title: Mapped[str] = mapped_column(String, nullable=False)
     content: Mapped[str] = mapped_column(String, nullable=True)
 
 
-class Questions(Base):
+class Question(Base):
     id: Mapped[UUID] = mapped_column(Uuid, primary_key=True, default=uuid4)
     user_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("users.id", ondelete="CASCADE"))
     question: Mapped[str] = mapped_column(String, nullable=False)

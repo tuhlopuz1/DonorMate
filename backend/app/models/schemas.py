@@ -23,6 +23,12 @@ class UserClass(Enum):
     STF = "Сотрудник МИФИ"
 
 
+class NotificationEnum(Enum):
+    INFO = "INFO"
+    WARNING = "WARNING"
+    ERROR = "ERROR"
+
+
 class InitDataPayload(BaseModel):
     InitData: str
 

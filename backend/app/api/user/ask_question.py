@@ -3,7 +3,7 @@ from typing import Annotated
 from app.dependencies.checks import check_user_token
 from app.dependencies.responses import badresponse, okresponse
 from app.models.db_adapter import adapter
-from app.models.db_tables import Questions, User
+from app.models.db_tables import Question, User
 from app.models.schemas import QAPayload
 from fastapi import APIRouter, Depends
 
@@ -21,5 +21,5 @@ async def ask_question(user: Annotated[User, Depends(check_user_token)], questio
         "question": question.question,
         "answer": None,
     }
-    await adapter.insert(Questions, payload)
+    await adapter.insert(Question, payload)
     return okresponse()
