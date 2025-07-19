@@ -17,4 +17,4 @@ async def get_profile(user: Annotated[User, Depends(check_user_token)]):
 
     user_info = await adapter.get_by_id(Information, user.id)
     response_data = ProfileResponse.model_validate(user_info)
-    return ProfileResponse(**response_data)
+    return response_data
