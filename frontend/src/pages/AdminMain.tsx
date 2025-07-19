@@ -33,9 +33,7 @@ const AdminMainPage = () => {
           auth: true,
         });
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch metrics");
-        }
+        if (!response.ok) throw new Error("Failed to fetch metrics");
 
         const data = await response.json();
         setMetrics(data);
@@ -51,9 +49,7 @@ const AdminMainPage = () => {
           auth: true,
         });
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch role metrics");
-        }
+        if (!response.ok) throw new Error("Failed to fetch role metrics");
 
         const data = await response.json();
         setRoleMetrics({
@@ -82,14 +78,36 @@ const AdminMainPage = () => {
         const file = (document.getElementById("xlsxFile") as HTMLInputElement)?.files?.[0];
         if (!file) {
           Swal.showValidationMessage("Пожалуйста, выберите файл");
+          return null;
         }
         return file;
       },
-    }).then((result) => {
+    }).then(async (result) => {
       if (result.isConfirmed && result.value) {
         const file = result.value as File;
-        console.log("Загружен файл:", file.name);
-        // Здесь можно добавить логику обработки файла
+        const formData = new FormData();
+        formData.append("file", file);
+
+        try {
+          const response = await apiRequest({
+            url: "https://api.donor.vickz.ru/api/load-donations-xlsx",
+            method: "POST",
+            auth: true,
+            retry: true,
+            headers: {}, // важный момент: не указываем Content-Type, browser сам установит multipart
+            body: formData as any, // костыль, потому что `body` в apiRequest принимает Record
+          });
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Ошибка загрузки файла: ${errorText}`);
+          }
+
+          Swal.fire("Успешно", "Файл успешно загружен", "success");
+        } catch (error: any) {
+          console.error("Ошибка загрузки файла:", error);
+          Swal.fire("Ошибка", error.message || "Не удалось загрузить файл", "error");
+        }
       }
     });
   };
@@ -121,7 +139,6 @@ const AdminMainPage = () => {
         <FiSend color="white" size={23} />
       </div>
 
-      {/* Карточки статистики */}
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-2 gap-4">
         <div className="bg-white shadow rounded-2xl p-4">
           <h3 className="text-sm text-gray-500">Всего пользователей</h3>
@@ -143,7 +160,6 @@ const AdminMainPage = () => {
 
       <TopDonors />
 
-      {/* Распределение ролей */}
       <div className="bg-white shadow rounded-2xl p-4">
         <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
           <Users className="w-5 h-5 text-gray-500" />
