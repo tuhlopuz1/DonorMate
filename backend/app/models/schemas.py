@@ -120,6 +120,8 @@ class UpdateInfoPayload(BaseModel):
 class MetricsResponse(BaseModel):
     users_count: int
     donations_count: int
+    donations_fmba_count: int
+    donations_gaur_count: int
     new_events_count: int
     ended_events_count: int
 
