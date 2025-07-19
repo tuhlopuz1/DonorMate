@@ -138,6 +138,36 @@ class AsyncDatabaseAdapter:
             )
             return result.all()
 
+    async def get_by_cond(self, model, *conditions):
+        async with self.SessionLocal() as session:
+            query = select(model)
+
+            if conditions:
+                for i in range(0, len(conditions), 3):
+                    column_name = conditions[i]
+                    value = conditions[i + 1]
+                    operator = conditions[i + 2]
+
+                    column = getattr(model, column_name)
+
+                    if operator == ">":
+                        query = query.where(column > value)
+                    elif operator == "<":
+                        query = query.where(column < value)
+                    elif operator == ">=":
+                        query = query.where(column >= value)
+                    elif operator == "<=":
+                        query = query.where(column <= value)
+                    elif operator == "==":
+                        query = query.where(column == value)
+                    elif operator == "!=":
+                        query = query.where(column != value)
+                    else:
+                        raise ValueError(f"Unsupported operator: {operator}")
+
+            result = await session.execute(query)
+            return result.scalars().all()
+
     async def get_count(self, model, conditions: dict = None) -> int:
         async with self.SessionLocal() as session:
             query = select(func.count()).select_from(model)

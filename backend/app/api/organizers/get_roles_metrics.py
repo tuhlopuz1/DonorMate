@@ -18,11 +18,15 @@ async def get_role_metrics(user: Annotated[User, Depends(check_user_token)]):
         return badresponse("Forbidden", 403)
     users_count = await adapter.get_count(User)
     admins_count = await adapter.get_count_cond(User, "role", Role.ADMIN, "==")
-    donors_count = await adapter.get_count_cond(Information, "donations", 1, ">=")
-    const_donors_count = await adapter.get_count_cond(Information, "donations", 3, ">=")
+    donors_count_fmba = await adapter.get_count(Information, "donations", 1, ">=")
+    const_donors_count_fmba = await adapter.get_count_cond(Information, "donations", 3, ">=")
+    donors_count_gaur = await adapter.get_count(Information, "donations", 1, ">=")
+    const_donors_count_gaur = await adapter.get_count_cond(Information, "donations", 3, ">=")
     return RoleMetricsResponse(
         users_count=users_count,
         admins_count=admins_count,
-        donors_count=donors_count,
-        const_donors_count=const_donors_count,
+        donors_count_fmba=donors_count_fmba,
+        const_donors_count_fmba=const_donors_count_fmba,
+        donors_count_gaur=donors_count_gaur,
+        const_donors_count_gaur=const_donors_count_gaur,
     )

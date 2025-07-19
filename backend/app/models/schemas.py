@@ -23,6 +23,12 @@ class UserClass(Enum):
     STF = "Сотрудник МИФИ"
 
 
+class NotificationEnum(Enum):
+    INFO = "INFO"
+    WARNING = "WARNING"
+    ERROR = "ERROR"
+
+
 class InitDataPayload(BaseModel):
     InitData: str
 
@@ -111,15 +117,6 @@ class UpdateInfoPayload(BaseModel):
     last_don_fmba: Optional[datetime] = None
 
 
-class DonorResponse(BaseModel):
-    id: int
-    fullname: str
-    surname: str
-    patronymic: str
-    username: str
-    donations: int
-
-
 class MetricsResponse(BaseModel):
     users_count: int
     donations_count: int
@@ -130,8 +127,10 @@ class MetricsResponse(BaseModel):
 class RoleMetricsResponse(BaseModel):
     users_count: int
     admins_count: int
-    donors_count: int
-    const_donors_count: int
+    donors_count_fmba: int
+    const_donors_count_fmba: int
+    donors_count_gaur: int
+    const_donors_count_gaur: int
 
 
 class QuestionPayload(BaseModel):

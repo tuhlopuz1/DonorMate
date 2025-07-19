@@ -1,7 +1,7 @@
 from datetime import datetime
 from uuid import UUID
 
-from app.api.events.tasks import schedule_telegram_qr
+from app.api.tasks import schedule_telegram_qr
 from app.dependencies.responses import okresponse
 from app.dependencies.token_manager import TokenManager
 from fastapi import APIRouter
