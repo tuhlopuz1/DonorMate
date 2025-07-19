@@ -14,6 +14,7 @@ interface RegisteredEvent {
   end_date: string;
   created_at: string;
   is_registred: boolean;
+  place: string;
 }
 
 const AppointmentsPage = () => {

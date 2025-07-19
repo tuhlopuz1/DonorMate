@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import BottomNavBar from "../components/layouts/NavBar";
 import MainTopBar from "../components/layouts/MainTopBar";
-import { FiFileText } from "react-icons/fi";
 import { MessageCircleQuestion, Info } from "lucide-react";
 import apiRequest from "../components/utils/apiRequest";
 import EventCard from "../components/layouts/EventCard";
@@ -21,6 +20,7 @@ interface NearestEvent {
   end_date: string;
   created_at: string;
   is_registred: boolean;
+  place: string;
 }
 
 const MainPage = () => {
@@ -109,15 +109,6 @@ const MainPage = () => {
           Быстрые действия
         </p>
 
-        <div
-          onClick={() => {
-            window.location.href = "/#/add-medotvod";
-          }}
-          className="flex items-center justify-between px-6 bg-orange-400 h-20 m-4 rounded-lg cursor-pointer"
-        >
-          <p className="text-white">Добавить медицинский отвод</p>
-          <FiFileText color="white" />
-        </div>
 
         <div
           onClick={() => {

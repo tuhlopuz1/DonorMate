@@ -14,6 +14,7 @@ type EventFromServer = {
   end_date: string;
   created_at: string;
   is_registred: boolean;
+  place: string;
 };
 
 const SchedulePage = () => {
@@ -49,14 +50,14 @@ const SchedulePage = () => {
     fetchEvents();
   }, []);
 
-  const today = new Date();
+  const now = new Date();
 
   const upcomingEvents = events.filter(
-    (event) => new Date(event.start_date) >= today
+    (event) => new Date(event.end_date) >= now
   );
 
   const pastEvents = events.filter(
-    (event) => new Date(event.start_date) < today
+    (event) => new Date(event.end_date) < now
   );
 
   return (
