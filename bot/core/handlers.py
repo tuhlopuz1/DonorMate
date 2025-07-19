@@ -117,7 +117,9 @@ async def validate_phone_num(message: Message, state: FSMContext):
                     await message.answer(f"Ваше имя - {name}?", reply_markup=yes_no_kbd)
                     await state.set_state(TGRegister.FSP_CONFIRM)
                 elif resp.status == 204:
-                    await session.post("/pre-register", params={"num": cleaned_number, "id": message.chat.id})
+                    await session.post(
+                        f"{BACKEND_URL}/pre-register", params={"num": cleaned_number, "id": message.chat.id}
+                    )
                     await message.answer(
                         "Для продолжения перейдите в МиниПриложение", reply_markup=register_miniapp_kbd
                     )
@@ -138,7 +140,7 @@ async def confirm_existing_fsp(message: Message, state: FSMContext):
             await session.post(f"{BACKEND_URL}/link-number", params=data)
     elif text == "нет":
         data = await state.get_data()
-        await session.post("/pre-register", params={"num": data["num"], "id": message.chat.id})
+        await session.post(f"{BACKEND_URL}/pre-register", params={"num": data["num"], "id": message.chat.id})
         await message.answer("Для продолжения перейдите в МиниПриложение", reply_markup=register_miniapp_kbd)
         await state.clear()
     else:

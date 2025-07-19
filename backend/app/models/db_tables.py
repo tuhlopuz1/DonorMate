@@ -3,7 +3,7 @@ from typing import Optional
 from uuid import UUID, uuid4
 
 import inflect
-from app.models.schemas import Role, UserClass
+from app.models.schemas import Place, Role, UserClass
 from sqlalchemy import (
     BigInteger,
     Boolean,
@@ -76,7 +76,7 @@ class MedicalExemption(Base):
 class Event(Base):
     id: Mapped[UUID] = mapped_column(Uuid, index=True, primary_key=True, default=uuid4)
     name: Mapped[Optional[str]] = mapped_column(String, nullable=True)
-    place: Mapped[str] = mapped_column(String)
+    place: Mapped[Place] = mapped_column(Enum(Place))
     organizer: Mapped[int] = mapped_column(BigInteger, ForeignKey("users.id", ondelete="CASCADE"))
     description: Mapped[str] = mapped_column(Text, nullable=False)
     max_donors: Mapped[int] = mapped_column(Integer, nullable=False)

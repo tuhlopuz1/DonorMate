@@ -1,13 +1,13 @@
 from typing import Annotated
 
-from datetime import datetime, timedelta
 from app.dependencies.checks import check_user_token
 from app.dependencies.responses import badresponse
 from app.models.db_adapter import adapter
-from app.models.db_tables import User, Notifications
+from app.models.db_tables import Notifications, User
 from fastapi import APIRouter, Depends
 
 router = APIRouter()
+
 
 @router.get("/get-notifications-for-user")
 async def get_notifications_for_users(user: Annotated[User, Depends(check_user_token)]):

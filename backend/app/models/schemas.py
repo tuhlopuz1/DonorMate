@@ -42,41 +42,13 @@ class PostRegisterPayload(BaseModel):
     user_class: UserClass
 
 
-#     surname: str
-#     patronymic: Optional[str] = None
-#     birth_date: date
-#     gender: Gender
-#     university: Optional[str] = None
-#     group: Optional[str] = None
-#     weight: int
-#     chronic_disease: bool
-#     medical_exemption: bool
-#     donor_earlier: DonorEarlier
-#     feedback: Optional[str] = None
-
-
 class ProfileResponse(BaseModel):
-    user_id: int
-
-
-#     username: Optional[str] = None
-#     tg_name: Optional[str] = None
-#     role: Role
-#     created_at: datetime
-#     fullname: Optional[str] = None
-#     surname: Optional[str] = None
-#     patronymic: Optional[str] = None
-#     birth_date: Optional[date] = None
-#     gender: Optional[Gender] = Gender.UNDEFINED
-#     university: Optional[str] = None
-#     group: Optional[str] = None
-#     weight: Optional[int] = None
-#     chronic_disease: Optional[bool] = None
-#     medical_exemption: Optional[bool] = None
-#     donor_earlier: Optional[DonorEarlier] = None
-#     donations: Optional[int] = None
-
-#     model_config = {"from_attributes": True}
+    id: int
+    phone: str
+    fsp: str
+    group: str
+    user_class: UserClass
+    donations: int
 
 
 class EventPayload(BaseModel):
