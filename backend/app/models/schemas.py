@@ -30,6 +30,7 @@ class InitDataPayload(BaseModel):
 class TokensResponse(BaseModel):
     access: str
     refresh: str
+    role: Role
 
 
 class RefreshResponse(BaseModel):
