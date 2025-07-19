@@ -136,7 +136,7 @@ const AdminEventPage: React.FC = () => {
 
       <AdminEventCard event={event} totalSpots={20} />
 
-      {isToday(event.start_date) && event.is_registred ? (
+      {isToday(event.start_date) ? (
         <div onClick={() => {window.location.href = '/#/admin/scanner'}} className="flex justify-between items-center mt-6 bg-blue-600 text-white px-4 py-2 rounded-xl text-sm">
           <p>Отметить участника по QR-коду</p>
           <ScanLine />
