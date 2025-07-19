@@ -23,7 +23,7 @@ const AdminReportPage = () => {
     try {
       setLoading(true);
       const response = await apiRequest({
-        url: "https://api.donor.vickz.ru/api/ask-question",
+        url: "https://api.donor.vickz.ru/api/get-all-questions",
         method: "GET",
         auth: true,
       });
