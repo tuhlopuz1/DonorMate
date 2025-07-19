@@ -10,7 +10,7 @@ from fastapi import APIRouter, Depends, File, UploadFile
 router = APIRouter()
 
 
-@router.post("/load-xlsx")
+@router.post("/load-users-xlsx")
 async def load_xlsx(user: Annotated[User, Depends(check_user_token)], file: UploadFile = File(...)):
     try:
         if not user:
