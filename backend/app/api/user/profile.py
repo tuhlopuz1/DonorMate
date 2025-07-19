@@ -15,12 +15,11 @@ async def get_profile(user: Annotated[User, Depends(check_user_token)]):
     if not user:
         return badresponse("Unauthorized", 401)
 
-    user_info = await adapter.get_by_id(Information, user.id)
+    user_info = await adapter.get_by_value(Information,"phone", user.phone)
 
     response_data = {
         "user_id": user.id,
-        "username": user.username,
-        "tg_name": user.telegram_name,
+        "phone": user.phone,
         "role": user.role,
         "created_at": user.created_at,
     }

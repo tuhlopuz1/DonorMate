@@ -20,5 +20,5 @@ async def get_deep_analytics(
         return badresponse("Unauthorized", 401)
     if user.role != Role.ADMIN:
         return badresponse("You are not an admin", 403)
-    file_path = await generate_organizer_report(adapter, str(user.id))
+    file_path = await generate_organizer_report(adapter, int(user.id))
     return FileResponse(file_path, media_type="application/pdf", filename="analytics.pdf", status_code=200)
