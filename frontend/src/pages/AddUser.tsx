@@ -76,7 +76,6 @@ const AddUserPage = () => {
     }
 
     const userData = {
-      id: 0,
       phone: parseInt(cleanedPhone),
       fsp: fullName,
       group: group,
