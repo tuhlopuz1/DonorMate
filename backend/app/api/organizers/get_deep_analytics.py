@@ -24,5 +24,5 @@ async def get_deep_analytics(
         return badresponse("You are not an admin", 403)
     file_path = await generate_organizer_report(adapter)
     s3 = S3HttpxSigV4Adapter("privacy-policy")
-    url = await s3.upload_file(file_path, object_name=f"{uuid4}.pdf")
-    return url
+    url = await s3.upload_file(file_path, object_name=f"{uuid4()}.pdf")
+    return {"url": url}
