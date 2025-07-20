@@ -1,0 +1,188 @@
+import { useState, useEffect } from "react";
+import AdminBottomNavBar from "../components/layouts/AdminNavBar";
+import AdminMainTopBar from "../components/layouts/AdminMainTopBar";
+import { FiUserPlus } from "react-icons/fi";
+import apiRequest from "../components/utils/apiRequest";
+
+interface User {
+  id: number;
+  phone: number;
+  fsp: string;
+  group: string;
+  user_class: string;
+  donations: number;
+}
+
+interface RoleMetrics {
+  users_count: number;
+  admins_count: number;
+  donors_count: number;
+  const_donors_count: number;
+}
+
+const AdminUsersPage = () => {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [metrics, setMetrics] = useState<RoleMetrics | null>(null);
+
+  const handleSearch = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const response = await apiRequest({
+        url: "https://api.donor.vickz.ru/api/find-user",
+        method: "GET",
+        params: { fsp: searchQuery },
+        auth: true,
+      });
+
+      if (!response.ok) {
+        throw new Error("Ошибка при получении данных");
+      }
+
+      const data: User[] = await response.json();
+      setUsers(data);
+    } catch (err: any) {
+      setError(err.message || "Ошибка");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchMetrics = async () => {
+    try {
+      const response = await apiRequest({
+        url: "https://api.donor.vickz.ru/api/get-role-metrics",
+        method: "GET",
+        auth: true,
+      });
+
+      if (!response.ok) {
+        throw new Error("Ошибка при получении статистики");
+      }
+
+      const data: RoleMetrics = await response.json();
+      setMetrics(data);
+    } catch (err: any) {
+      console.error("Ошибка загрузки метрик:", err.message);
+    }
+  };
+
+  useEffect(() => {
+    fetchMetrics();
+  }, []);
+
+  useEffect(() => {
+    if (searchQuery.trim() === "") {
+      setUsers([]);
+    }
+  }, [searchQuery]);
+
+  return (
+    <div className="p-4 pb-20 pt-12 space-y-6">
+      <AdminMainTopBar />
+
+      {/* Верхняя панель */}
+      {/* <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-red-500 shadow rounded-2xl p-5">
+        <div className="flex items-center gap-3">
+          <p className="text-lg font-bold text-white">Экспорт данных в XLSX</p>
+          <FiDownload color="white" size={23} />
+        </div>
+      </div> */}
+
+      <button
+        onClick={() => {
+          window.location.href = "/#/admin/add-user";
+        }}
+        className="flex items-center shadow w-full gap-2 bg-white text-red-600 font-medium px-4 py-2 rounded-xl hover:bg-red-100 transition"
+      >
+        <FiUserPlus size={18} />
+        Добавить пользователя
+      </button>
+
+      {/* Карточки статистики */}
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-2 gap-4">
+        <div className="bg-white shadow rounded-2xl p-4">
+          <h3 className="text-sm text-gray-500">Всего пользователей</h3>
+          <div className="text-2xl font-bold text-blue-600">
+            {metrics ? metrics.users_count : "-"}
+          </div>
+        </div>
+        <div className="bg-white shadow rounded-2xl p-4">
+          <h3 className="text-sm text-gray-500">Доноры</h3>
+          <div className="text-2xl font-bold text-green-600">
+            {metrics ? metrics.donors_count : "-"}
+          </div>
+        </div>
+        <div className="bg-white shadow rounded-2xl p-4">
+          <h3 className="text-sm text-gray-500">Постоянные доноры</h3>
+          <div className="text-2xl font-bold text-purple-600">
+            {metrics ? metrics.const_donors_count : "-"}
+          </div>
+        </div>
+        <div className="bg-white shadow rounded-2xl p-4">
+          <h3 className="text-sm text-gray-500">Организаторы</h3>
+          <div className="text-2xl font-bold text-orange-600">
+            {metrics ? metrics.admins_count : "-"}
+          </div>
+        </div>
+      </div>
+
+      {/* Поиск */}
+      <div className="bg-white shadow rounded-2xl p-4">
+        <p className="text-lg font-sans font-bold mb-5">Поиск</p>
+        <div className="flex gap-3">
+          <input
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+            placeholder="Поиск по имени, tg username"
+          />
+          <button
+            onClick={handleSearch}
+            className="bg-red-500 text-white px-4 py-2 rounded-xl hover:bg-red-600 transition text-sm font-semibold"
+          >
+            Найти
+          </button>
+        </div>
+      </div>
+
+      {/* Результаты поиска */}
+      {loading && <p>Загрузка...</p>}
+      {error && <p className="text-red-500">{error}</p>}
+      {!loading && users.length > 0 && (
+        <div className="bg-white shadow rounded-2xl p-4">
+          <p className="text-lg font-bold mb-4">Результаты поиска</p>
+          <table className="min-w-full table-auto text-left text-sm">
+            <thead>
+              <tr className="text-gray-600 border-b">
+                <th className="py-2">ID</th>
+                <th className="py-2">Телефон</th>
+              </tr>
+            </thead>
+            <tbody>
+              {users.map((user) => (
+                <tr
+                  onClick={() =>
+                    (window.location.href = "/#/admin/user/" + user.phone)
+                  }
+                  key={user.id}
+                  className="border-b hover:bg-gray-50 cursor-pointer"
+                >
+                  <td className="py-2">{user.id}</td>
+                  <td className="py-2">{user.phone}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      <AdminBottomNavBar />
+    </div>
+  );
+};
+
+export default AdminUsersPage;
