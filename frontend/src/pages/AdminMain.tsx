@@ -112,35 +112,45 @@ const AdminMainPage = () => {
     });
   };
 
-  const handleDownloadReport = async () => {
-    try {
-      const response = await apiRequest({
-        url: "https://api.donor.vickz.ru/api/get-deep-analytics",
-        method: "GET",
-        auth: true,
-        retry: true,
-        headers: {}, // content-type не нужен, т.к. это blob
-      });
+ const handleDownloadReport = async () => {
+  try {
+    const response = await apiRequest({
+      url: "https://api.donor.vickz.ru/api/get-deep-analytics",
+      method: "GET",
+      auth: true,
+      retry: true,
+      headers: {},
+    });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Ошибка получения отчёта: ${errorText}`);
-      }
-
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "deep-analytics-report.xlsx";
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      window.URL.revokeObjectURL(url);
-    } catch (error: any) {
-      console.error("Ошибка при скачивании отчета:", error);
-      Swal.fire("Ошибка", error.message || "Не удалось скачать отчёт", "error");
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Ошибка получения отчёта: ${errorText}`);
     }
-  };
+
+    const data = await response.json();
+
+    if (!data?.url) {
+      throw new Error("Сервер не вернул ссылку на файл");
+    }
+
+    const fileUrl = data.url;
+
+    Swal.fire({
+      title: "Отчёт готов",
+      html: `<a href="${fileUrl}" target="_blank" rel="noopener noreferrer" style="font-weight:bold;">📄 Скачать отчёт</a>`,
+      icon: "success",
+      showConfirmButton: false,
+    });
+  } catch (error: any) {
+    console.error("Ошибка при получении ссылки на отчёт:", error);
+    Swal.fire("Ошибка", error.message || "Не удалось получить ссылку на отчёт", "error");
+  }
+};
+;
+;
+;
+
+
 
   return (
     <div className="p-4 pb-20 pt-12 space-y-6">

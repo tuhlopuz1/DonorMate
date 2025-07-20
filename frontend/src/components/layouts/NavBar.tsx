@@ -1,4 +1,4 @@
-import { FiHome, FiCalendar, FiClipboard, FiUser } from 'react-icons/fi';
+import { FiHome, FiCalendar, FiUser } from 'react-icons/fi';
 import React from 'react';
 
 type NavButtonProps = {
@@ -43,12 +43,12 @@ export default function BottomNavBar() {
           active={current.includes('#/schedule')}
           onClick={() => (window.location.href = '#/schedule')}
         />
-        <NavButton
+        {/* <NavButton
           label="Мои записи"
           Icon={FiClipboard}
           active={current.includes('#/appointments')}
           onClick={() => (window.location.href = '#/appointments')}
-        />
+        /> */}
         <NavButton
           label="Профиль"
           Icon={FiUser}
