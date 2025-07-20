@@ -39,12 +39,18 @@ const MainPage = () => {
           auth: true,
         });
 
-        if (!res.ok) throw new Error("Ошибка при получении профиля");
 
+
+
+        
+        if (!res.ok) throw new Error("Ошибка при получении профиля");
+        
         const data: UserProfile = await res.json();
         localStorage.setItem("phone", data.phone.toString());
         setUser(data);
-      } catch (error) {
+    } catch (error) {
+        localStorage.clear()
+        window.location.href = '/#/welcome'
         console.error("Ошибка загрузки профиля:", error);
       } finally {
         setLoadingUser(false);
@@ -73,7 +79,7 @@ const MainPage = () => {
         setLoadingEvent(false);
       }
     };
-
+    console.log(12312313)
     fetchUserProfile();
     fetchNearestEvent();
   }, []);

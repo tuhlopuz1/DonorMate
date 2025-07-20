@@ -4,7 +4,7 @@ import AdminMainTopBar from "../components/layouts/AdminMainTopBar";
 import { Users, FilePlus } from "lucide-react";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
-import { FiDownload, FiSend } from "react-icons/fi";
+import { FiFileText, FiSend } from "react-icons/fi";
 import TopDonors from "../components/layouts/TopDonor";
 import apiRequest from "../components/utils/apiRequest";
 
@@ -112,8 +112,18 @@ const AdminMainPage = () => {
     });
   };
 
- const handleDownloadReport = async () => {
+const handleDownloadReport = async () => {
   try {
+    // Показываем модальное окно с лоадером
+    Swal.fire({
+      title: "Генерация отчёта...",
+      text: "Пожалуйста, подождите",
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
+
     const response = await apiRequest({
       url: "https://api.donor.vickz.ru/api/get-deep-analytics",
       method: "GET",
@@ -135,9 +145,10 @@ const AdminMainPage = () => {
 
     const fileUrl = data.url;
 
+    // Показываем результат с ссылкой
     Swal.fire({
       title: "Отчёт готов",
-      html: `<a href="${fileUrl}" target="_blank" rel="noopener noreferrer" style="font-weight:bold;">📄 Скачать отчёт</a>`,
+      html: `<p>📄 Ссылка на отчёт</p> <p color="blue">${fileUrl}</p>`,
       icon: "success",
       showConfirmButton: false,
     });
@@ -146,9 +157,7 @@ const AdminMainPage = () => {
     Swal.fire("Ошибка", error.message || "Не удалось получить ссылку на отчёт", "error");
   }
 };
-;
-;
-;
+
 
 
 
@@ -169,7 +178,7 @@ const AdminMainPage = () => {
         className="flex mt-6 mx-4 gap-3 items-center justify-between bg-red-500 shadow rounded-2xl p-5 cursor-pointer"
       >
         <p className="text-lg font-bold text-white">Подробный отчёт</p>
-        <FiDownload color="white" size={23} />
+        <FiFileText color="white" size={23} />
       </div>
 
       <div
